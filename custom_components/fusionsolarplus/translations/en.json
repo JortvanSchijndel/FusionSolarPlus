@@ -10,7 +10,7 @@
           "password": "Password"
         }
       },
-      "select_type": {
+      "choose_type": {
         "title": "Device Type",
         "description": "What would you like to set up?",
         "data": {
