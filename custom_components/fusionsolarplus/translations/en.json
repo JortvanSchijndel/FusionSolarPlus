@@ -33,7 +33,8 @@
       }
     },
     "error": {
-      "fetch_error": "Failed to fetch devices. Try again later.",
+      "invalid_auth": "Invalid username or password.",
+      "fetch_error": "Failed to fetch devices.",
       "unknown": "Unknown error occurred."
     },
     "abort": {
