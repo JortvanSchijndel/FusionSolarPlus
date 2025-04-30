@@ -46,7 +46,9 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_select_device(self, user_input=None) -> FlowResult:
         if not self.device_options:
             try:
-                client = FusionSolarClient(self.username, self.password)
+                client = await self.hass.async_add_executor_job(
+                    FusionSolarClient, self.username, self.password
+                )
 
                 device_options = {}
 
