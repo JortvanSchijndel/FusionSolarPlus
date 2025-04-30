@@ -1,6 +1,7 @@
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
+from fusion_solar_py.client import FusionSolarClient
 import logging
 
 from .const import (
@@ -60,13 +61,40 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_select_device(self, user_input=None):
         if not self.device_options:
             try:
-                # TODO: Replace this block with actual API calls
-                # using self.username / self.password
-                # Fetch list of devices or plants
-                self.device_options = {
-                    "Mock Inverter 1 (ID: 123456)": "123456",
-                    "Mock Inverter 2 (ID: 654321)": "654321"
-                }
+                client = FusionSolarClient(self.username, self.password)
+
+                device_options = {}
+
+                # Fetch Plants
+                if self.device_type == DEVICE_TYPE_PLANT:
+                    response = client.get_plants()
+                    if response:
+                        for device in response:
+                            if device['type'] == 'Inverter':
+                                device_dn = device['deviceDn']
+                                device_options[f"Inverter (ID: {device_dn})"] = device_dn
+                    else:
+                        _LOGGER.error("Failed to fetch plants")
+                        return self.async_abort(reason="fetch_error")
+
+                # Fetch Inverters
+                elif self.device_type == DEVICE_TYPE_INVERTER:
+                    response = client.get_inverters()
+                    if response:
+                        for device in response:
+                            if device['type'] == 'Inverter':
+                                device_dn = device['deviceDn']
+                                device_options[f"Inverter (ID: {device_dn})"] = device_dn
+                    else:
+                        _LOGGER.error("Failed to fetch inverters")
+                        return self.async_abort(reason="fetch_error")
+
+                else:
+                    _LOGGER.error("No devices found")
+                    return self.async_abort(reason="no_devices")
+
+                self.device_options = device_options
+
             except Exception as e:
                 _LOGGER.exception("Failed to fetch device list")
                 return self.async_abort(reason="fetch_error")
@@ -91,3 +119,5 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             }),
             errors={}
         )
+
+

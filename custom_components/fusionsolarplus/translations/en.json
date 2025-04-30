@@ -18,10 +18,10 @@
         }
       },
       "select_device": {
-        "title": "Select Device",
-        "description": "Choose a device from your account.",
+        "title": "Select Inverter",
+        "description": "Choose an inverter from your account.",
         "data": {
-          "device_name": "Device"
+          "device_name": "Inverter"
         }
       }
     },
