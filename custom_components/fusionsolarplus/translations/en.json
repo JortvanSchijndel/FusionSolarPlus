@@ -1,0 +1,36 @@
+{
+  "title": "FusionSolarPlus",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Login to FusionSolar",
+        "description": "Enter your FusionSolar credentials.",
+        "data": {
+          "username": "Username",
+          "password": "Password"
+        }
+      },
+      "select_type": {
+        "title": "Device Type",
+        "description": "What would you like to set up?",
+        "data": {
+          "device_type": "Device Type"
+        }
+      },
+      "select_device": {
+        "title": "Select Device",
+        "description": "Choose a device from your account.",
+        "data": {
+          "device_name": "Device"
+        }
+      }
+    },
+    "error": {
+      "fetch_error": "Failed to fetch devices. Try again later.",
+      "unknown": "Unknown error occurred."
+    },
+    "abort": {
+      "fetch_error": "Could not fetch device list from FusionSolar."
+    }
+  }
+}

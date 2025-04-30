@@ -1,6 +1,5 @@
 {
   "name": "FusionSolarPlus",
   "documentation": "https://github.com/jortvanschijndel/fusionsolarplus",
-  "repository": "jortvanschijndel/fusionsolarplus",
-  "homeassistant": "0.0.1"
+  "repository": "jortvanschijndel/fusionsolarplus"
 }

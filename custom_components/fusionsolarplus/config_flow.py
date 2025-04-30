@@ -60,20 +60,13 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_select_device(self, user_input=None):
         if not self.device_options:
             try:
-                # ============================
-                # TODO: Fetch device options here
-                # ============================
-                # Use self.username and self.password to authenticate,
-                # then fetch either:
-                # - a dict of { "Display Name": "device_id" } for inverters, or
-                # - a dict of { "Plant Name": "plant_id" } for plants.
-                #
-                # For example:
-                # self.device_options = {
-                #     "Inverter A (12345)": "12345",
-                #     "Inverter B (67890)": "67890"
-                # }
-                raise NotImplementedError("Fetch device/plant options here.")
+                # TODO: Replace this block with actual API calls
+                # using self.username / self.password
+                # Fetch list of devices or plants
+                self.device_options = {
+                    "Mock Inverter 1 (ID: 123456)": "123456",
+                    "Mock Inverter 2 (ID: 654321)": "654321"
+                }
             except Exception as e:
                 _LOGGER.exception("Failed to fetch device list")
                 return self.async_abort(reason="fetch_error")
