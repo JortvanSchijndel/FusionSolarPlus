@@ -39,7 +39,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input:
             self.username = user_input[CONF_USERNAME]
             self.password = user_input[CONF_PASSWORD]
-            return await self.async_step_select_device()
+            return await self.async_step_choose_type()
 
         return self.async_show_form(
             step_id="user",
@@ -52,7 +52,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_choose_type(self, user_input=None) -> FlowResult:
         if user_input is not None:
             self.device_type = DEVICE_TYPE_OPTIONS[user_input["type"]]
-            return await self.async_step_choose_type()
+            return await self.async_step_select_device()
 
         return self.async_show_form(
             step_id="choose_type",
@@ -76,7 +76,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     response = await self.hass.async_add_executor_job(client.get_device_ids)
                     if response:
                         for device in response:
-                            if device['type'] == 'Plant':
+                            if device['type'] == 'Inverter':
                                 device_dn = device['deviceDn']
                                 device_options[f"Plant (ID: {device_dn})"] = device_dn
                     else:
@@ -95,7 +95,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         return self.async_abort(reason="fetch_error")
 
                 else:
-                    _LOGGER.error("No devices found")
+                    _LOGGER.error("Unknown device type or no devices found")
                     return self.async_abort(reason="no_devices")
 
                 self.device_options = device_options
