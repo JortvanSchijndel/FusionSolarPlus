@@ -14,11 +14,12 @@ from custom_components.fusionsolarplus.const import (
     CONF_DEVICE_NAME
 )
 from fusion_solar_py.client import FusionSolarClient
+from fusion_solar_py.exceptions import AuthenticationException
 
 _LOGGER = logging.getLogger(__name__)
 
-DEVICE_TYPE_PLANT = "plant"
-DEVICE_TYPE_INVERTER = "inverter"
+DEVICE_TYPE_PLANT = "Plant"
+DEVICE_TYPE_INVERTER = "Inverter"
 
 DEVICE_TYPE_OPTIONS = {
     "Plant": DEVICE_TYPE_PLANT,
@@ -35,31 +36,49 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.device_type = None
         self.device_options = {}
 
+
+
     async def async_step_user(self, user_input=None) -> FlowResult:
+        errors = {}
         if user_input:
             self.username = user_input[CONF_USERNAME]
             self.password = user_input[CONF_PASSWORD]
-            return await self.async_step_choose_type()
+
+            try:
+
+                await self.hass.async_add_executor_job(
+                    FusionSolarClient, self.username, self.password
+                )
+            except AuthenticationException:
+                errors["base"] = "invalid_auth"
+            except Exception as e:
+                _LOGGER.exception("Unexpected error during authentication")
+                errors["base"] = "unknown"
+
+            if not errors:
+                return await self.async_step_choose_type()
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
                 vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_PASSWORD): str,
-            })
+            }),
+            errors=errors,
         )
 
     async def async_step_choose_type(self, user_input=None) -> FlowResult:
+        errors = {}
         if user_input is not None:
-            self.device_type = DEVICE_TYPE_OPTIONS[user_input["type"]]
+            self.device_type = DEVICE_TYPE_OPTIONS[user_input[CONF_DEVICE_TYPE]]
             return await self.async_step_select_device()
 
         return self.async_show_form(
             step_id="choose_type",
             data_schema=vol.Schema({
-                vol.Required("type"): vol.In(DEVICE_TYPE_OPTIONS),
+                vol.Required(CONF_DEVICE_TYPE): vol.In(DEVICE_TYPE_OPTIONS),
             }),
-            errors={},
+            errors=errors,
         )
 
     async def async_step_select_device(self, user_input=None) -> FlowResult:

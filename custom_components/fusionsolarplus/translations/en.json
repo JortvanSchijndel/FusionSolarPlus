@@ -17,11 +17,18 @@
           "device_type": "Device Type"
         }
       },
-      "select_device": {
+      "select_inverter": {
         "title": "Select Inverter",
         "description": "Choose an inverter from your account.",
         "data": {
           "device_name": "Inverter"
+        }
+      },
+      "select_plant": {
+        "title": "Select Plant",
+        "description": "Choose an plant from your account.",
+        "data": {
+          "device_name": "Plant"
         }
       }
     },

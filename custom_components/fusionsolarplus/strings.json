@@ -1,0 +1,5 @@
+"error": {
+  "invalid_auth": "Invalid username or password.",
+  "fetch_error": "Failed to fetch devices. Try again later.",
+  "unknown": "Unknown error occurred."
+}
