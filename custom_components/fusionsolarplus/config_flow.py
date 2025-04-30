@@ -17,8 +17,14 @@ from fusion_solar_py.client import FusionSolarClient
 
 _LOGGER = logging.getLogger(__name__)
 
-DEVICE_TYPE_PLANT = 'plant'
-DEVICE_TYPE_INVERTER = 'inverter'
+DEVICE_TYPE_PLANT = "plant"
+DEVICE_TYPE_INVERTER = "inverter"
+
+DEVICE_TYPE_OPTIONS = {
+    "Plant": DEVICE_TYPE_PLANT,
+    "Inverter": DEVICE_TYPE_INVERTER,
+}
+
 
 class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     device_options = {}
@@ -41,6 +47,19 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_PASSWORD): str,
             })
+        )
+
+    async def async_step_choose_type(self, user_input=None) -> FlowResult:
+        if user_input is not None:
+            self.device_type = DEVICE_TYPE_OPTIONS[user_input["type"]]
+            return await self.async_step_choose_type()
+
+        return self.async_show_form(
+            step_id="choose_type",
+            data_schema=vol.Schema({
+                vol.Required("type"): vol.In(DEVICE_TYPE_OPTIONS),
+            }),
+            errors={},
         )
 
     async def async_step_select_device(self, user_input=None) -> FlowResult:
