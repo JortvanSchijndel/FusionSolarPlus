@@ -47,7 +47,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
 
                 await self.hass.async_add_executor_job(
-                    FusionSolarClient, self.username, self.password, "captcha_model_path='./captcha_huawei.onnx'"
+                    FusionSolarClient, self.username, self.password, captcha_model_path="./captcha_huawei.onnx"
                 )
             except AuthenticationException:
                 errors["base"] = "invalid_auth"
