@@ -1,0 +1,11 @@
+{
+  "domain": "fusionsolarplus",
+  "name": "FusionSolarPlus",
+  "version": "0.0.1",
+  "config_flow": true,
+  "documentation": "https://github.com/JortvanSchijndel/FusionSolarPlus",
+  "requirements": ["fusion-solar-py"],
+  "dependencies": [],
+  "codeowners": ["@jortvanschijndel"],
+  "iot_class": "cloud_polling"
+}
