@@ -1,25 +1,27 @@
+import logging
+import asyncio
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.core import callback
-from fusion_solar_py.client import FusionSolarClient
-import logging
-
-from .const import (
+from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
+from homeassistant.core import HomeAssistant
+from homeassistant.data_entry_flow import FlowResult
+from custom_components.fusionsolarplus.const import (
     DOMAIN,
     CONF_USERNAME,
     CONF_PASSWORD,
     CONF_DEVICE_TYPE,
     CONF_DEVICE_ID,
-    CONF_DEVICE_NAME,
+    CONF_DEVICE_NAME
 )
+from fusion_solar_py.client import FusionSolarClient
 
 _LOGGER = logging.getLogger(__name__)
 
-DEVICE_TYPE_PLANT = "plant"
-DEVICE_TYPE_INVERTER = "inverter"
+DEVICE_TYPE_PLANT = 'plant'
+DEVICE_TYPE_INVERTER = 'inverter'
 
 class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    VERSION = 1
+    device_options = {}
 
     def __init__(self):
         self.username = None
@@ -27,59 +29,41 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.device_type = None
         self.device_options = {}
 
-    async def async_step_user(self, user_input=None):
-        if user_input is not None:
+    async def async_step_user(self, user_input=None) -> FlowResult:
+        if user_input:
             self.username = user_input[CONF_USERNAME]
             self.password = user_input[CONF_PASSWORD]
-            return await self.async_step_select_type()
+            return await self.async_step_select_device()
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema({
                 vol.Required(CONF_USERNAME): str,
                 vol.Required(CONF_PASSWORD): str,
-            }),
-            errors={}
+            })
         )
 
-    async def async_step_select_type(self, user_input=None):
-        if user_input is not None:
-            self.device_type = user_input[CONF_DEVICE_TYPE]
-            return await self.async_step_select_device()
-
-        return self.async_show_form(
-            step_id="select_type",
-            data_schema=vol.Schema({
-                vol.Required(CONF_DEVICE_TYPE): vol.In({
-                    DEVICE_TYPE_INVERTER: "Inverter",
-                    DEVICE_TYPE_PLANT: "Plant"
-                })
-            }),
-            errors={}
-        )
-
-    async def async_step_select_device(self, user_input=None):
+    async def async_step_select_device(self, user_input=None) -> FlowResult:
         if not self.device_options:
             try:
                 client = FusionSolarClient(self.username, self.password)
 
                 device_options = {}
 
-                # Fetch Plants
+                # Fetch devices
                 if self.device_type == DEVICE_TYPE_PLANT:
-                    response = client.get_plants()
+                    response = await self.hass.async_add_executor_job(client.get_device_ids)
                     if response:
                         for device in response:
-                            if device['type'] == 'Inverter':
+                            if device['type'] == 'Plant':
                                 device_dn = device['deviceDn']
-                                device_options[f"Inverter (ID: {device_dn})"] = device_dn
+                                device_options[f"Plant (ID: {device_dn})"] = device_dn
                     else:
                         _LOGGER.error("Failed to fetch plants")
                         return self.async_abort(reason="fetch_error")
 
-                # Fetch Inverters
                 elif self.device_type == DEVICE_TYPE_INVERTER:
-                    response = client.get_inverters()
+                    response = await self.hass.async_add_executor_job(client.get_device_ids)
                     if response:
                         for device in response:
                             if device['type'] == 'Inverter':
@@ -119,5 +103,3 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             }),
             errors={}
         )
-
-
