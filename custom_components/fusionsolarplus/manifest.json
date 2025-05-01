@@ -4,7 +4,12 @@
   "version": "0.0.1",
   "config_flow": true,
   "documentation": "https://github.com/JortvanSchijndel/FusionSolarPlus",
-  "requirements": ["fusion-solar-py[captcha]"],
+  "requirements": ["fusion-solar-py",
+                    "beautifulsoup4",
+                    "numpy",
+                    "onnxruntime",
+                    "opencv-python-headless"
+                  ],
   "dependencies": [],
   "codeowners": ["@jortvanschijndel"],
   "iot_class": "cloud_polling"
