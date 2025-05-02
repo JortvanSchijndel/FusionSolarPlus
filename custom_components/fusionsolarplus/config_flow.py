@@ -14,8 +14,8 @@ from custom_components.fusionsolarplus.const import (
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME
 )
-from api.fusion_solar_py.client import FusionSolarClient
-from api.fusion_solar_py.exceptions import AuthenticationException
+from .api.fusion_solar_py.client import FusionSolarClient
+from .api.fusion_solar_py.exceptions import AuthenticationException
 
 _LOGGER = logging.getLogger(__name__)
 
