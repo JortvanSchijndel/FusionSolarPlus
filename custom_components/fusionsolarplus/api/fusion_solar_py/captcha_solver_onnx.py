@@ -18,11 +18,13 @@ class Solver(GenericSolver):
         pass
 
     def save_image_to_disk(self, img_bytes, filename):
-        # Convert byte data to a Pillow Image
         img = Image.open(BytesIO(img_bytes))
 
-        # Save the image to disk
-        img.save(filename)
+        # Save relative to this file
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        save_path = os.path.join(base_dir, filename)
+
+        img.save(save_path)
 
     def solve_captcha(self, img_bytes):
         # Save image to disk before processing
