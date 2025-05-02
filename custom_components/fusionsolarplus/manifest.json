@@ -5,8 +5,9 @@
   "config_flow": true,
   "documentation": "https://github.com/JortvanSchijndel/FusionSolarPlus",
   "requirements": ["fusion-solar-py",
-                    "beautifulsoup4",
-                    "numpy"
+                    "gradio_client",
+                    "Pillow",
+
                   ],
   "dependencies": [],
   "codeowners": ["@jortvanschijndel"],

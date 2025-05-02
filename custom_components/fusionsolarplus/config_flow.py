@@ -15,8 +15,8 @@ from custom_components.fusionsolarplus.const import (
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME
 )
-from fusion_solar_py.client import FusionSolarClient
-from fusion_solar_py.exceptions import AuthenticationException
+from api.fusion_solar_py.client import FusionSolarClient
+from api.fusion_solar_py.exceptions import AuthenticationException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -42,50 +42,6 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None) -> FlowResult:
         errors = {}
-
-        # Install requirements for captcha
-        try:
-            # First dependency: py3-onnxruntime-pyc
-            cmd1 = "apk add py3-onnxruntime-pyc"
-            _LOGGER.warning("Running command: %s", cmd1)  # Log the actual command being run
-            proc1 = await asyncio.create_subprocess_shell(
-                cmd1,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            stdout1, stderr1 = await proc1.communicate()
-
-            # Log the results of the first command
-            _LOGGER.warning("apk add py3-onnxruntime-pyc stdout:\n%s", stdout1.decode())  # Log stdout
-            _LOGGER.warning("apk add py3-onnxruntime-pyc stderr:\n%s", stderr1.decode())  # Log stderr if any
-
-            if proc1.returncode != 0:
-                _LOGGER.warning("Failed to install py3-onnxruntime-pyc. Return code: %s", proc1.returncode)
-            else:
-                _LOGGER.warning("Successfully installed py3-onnxruntime-pyc.")
-
-            # Second dependency: py3-opencv
-            cmd2 = "apk add py3-opencv"
-            _LOGGER.warning("Running command: %s", cmd2)  # Log the actual command being run
-            proc2 = await asyncio.create_subprocess_shell(
-                cmd2,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
-            )
-            stdout2, stderr2 = await proc2.communicate()
-
-            # Log the results of the second command
-            _LOGGER.warning("apk add py3-opencv stdout:\n%s", stdout2.decode())  # Log stdout
-            _LOGGER.warning("apk add py3-opencv stderr:\n%s", stderr2.decode())  # Log stderr if any
-
-            if proc2.returncode != 0:
-                _LOGGER.warning("Failed to install py3-opencv. Return code: %s", proc2.returncode)
-            else:
-                _LOGGER.warning("Successfully installed py3-opencv.")
-
-        except Exception as e:
-            _LOGGER.warning("Failed to install dependencies: %s", str(e))
-
 
         if user_input:
             self.username = user_input[CONF_USERNAME]
