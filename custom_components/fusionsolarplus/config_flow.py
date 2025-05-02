@@ -45,16 +45,24 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Install requirements for captcha
         try:
+            cmd = (
+                "echo 'https://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && "
+                "apk update && apk add py3-onnxruntime-pyc py3-opencv"
+            )
+            _LOGGER.warning("Running dependency install command: %s", cmd)
             proc = await asyncio.create_subprocess_shell(
-                "echo 'https://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && apk update && apk add py3-onnxruntime-pyc py3-opencv",
+                cmd,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
             stdout, stderr = await proc.communicate()
+            _LOGGER.warning("Dependency install stdout: %s", stdout.decode().strip())
+            _LOGGER.warning("Dependency install stderr: %s", stderr.decode().strip())
+
             if proc.returncode != 0:
-                _LOGGER.error("error installing captcha dependencies: %s", stderr.decode().strip())
+                _LOGGER.error("Dependency install failed with return code %s", proc.returncode)
             else:
-                _LOGGER.debug("installed captcha dependencies: %s", stdout.decode().strip())
+                _LOGGER.info("Successfully installed dependencies.")
         except Exception as e:
             _LOGGER.exception("Failed to install dependencies")
 
