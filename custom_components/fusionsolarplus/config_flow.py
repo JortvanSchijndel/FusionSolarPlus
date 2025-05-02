@@ -45,26 +45,47 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         # Install requirements for captcha
         try:
-            cmd = (
-                "echo 'https://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && "
-                "apk update && apk add py3-onnxruntime-pyc py3-opencv"
-            )
-            _LOGGER.warning("Running dependency install command: %s", cmd)
-            proc = await asyncio.create_subprocess_shell(
-                cmd,
+            # Install first dependency (py3-onnxruntime-pyc)
+            cmd1 = "apk add py3-onnxruntime-pyc"
+            _LOGGER.info("Running command: %s", cmd1)
+            proc1 = await asyncio.create_subprocess_shell(
+                cmd1,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE,
             )
-            stdout, stderr = await proc.communicate()
-            _LOGGER.warning("Dependency install stdout: %s", stdout.decode().strip())
-            _LOGGER.warning("Dependency install stderr: %s", stderr.decode().strip())
+            stdout1, stderr1 = await proc1.communicate()
 
-            if proc.returncode != 0:
-                _LOGGER.error("Dependency install failed with return code %s", proc.returncode)
+            # Log output for the first command
+            _LOGGER.debug("apk add py3-onnxruntime-pyc stdout:\n%s", stdout1.decode())
+            _LOGGER.debug("apk add py3-onnxruntime-pyc stderr:\n%s", stderr1.decode())
+
+            if proc1.returncode != 0:
+                _LOGGER.error("Failed to install py3-onnxruntime-pyc. Return code: %s", proc1.returncode)
             else:
-                _LOGGER.info("Successfully installed dependencies.")
+                _LOGGER.info("Successfully installed py3-onnxruntime-pyc.")
+
+            # Install second dependency (py3-opencv)
+            cmd2 = "apk add py3-opencv"
+            _LOGGER.info("Running command: %s", cmd2)
+            proc2 = await asyncio.create_subprocess_shell(
+                cmd2,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout2, stderr2 = await proc2.communicate()
+
+            # Log output for the second command
+            _LOGGER.debug("apk add py3-opencv stdout:\n%s", stdout2.decode())
+            _LOGGER.debug("apk add py3-opencv stderr:\n%s", stderr2.decode())
+
+            if proc2.returncode != 0:
+                _LOGGER.error("Failed to install py3-opencv. Return code: %s", proc2.returncode)
+            else:
+                _LOGGER.info("Successfully installed py3-opencv.")
+
         except Exception as e:
-            _LOGGER.exception("Failed to install dependencies")
+            _LOGGER.exception("Failed to install dependencies: %s", str(e))
+
 
         if user_input:
             self.username = user_input[CONF_USERNAME]
@@ -79,7 +100,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             except AuthenticationException:
                 errors["base"] = "invalid_auth"
             except Exception as e:
-                _LOGGER.exception("Unexpected error during authentication")
+                _LOGGER.exception("Unexpected error during authentication: %s", str(e))
                 errors["base"] = "unknown"
 
             if not errors:
