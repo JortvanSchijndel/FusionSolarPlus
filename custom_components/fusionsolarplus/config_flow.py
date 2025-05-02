@@ -1,6 +1,6 @@
 import logging
 import asyncio
-import subprocess
+from functools import partial
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
@@ -48,7 +48,11 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             try:
                 _LOGGER.warning("FusionSolarPlus: Trying FusionSolarClient login...")
-                await self.hass.async_add_executor_job(FusionSolarClient, self.username, self.password)
+                await self.hass.async_add_executor_job(
+                    partial(
+                        FusionSolarClient, self.username, self.password, captcha_model_path=self.hass   # Using modelpath to pass self.hass
+                    )
+                )
                 _LOGGER.warning("FusionSolarPlus: FusionSolarClient login successful")
             except AuthenticationException as auth_exc:
                 _LOGGER.warning("FusionSolarPlus: Invalid authentication credentials - %s", str(auth_exc))

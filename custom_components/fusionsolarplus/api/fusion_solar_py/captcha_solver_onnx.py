@@ -15,25 +15,27 @@ from fusion_solar_py.interfaces import GenericSolver
 
 class Solver(GenericSolver):
     def _init_model(self):
-        pass
+        self.hass = self.model_path     # Using modelpath to pass self.hass
+        if not self.hass:
+            raise FusionSolarException("hass instance not provided as model_path")
 
     def save_image_to_disk(self, img_bytes, filename):
         img = Image.open(BytesIO(img_bytes))
 
-        # Save relative to this file
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        save_path = os.path.join(base_dir, filename)
-
+        # Save in Home Assistant's .storage directory
+        save_path = self.hass.config.path(".storage", filename)
         img.save(save_path)
 
-    def solve_captcha(self, img_bytes):
-        # Save image to disk before processing
-        self.save_image_to_disk(img_bytes, 'output_image.png')
+        return save_path
 
-        # Use the Gradio Client to process the image with the external model
+    def solve_captcha(self, img_bytes):
+        # Save image and get path
+        image_path = self.save_image_to_disk(img_bytes, 'captcha_input.png')
+
+        # Send to Hugging Face Gradio client
         client = Client("docparser/Text_Captcha_breaker")
         result = client.predict(
-            img_org=handle_file('./output_image.png'),
+            img_org=handle_file(image_path),
             api_name="/predict"
         )
         return result
