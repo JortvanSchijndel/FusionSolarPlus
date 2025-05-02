@@ -6,8 +6,7 @@
   "documentation": "https://github.com/JortvanSchijndel/FusionSolarPlus",
   "requirements": ["fusion-solar-py",
                     "gradio_client",
-                    "Pillow",
-
+                    "Pillow"
                   ],
   "dependencies": [],
   "codeowners": ["@jortvanschijndel"],

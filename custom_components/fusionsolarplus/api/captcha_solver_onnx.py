@@ -23,7 +23,6 @@ class Solver(GenericSolver):
 
         # Save the image to disk
         img.save(filename)
-        print(f"Image saved to {filename}")
 
     def solve_captcha(self, img_bytes):
         # Save image to disk before processing
