@@ -2,6 +2,7 @@ import logging
 import asyncio
 import subprocess
 import voluptuous as vol
+from functools import partial
 from homeassistant import config_entries
 from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
 from homeassistant.core import HomeAssistant
@@ -62,9 +63,10 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.password = user_input[CONF_PASSWORD]
 
             try:
-
                 await self.hass.async_add_executor_job(
-                    FusionSolarClient, self.username, self.password, captcha_model_path="./captcha_huawei.onnx"
+                    partial(
+                        FusionSolarClient, self.username, self.password, captcha_model_path="./captcha_huawei.onnx"
+                    )
                 )
             except AuthenticationException:
                 errors["base"] = "invalid_auth"
