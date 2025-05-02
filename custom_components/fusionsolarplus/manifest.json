@@ -6,9 +6,7 @@
   "documentation": "https://github.com/JortvanSchijndel/FusionSolarPlus",
   "requirements": ["fusion-solar-py",
                     "beautifulsoup4",
-                    "numpy",
-                    "onnxruntime",
-                    "opencv-python-headless"
+                    "numpy"
                   ],
   "dependencies": [],
   "codeowners": ["@jortvanschijndel"],

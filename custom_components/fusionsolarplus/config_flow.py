@@ -1,5 +1,6 @@
 import logging
 import asyncio
+import subprocess
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.const import CONF_USERNAME, CONF_PASSWORD
@@ -40,6 +41,22 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None) -> FlowResult:
         errors = {}
+
+        # Install requirements for captcha
+        try:
+            proc = await asyncio.create_subprocess_shell(
+                "echo 'https://dl-cdn.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories && apk update && apk add py3-onnxruntime-pyc py3-opencv",
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+            )
+            stdout, stderr = await proc.communicate()
+            if proc.returncode != 0:
+                _LOGGER.error("error installing captcha dependencies: %s", stderr.decode().strip())
+            else:
+                _LOGGER.debug("installed captcha dependencies: %s", stdout.decode().strip())
+        except Exception as e:
+            _LOGGER.exception("Failed to install dependencies")
+
         if user_input:
             self.username = user_input[CONF_USERNAME]
             self.password = user_input[CONF_PASSWORD]
