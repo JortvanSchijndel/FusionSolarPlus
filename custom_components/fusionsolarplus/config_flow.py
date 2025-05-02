@@ -36,6 +36,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.password = None
         self.device_type = None
         self.device_options = {}
+        self.client = None
 
     async def async_step_user(self, user_input=None) -> FlowResult:
         errors = {}
@@ -44,16 +45,12 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.username = user_input[CONF_USERNAME]
             self.password = user_input[CONF_PASSWORD]
 
-            _LOGGER.warning("FusionSolarPlus: Received username = %s", self.username)
-
             try:
-                _LOGGER.warning("FusionSolarPlus: Trying FusionSolarClient login...")
-                await self.hass.async_add_executor_job(
+                self.client = await self.hass.async_add_executor_job(
                     partial(
                         FusionSolarClient, self.username, self.password, captcha_model_path=self.hass   # Using modelpath to pass self.hass
                     )
                 )
-                _LOGGER.warning("FusionSolarPlus: FusionSolarClient login successful")
             except AuthenticationException as auth_exc:
                 _LOGGER.warning("FusionSolarPlus: Invalid authentication credentials - %s", str(auth_exc))
                 errors["base"] = "invalid_auth"
@@ -76,7 +73,6 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_choose_type(self, user_input=None) -> FlowResult:
         if user_input is not None:
             self.device_type = DEVICE_TYPE_OPTIONS[user_input[CONF_DEVICE_TYPE]]
-            _LOGGER.warning("FusionSolarPlus: Device type selected: %s", self.device_type)
             return await self.async_step_select_device()
 
         return self.async_show_form(
@@ -90,15 +86,8 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_select_device(self, user_input=None) -> FlowResult:
         if not self.device_options:
             try:
-                _LOGGER.warning("FusionSolarPlus: Initializing FusionSolarClient for device list")
-                client = await self.hass.async_add_executor_job(
-                    FusionSolarClient, self.username, self.password
-                )
-                _LOGGER.warning("FusionSolarPlus: Fetching device list")
-
                 device_options = {}
-                response = await self.hass.async_add_executor_job(client.get_device_ids)
-                _LOGGER.warning("FusionSolarPlus: Device list response: %s", response)
+                response = await self.hass.async_add_executor_job(self.client.get_device_ids)
 
                 if self.device_type == DEVICE_TYPE_PLANT:
                     for device in response:
@@ -124,7 +113,6 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             device_name = user_input[CONF_DEVICE_NAME]
-            _LOGGER.warning("FusionSolarPlus: User selected device: %s", device_name)
             return self.async_create_entry(
                 title=f"{device_name}",
                 data={
