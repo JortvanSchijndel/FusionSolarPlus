@@ -50,8 +50,8 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.warning("FusionSolarPlus: Trying FusionSolarClient login...")
                 await self.hass.async_add_executor_job(FusionSolarClient, self.username, self.password)
                 _LOGGER.warning("FusionSolarPlus: FusionSolarClient login successful")
-            except AuthenticationException:
-                _LOGGER.warning("FusionSolarPlus: Invalid authentication credentials")
+            except AuthenticationException as auth_exc:
+                _LOGGER.warning("FusionSolarPlus: Invalid authentication credentials - %s", str(auth_exc))
                 errors["base"] = "invalid_auth"
             except Exception as e:
                 _LOGGER.warning("FusionSolarPlus: Unexpected error during authentication: %s", str(e))
