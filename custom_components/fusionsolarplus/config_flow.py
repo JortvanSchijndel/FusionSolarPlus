@@ -87,14 +87,16 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if not self.device_options:
             try:
                 device_options = {}
-                response = await self.hass.async_add_executor_job(self.client.get_device_ids)
 
+                # Handle plants ids
                 if self.device_type == DEVICE_TYPE_PLANT:
-                    for device in response:
-                        if device['type'] == 'Inverter':
-                            device_dn = device['deviceDn']
-                            device_options[f"Plant (ID: {device_dn})"] = device_dn
+                    response = await self.hass.async_add_executor_job(self.client.get_plant_ids)
+                    for plant_id in response:
+                        device_options[f"Plant (ID: {plant_id})"] = plant_id
+
+                # Handle inverter ids
                 elif self.device_type == DEVICE_TYPE_INVERTER:
+                    response = await self.hass.async_add_executor_job(self.client.get_device_ids)
                     for device in response:
                         if device['type'] == 'Inverter':
                             device_dn = device['deviceDn']
