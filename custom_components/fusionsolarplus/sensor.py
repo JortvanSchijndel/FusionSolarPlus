@@ -1945,6 +1945,135 @@ MODULE_SIGNAL_MAP = {
     "4": BATTERY_MODULE_SIGNALS_4,
 }
 
+POWER_SENSOR_SIGNALS = [
+    {
+        "id": 10001,
+        "name": "Meter status",
+        "unit": "",
+        "custom_name": "Meter Status",
+    },
+    {
+        "id": 10008,
+        "name": "Positive active energy",
+        "unit": "kWh",
+        "custom_name": "Positive Active Energy",
+        "device_class": "energy",
+        "state_class": "total_increasing",
+    },
+    {
+        "id": 10009,
+        "name": "Negative active energy",
+        "unit": "kWh",
+        "custom_name": "Negative Active Energy",
+        "device_class": "energy",
+        "state_class": "total_increasing",
+    },
+    {
+        "id": 10005,
+        "name": "Reactive power",
+        "unit": "Var",
+        "custom_name": "Reactive Power",
+        "device_class": "reactive_power",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10004,
+        "name": "Active power",
+        "unit": "W",
+        "custom_name": "Active Power",
+        "device_class": "power",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10006,
+        "name": "Power factor",
+        "unit": "",
+        "custom_name": "Power Factor",
+        "device_class": "power_factor",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10019,
+        "name": "Phase A active power",
+        "unit": "W",
+        "custom_name": "Phase A Active Power",
+        "device_class": "power",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10020,
+        "name": "Phase B active power",
+        "unit": "W",
+        "custom_name": "Phase B Active Power",
+        "device_class": "power",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10021,
+        "name": "Phase C active power",
+        "unit": "W",
+        "custom_name": "Phase C Active Power",
+        "device_class": "power",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10002,
+        "name": "Phase A voltage",
+        "unit": "V",
+        "custom_name": "Phase A Voltage",
+        "device_class": "voltage",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10010,
+        "name": "Phase B voltage",
+        "unit": "V",
+        "custom_name": "Phase B Voltage",
+        "device_class": "voltage",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10011,
+        "name": "Phase C voltage",
+        "unit": "V",
+        "custom_name": "Phase C Voltage",
+        "device_class": "voltage",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10003,
+        "name": "Phase A current",
+        "unit": "A",
+        "custom_name": "Phase A Current",
+        "device_class": "current",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10012,
+        "name": "Phase B current",
+        "unit": "A",
+        "custom_name": "Phase B Current",
+        "device_class": "current",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10013,
+        "name": "Phase C current",
+        "unit": "A",
+        "custom_name": "Phase C Current",
+        "device_class": "current",
+        "state_class": "measurement",
+    },
+    {
+        "id": 10007,
+        "name": "Grid frequency",
+        "unit": "Hz",
+        "custom_name": "Grid Frequency",
+        "device_class": "frequency",
+        "state_class": "measurement",
+    },
+]
+
 
 async def async_setup_entry(hass, entry, async_add_entities):
     device_type = entry.data.get("device_type")
@@ -2006,7 +2135,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
         for attempt in range(max_retries + 1):
             try:
-                if device_type == "Inverter":
+                if device_type == "Inverter" or device_type == "Power Sensor":
                     response = await hass.async_add_executor_job(
                         client.get_real_time_data, device_id
                     )
@@ -2089,6 +2218,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
         signals = BATTERY_STATUS_SIGNALS
         id_key = "id"
         entity_class = FusionSolarBatterySensor
+    elif device_type == "Power Sensor":
+        signals = POWER_SENSOR_SIGNALS
+        id_key = "id"
+        entity_class = FusionSolarPowerSensor
     else:
         _LOGGER.error("Unknown device type: %s", device_type)
         return
@@ -2360,4 +2493,54 @@ class FusionSolarBatteryModuleSensor(CoordinatorEntity, SensorEntity):
             and "modules" in data
             and self._module_id in data["modules"]
             and bool(data["modules"][self._module_id])
+        )
+
+
+#
+#   Power Sensor
+#
+
+
+class FusionSolarPowerSensor(CoordinatorEntity, SensorEntity):
+    def __init__(
+        self,
+        coordinator,
+        signal_id,
+        name,
+        unit,
+        device_info,
+        device_class=None,
+        state_class=None,
+    ):
+        super().__init__(coordinator)
+        self._signal_id = signal_id
+        self._attr_name = name
+        self._attr_native_unit_of_measurement = unit
+        self._attr_device_info = device_info
+        self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal_id}"
+        self._attr_device_class = device_class
+        self._attr_state_class = state_class
+
+    @property
+    def state(self):
+        data = self.coordinator.data
+        if not data:
+            return None
+        for group in data.get("data", []):
+            if "signals" in group:
+                for signal in group["signals"]:
+                    if signal["id"] == self._signal_id:
+                        if signal.get("unit"):
+                            try:
+                                return float(signal.get("value"))
+                            except (TypeError, ValueError):
+                                return None
+                        else:
+                            return signal.get("value")
+        return None
+
+    @property
+    def available(self):
+        return (
+            self.coordinator.last_update_success and self.coordinator.data is not None
         )

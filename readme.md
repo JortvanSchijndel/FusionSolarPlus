@@ -141,11 +141,31 @@ Once installed:
 | [Module X] Battery Pack 1 Heating Status               | Text     |
 | [Module X] Battery Pack 2 Heating Status               | Text     |
 | [Module X] Battery Pack 3 Heating Status               | Text     |
+
 *X ranges from 1 - 4 depending on how many modules your battery has.
 > [!NOTE] 
 > Currently, this integration only supports battery modules 1 and 2.
 > If your battery has 3 or 4 modules, please [open an issue](https://github.com/JortvanSchijndel/FusionSolarPlus/issues).
 
+## Power Sensor
+| Entity                       |    Unit     |
+|------------------------------|:-----------:|
+| Meter Status                 |    Text     |
+| Positive Active Energy       |     kWh     |
+| Negative Active Energy       |     kWh     |
+| Reactive Power               |     Var     |
+| Active Power                 |      W      |
+| Power Factor                 | Ratio       |
+| Phase A Active Power         |      W      |
+| Phase B Active Power         |      W      |
+| Phase C Active Power         |      W      |
+| Phase A Voltage              |      V      |
+| Phase B Voltage              |      V      |
+| Phase C Voltage              |      V      |
+| Phase A Current              |      A      |
+| Phase B Current              |      A      |
+| Phase C Current              |      A      |
+| Grid Frequency               |     Hz      |
 
 # Issues
 If you encounter any problems while using the integration, please [open an issue](https://github.com/JortvanSchijndel/FusionSolarPlus/issues).

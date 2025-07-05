@@ -1,0 +1,147 @@
+{
+  "buildCode": "2",
+  "data": [
+    {
+      "status": 1
+    },
+    {
+      "groupName": "groupOne",
+      "signals": [
+        {
+          "id": 10001,
+          "latestTime": 1751721352,
+          "name": "Meter status",
+          "realValue": "1",
+          "unit": "",
+          "value": "Normal"
+        },
+        {
+          "id": 10008,
+          "latestTime": 1751721908,
+          "name": "Positive active energy",
+          "realValue": "4780.25",
+          "unit": "kWh",
+          "value": "4780.25"
+        },
+        {
+          "id": 10009,
+          "latestTime": 1751721908,
+          "name": "Negative active energy",
+          "realValue": "31604.41",
+          "unit": "kWh",
+          "value": "31604.41"
+        },
+        {
+          "id": 10005,
+          "latestTime": 1751721908,
+          "name": "Reactive power",
+          "realValue": "850",
+          "unit": "Var",
+          "value": "850"
+        },
+        {
+          "id": 10004,
+          "latestTime": 1751721908,
+          "name": "Active power",
+          "realValue": "4237",
+          "unit": "W",
+          "value": "4237"
+        },
+        {
+          "id": 10006,
+          "latestTime": 1751721908,
+          "name": "Power factor",
+          "realValue": "-0.933",
+          "unit": "",
+          "value": "-0.933"
+        },
+        {
+          "id": 10019,
+          "latestTime": 1751721908,
+          "name": "Phase A active power",
+          "realValue": "1483",
+          "unit": "W",
+          "value": "1483"
+        },
+        {
+          "id": 10020,
+          "latestTime": 1751721908,
+          "name": "Phase B active power",
+          "realValue": "1835",
+          "unit": "W",
+          "value": "1835"
+        },
+        {
+          "id": 10021,
+          "latestTime": 1751721908,
+          "name": "Phase C active power",
+          "realValue": "918",
+          "unit": "W",
+          "value": "918"
+        },
+        {
+          "id": 10002,
+          "latestTime": 1751721908,
+          "name": "Phase A voltage",
+          "realValue": "233.5",
+          "unit": "V",
+          "value": "233.5"
+        },
+        {
+          "id": 10010,
+          "latestTime": 1751721908,
+          "name": "Phase B voltage",
+          "realValue": "239.6",
+          "unit": "V",
+          "value": "239.6"
+        },
+        {
+          "id": 10011,
+          "latestTime": 1751721908,
+          "name": "Phase C voltage",
+          "realValue": "237.3",
+          "unit": "V",
+          "value": "237.3"
+        },
+        {
+          "id": 10003,
+          "latestTime": 1751721908,
+          "name": "Phase A current",
+          "realValue": "7.09",
+          "unit": "A",
+          "value": "7.09"
+        },
+        {
+          "id": 10012,
+          "latestTime": 1751721908,
+          "name": "Phase B current",
+          "realValue": "7.70",
+          "unit": "A",
+          "value": "7.70"
+        },
+        {
+          "id": 10013,
+          "latestTime": 1751721908,
+          "name": "Phase C current",
+          "realValue": "4.35",
+          "unit": "A",
+          "value": "4.35"
+        },
+        {
+          "id": 10007,
+          "latestTime": 1751721908,
+          "name": "Grid frequency",
+          "realValue": "49.97",
+          "unit": "Hz",
+          "value": "49.97"
+        }
+      ]
+    },
+    {
+      "pv2mppt": false
+    }
+  ],
+  "failCode": 0,
+  "params": [],
+  "success": true
+}

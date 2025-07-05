@@ -680,6 +680,10 @@ class FusionSolarClient:
         devices = []
         for device in device_data["data"]:
             devices += [dict(type=device["mocTypeName"], deviceDn=device["dn"])]
+
+        if ENABLE_FAKE_BATTERY:
+            devices.append({"type": "Power Sensor", "deviceDn": "NE=140517905"})
+
         return devices
 
     @logged_in
@@ -722,16 +726,22 @@ class FusionSolarClient:
         :rtype: dict
 
         """
+        if ENABLE_FAKE_BATTERY and device_dn == "NE=140517905":
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            json_path = os.path.join(base_dir, "power_sensor.json")
+            with open(json_path) as f:
+                power_sensor = json.load(f)
+            return power_sensor
+        else:
+            url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-realtime-data"
+            params = (
+                ("deviceDn", device_dn),  #
+                ("_", round(time.time() * 1000)),
+            )
+            r = self._session.get(url=url, params=params)
+            r.raise_for_status()
 
-        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-realtime-data"
-        params = (
-            ("deviceDn", device_dn),  #
-            ("_", round(time.time() * 1000)),
-        )
-        r = self._session.get(url=url, params=params)
-        r.raise_for_status()
-
-        return r.json()
+            return r.json()
 
     @logged_in
     def get_alarm_data(self, device_dn: str = None) -> dict:
