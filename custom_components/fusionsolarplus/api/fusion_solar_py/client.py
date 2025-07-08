@@ -670,7 +670,7 @@ class FusionSolarClient:
         url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/web/config/device/v1/device-list"
         params = {
             "conditionParams.parentDn": self._company_id,  # can be a plant or company id
-            "conditionParams.mocTypes": "20814,20815,20816,20819,20822,50017,60066,60014,60015,23037",  # specifies the types of devices
+            "conditionParams.mocTypes": "20815,20816,20819,20822,50017,60066,60014,60015,23037",  # specifies the types of devices | 20814, for optimizers
             "_": round(time.time() * 1000),
         }
         r = self._session.get(url=url, params=params)
@@ -679,8 +679,7 @@ class FusionSolarClient:
 
         devices = []
         for device in device_data["data"]:
-            if device["mocTypeName"] != "Optimizer":
-                devices += [dict(type=device["mocTypeName"], deviceDn=device["dn"])]
+            devices += [dict(type=device["mocTypeName"], deviceDn=device["dn"])]
 
         if ENABLE_FAKE_BATTERY:
             devices.append({"type": "Power Sensor", "deviceDn": "NE=140517905"})
