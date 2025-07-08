@@ -679,7 +679,8 @@ class FusionSolarClient:
 
         devices = []
         for device in device_data["data"]:
-            devices += [dict(type=device["mocTypeName"], deviceDn=device["dn"])]
+            if device["mocTypeName"] != "Optimizer":
+                devices += [dict(type=device["mocTypeName"], deviceDn=device["dn"])]
 
         if ENABLE_FAKE_BATTERY:
             devices.append({"type": "Power Sensor", "deviceDn": "NE=140517905"})
