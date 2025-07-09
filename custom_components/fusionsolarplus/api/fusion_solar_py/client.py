@@ -1155,26 +1155,35 @@ class FusionSolarClient:
         :type plant_id: str
         :return: _description_
         """
-        r = self._session.get(
-            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v1/layout/optimizer-info",
-            params={
-                "inverterDn": inverter_id,
-                "_": round(time.time() * 1000),
-            },
-        )
-        r.raise_for_status()
-        optimizer_data = r.json()
 
-        # check for an error - this seems to happen if no optimizer is present
-        if "exceptionType" in optimizer_data:
-            raise FusionSolarException(
-                f"Failed to retrieve optimizer status for {inverter_id}"
+        if ENABLE_FAKE_BATTERY:
+            if inverter_id == "NE=138957388":
+                base_dir = os.path.dirname(os.path.abspath(__file__))
+                json_path = os.path.join(base_dir, "optimizer.json")
+                with open(json_path) as f:
+                    optimizer = json.load(f)
+                return optimizer["data"]
+            else:
+                return []
+        else:
+            r = self._session.get(
+                url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v1/layout/optimizer-info",
+                params={
+                    "inverterDn": inverter_id,
+                    "_": round(time.time() * 1000),
+                },
             )
+            r.raise_for_status()
+            optimizer_data = r.json()
 
-        if not optimizer_data["success"] or "data" not in optimizer_data:
-            raise FusionSolarException(
-                f"Failed to retrieve plant status for {inverter_id}"
-            )
+            # check for an error - this seems to happen if no optimizer is present
+            if "exceptionType" in optimizer_data:
+                return []
 
-        # return the plant data
-        return optimizer_data["data"]
+            if not optimizer_data["success"] or "data" not in optimizer_data:
+                raise FusionSolarException(
+                    f"Failed to retrieve plant status for {inverter_id}"
+                )
+
+            # return the plant data
+            return optimizer_data["data"]

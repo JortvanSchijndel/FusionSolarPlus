@@ -29,7 +29,7 @@
 ---
 
 # FusionSolarPlus
-This integration brings full FusionSolar support to Home Assistant, with separate entities for plants, inverters, and more. It authenticates using your FusionSolar username and password. No northbound API, OpenAPI, or kiosk URL required. I originally built it as a custom Python script that sent data via MQTT, but realizing others might want a Home Assistant integration with full entity support, I ported it with AI assistance into a proper integration for easier use.
+This integration brings full FusionSolar support to Home Assistant, with entities for plants, inverters, and more. It authenticates using your FusionSolar username and password. No northbound API, OpenAPI, or kiosk URL required. I originally built it as a custom Python script that sent data via MQTT, but realizing others might want a Home Assistant integration with full entity support, I ported it with AI assistance into a proper integration for easier use.
 
 ## Setup
 Click the button below and download the FusionSolarPlus integration.
@@ -78,6 +78,21 @@ Once installed:
 | Status                 | Text     |
 | Temperature            | °C       |
 | Total Energy Produced  | kWh      |
+
+## Optimizer
+
+| Entity             | Unit   |
+|--------------------|:------:|
+| Output Power       | W      |
+| Total Energy       | kWh    |
+| Input Voltage      | V      |
+| Running Status     | Text   |
+| Temperature        | °C     |
+| Serial Number (SN) | Text   |
+| Optimizer Number   | Text   |
+| Output Voltage     | V      |
+| Input Current      | A      |
+
 
 ## Battery
 | Entity                                        | Unit     |

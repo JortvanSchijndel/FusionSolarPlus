@@ -6,6 +6,8 @@ from functools import partial
 from datetime import timedelta
 from .api.fusion_solar_py.client import FusionSolarClient
 
+from homeassistant.helpers.entity import EntityCategory
+
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass,
@@ -201,6 +203,72 @@ INVERTER_SIGNALS = [
         "name": "Insulation resistance",
         "unit": "MΩ",
         "custom_name": "Insulation Resistance",
+    },
+]
+
+OPTIMIZER_METRICS = [
+    {
+        "name": "outputPower",
+        "custom_name": "Output Power",
+        "unit": "W",
+        "device_class": SensorDeviceClass.POWER,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "name": "totalEnergy",
+        "custom_name": "Total Energy",
+        "unit": "kWh",
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL,
+    },
+    {
+        "name": "inputVoltage",
+        "custom_name": "Input Voltage",
+        "unit": "V",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "name": "runningStatus",
+        "custom_name": "Running Status",
+        "unit": None,
+        "device_class": None,
+        "state_class": None,
+    },
+    {
+        "name": "temperature",
+        "custom_name": "Temperature",
+        "unit": "°C",
+        "device_class": SensorDeviceClass.TEMPERATURE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "name": "sn",
+        "custom_name": "SN",
+        "unit": None,
+        "device_class": None,
+        "state_class": None,
+    },
+    {
+        "name": "optNumber",
+        "custom_name": "Optimizer Number",
+        "unit": None,
+        "device_class": None,
+        "state_class": None,
+    },
+    {
+        "name": "outputVoltage",
+        "custom_name": "Output Voltage",
+        "unit": "V",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "name": "inputCurrent",
+        "custom_name": "Input Current",
+        "unit": "A",
+        "device_class": SensorDeviceClass.CURRENT,
+        "state_class": SensorStateClass.MEASUREMENT,
     },
 ]
 
@@ -2135,10 +2203,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
         for attempt in range(max_retries + 1):
             try:
-                if device_type == "Inverter" or device_type == "Power Sensor":
+                if device_type == "Inverter":
                     response = await hass.async_add_executor_job(
                         client.get_real_time_data, device_id
                     )
+
+                    optimizer_stats = await hass.async_add_executor_job(
+                        client.get_optimizer_stats, device_id
+                    )
+                    response["optimizers"] = optimizer_stats
+
                 elif device_type == "Plant":
                     response = await hass.async_add_executor_job(
                         client.get_current_plant_data, device_id
@@ -2244,7 +2318,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
             entities.append(entity)
             unique_ids.add(unique_id)
 
-    modules_data = coordinator.data.get("modules", {})
+    modules_data = coordinator.data.get("modules", {}) if coordinator.data else {}
     for module_id, module_signals in MODULE_SIGNAL_MAP.items():
         module_signals_data = modules_data.get(module_id)
         if not module_signals_data:
@@ -2279,6 +2353,32 @@ async def async_setup_entry(hass, entry, async_add_entities):
                 )
                 entities.append(entity)
                 unique_ids.add(unique_id)
+
+    optimizers = (
+        coordinator.data["optimizers"]
+        if coordinator.data and "optimizers" in coordinator.data
+        else []
+    )
+    for optimizer in optimizers:
+        optimizer_name = optimizer.get("optName", "Optimizer")
+        for metric in OPTIMIZER_METRICS:
+            metric_key = metric["name"]
+            value = optimizer.get(metric_key)
+            if value is not None:
+                unique_id = f"{device_id}_{optimizer_name}_{metric_key}"
+                entity = FusionSolarOptimizerSensor(
+                    coordinator,
+                    optimizer_name,
+                    metric["name"],
+                    metric.get("custom_name", metric["name"]),
+                    metric.get("unit"),
+                    device_info,
+                    unique_id,
+                    device_class=metric.get("device_class"),
+                    state_class=metric.get("state_class"),
+                    entity_category=EntityCategory.DIAGNOSTIC,
+                )
+                entities.append(entity)
 
     _LOGGER.error("Adding %d entities for device %s", len(entities), device_name)
     async_add_entities(entities)
@@ -2332,6 +2432,52 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         return (
             self.coordinator.last_update_success and self.coordinator.data is not None
         )
+
+
+class FusionSolarOptimizerSensor(CoordinatorEntity, SensorEntity):
+    def __init__(
+        self,
+        coordinator,
+        optimizer_name,
+        metric_key,
+        custom_name,
+        unit,
+        device_info,
+        unique_id,
+        device_class=None,
+        state_class=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
+    ):
+        super().__init__(coordinator)
+        self._attr_name = f"[{optimizer_name}] {custom_name}"
+        self._attr_native_unit_of_measurement = unit
+        self._attr_device_info = device_info
+        self._attr_unique_id = unique_id
+        self._attr_entity_category = entity_category
+        self._attr_device_class = device_class
+        self._attr_state_class = state_class
+        self._metric_key = metric_key
+        self._optimizer_name = optimizer_name
+
+    @property
+    def state(self):
+        data = (
+            self.coordinator.data.get("optimizers", []) if self.coordinator.data else []
+        )
+        for opt in data:
+            if opt.get("optName") == self._optimizer_name:
+                value = opt.get(self._metric_key)
+                if value is not None and isinstance(value, str):
+                    try:
+                        value = float(value)
+                    except ValueError:
+                        pass
+                return value
+        return None
+
+    @property
+    def available(self):
+        return self.coordinator.last_update_success
 
 
 #
@@ -2457,6 +2603,7 @@ class FusionSolarBatteryModuleSensor(CoordinatorEntity, SensorEntity):
         module_id,
         device_class=None,
         state_class=None,
+        entity_category=EntityCategory.DIAGNOSTIC,
     ):
         super().__init__(coordinator)
         self._signal_id = signal_id
@@ -2468,6 +2615,7 @@ class FusionSolarBatteryModuleSensor(CoordinatorEntity, SensorEntity):
         )
         self._attr_device_class = device_class
         self._attr_state_class = state_class
+        self._attr_entity_category = entity_category
         self._module_id = module_id
 
     @property
