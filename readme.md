@@ -41,7 +41,7 @@ Once installed:
 1. Restart Home Assistant and head over to **Settings » Devices & Services.**  
 2. Click on **"Add Integration."**  
 3. Search for **"FusionSolarPlus."**  
-4. Enter your FusionSolar username, password and subdomain. (For a list For a list of available subdomains click [here](https://support.huawei.com/enterprise/en/doc/EDOC1100165054/dbeb5df3/domain-name-list-of-management-systems). eg. 'region01eu5)  
+4. Enter your FusionSolar username, password and subdomain. (For a list of available subdomains click [here](https://support.huawei.com/enterprise/en/doc/EDOC1100165054/dbeb5df3/domain-name-list-of-management-systems). eg. 'region01eu5)  
 5. Select the device type you want to add, then choose the specific device.
 
 # Entities
