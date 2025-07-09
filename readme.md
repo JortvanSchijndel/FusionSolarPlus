@@ -186,4 +186,6 @@ Once installed:
 If you encounter any problems while using the integration, please [open an issue](https://github.com/JortvanSchijndel/FusionSolarPlus/issues).
 Be sure to include as much relevant information as possible, this helps with troubleshooting and speeds up the resolution process.
 
+# Legal Notice
+This integration for Home Assistant uses a custom modified version of [FusionSolarPy](https://github.com/jgriss/FusionSolarPy).
 
