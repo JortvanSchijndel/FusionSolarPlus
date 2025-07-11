@@ -2203,7 +2203,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
         for attempt in range(max_retries + 1):
             try:
-                if device_type == "Inverter":
+                if device_type == "Inverter" or device_type == "Power Sensor":
                     response = await hass.async_add_executor_job(
                         client.get_real_time_data, device_id
                     )
