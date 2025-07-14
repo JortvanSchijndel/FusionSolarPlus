@@ -182,6 +182,18 @@ Once installed:
 | Phase C Current              |      A      |
 | Grid Frequency               |     Hz      |
 
+# Energy Dashboard
+
+FusionSolarPlus is fully compatible with the integrated Home Assistant energy dashboard. When configuring the energy dashboard you need to provide the following settings:
+
+| Energy dashboard setting         | Sensor       | Entity                  |
+|----------------------------------|--------------|-------------------------|
+| Grid Consumption                 | Power Sensor | Negative Active Energy  |
+| Return to Grid                   | Power Sensor | Positive Active Energy  |
+| Energy going in to the battery   | Battery      | Energy Charged Today    |
+| Energy coming out of the battery | Battery      | Energy Discharged Today |
+| Solar Production                 | Plant        | Total Energy            |
+
 # Issues
 If you encounter any problems while using the integration, please [open an issue](https://github.com/JortvanSchijndel/FusionSolarPlus/issues).
 Be sure to include as much relevant information as possible, this helps with troubleshooting and speeds up the resolution process.
