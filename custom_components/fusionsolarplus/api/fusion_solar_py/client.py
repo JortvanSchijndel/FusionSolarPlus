@@ -744,6 +744,55 @@ class FusionSolarClient:
             return r.json()
 
     @logged_in
+    def get_pv_info(self, device_dn: str = None) -> dict:
+        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-real-kpi"
+        params = (
+            ("signalIds", "11001"),
+            ("signalIds", "11002"),
+            ("signalIds", "11004"),
+            ("signalIds", "11005"),
+            ("signalIds", "11007"),
+            ("signalIds", "11008"),
+            ("signalIds", "11010"),
+            ("signalIds", "11011"),
+            ("deviceDn", device_dn),
+            ("_", round(time.time() * 1000)),
+        )
+
+        r = self._session.get(url=url, params=params)
+        r.raise_for_status()
+        data = r.json()
+
+        signals = data.get("data", {}).get("signals", {})
+
+        # Calculate Current Power using voltage & current
+        multiplication_map = {
+            ("11001", "11002"): "11003",
+            ("11004", "11005"): "11006",
+            ("11007", "11008"): "11009",
+            ("11010", "11011"): "11012",
+        }
+
+        latest_time = int(time.time())
+
+        for (sig1, sig2), result_id in multiplication_map.items():
+            val1 = signals.get(sig1, {}).get("realValue")
+            val2 = signals.get(sig2, {}).get("realValue")
+
+            try:
+                product = float(val1) * float(val2)
+
+                signals[result_id] = {
+                    "value": f"{product:.2f}",
+                    "realValue": f"{product:.2f}",
+                    "latestTime": latest_time,
+                }
+            except (TypeError, ValueError):
+                continue
+
+        return data["data"]
+
+    @logged_in
     def get_alarm_data(self, device_dn: str = None) -> dict:
         """retrieves alarm data for device id
         :return: alarm data for device id

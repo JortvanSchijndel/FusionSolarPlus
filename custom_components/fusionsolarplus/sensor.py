@@ -206,6 +206,101 @@ INVERTER_SIGNALS = [
     },
 ]
 
+PV_SIGNALS = [
+    {
+        "id": 11001,
+        "unit": "V",
+        "custom_name": "[PV 1] Input Voltage",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11004,
+        "unit": "V",
+        "custom_name": "[PV 2] Input Voltage",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11007,
+        "unit": "V",
+        "custom_name": "[PV 3] Input Voltage",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11010,
+        "unit": "V",
+        "custom_name": "[PV 4] Input Voltage",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11002,
+        "unit": "A",
+        "custom_name": "[PV 1] Input Current",
+        "device_class": SensorDeviceClass.CURRENT,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11005,
+        "unit": "A",
+        "custom_name": "[PV 2] Input Current",
+        "device_class": SensorDeviceClass.CURRENT,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11008,
+        "unit": "A",
+        "custom_name": "[PV 3] Input Current",
+        "device_class": SensorDeviceClass.CURRENT,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11011,
+        "unit": "A",
+        "custom_name": "[PV 4] Input Current",
+        "device_class": SensorDeviceClass.CURRENT,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11003,
+        "unit": "W",
+        "custom_name": "[PV 1] Input Power",
+        "device_class": SensorDeviceClass.POWER,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11006,
+        "unit": "W",
+        "custom_name": "[PV 2] Input Power",
+        "device_class": SensorDeviceClass.POWER,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11009,
+        "unit": "W",
+        "custom_name": "[PV 3] Input Power",
+        "device_class": SensorDeviceClass.POWER,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 11012,
+        "unit": "W",
+        "custom_name": "[PV 4] Input Power",
+        "device_class": SensorDeviceClass.POWER,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+]
+
+pv_inputs = {
+    "pv1": {"voltage": "11001", "current": "11002"},
+    "pv2": {"voltage": "11004", "current": "11005"},
+    "pv3": {"voltage": "11007", "current": "11008"},
+    "pv4": {"voltage": "11010", "current": "11011"},
+}
+
+
 OPTIMIZER_METRICS = [
     {
         "name": "outputPower",
@@ -2211,8 +2306,25 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     optimizer_stats = await hass.async_add_executor_job(
                         client.get_optimizer_stats, device_id
                     )
+
                     response["optimizers"] = optimizer_stats
 
+                    pv_stats_raw = await hass.async_add_executor_job(
+                        client.get_pv_info, device_id
+                    )
+
+                    signals = (
+                        pv_stats_raw.get("signals", {})
+                        if isinstance(pv_stats_raw, dict)
+                        else {}
+                    )
+
+                    normalized_pv = [
+                        {"id": str(signal_id), "value": data.get("value")}
+                        for signal_id, data in signals.items()
+                        if data.get("value") is not None
+                    ]
+                    response["pv"] = normalized_pv
                 elif device_type == "Plant":
                     response = await hass.async_add_executor_job(
                         client.get_current_plant_data, device_id
@@ -2318,6 +2430,82 @@ async def async_setup_entry(hass, entry, async_add_entities):
             entities.append(entity)
             unique_ids.add(unique_id)
 
+    # Add PV entities for inverters
+    if device_type == "Inverter":
+        pv_data = coordinator.data.get("pv", []) if coordinator.data else []
+
+        pv_lookup = {
+            item["id"]: item["value"]
+            for item in pv_data
+            if "id" in item and "value" in item
+        }
+
+        active_pvs = set()
+        for pv_name, ids in pv_inputs.items():
+            voltage_str = pv_lookup.get(ids["voltage"])
+            current_str = pv_lookup.get(ids["current"])
+
+            try:
+                voltage = float(voltage_str)
+            except (ValueError, TypeError):
+                voltage = 0.0
+
+            try:
+                current = float(current_str)
+            except (ValueError, TypeError):
+                current = 0.0
+
+            if voltage > 0 or current > 0:
+                active_pvs.add(pv_name)
+
+        signal_to_pv_input = {
+            "11001": "pv1",
+            "11002": "pv1",
+            "11003": "pv1",
+            "11004": "pv2",
+            "11005": "pv2",
+            "11006": "pv2",
+            "11007": "pv3",
+            "11008": "pv3",
+            "11009": "pv3",
+            "11010": "pv4",
+            "11011": "pv4",
+            "11012": "pv4",
+        }
+
+        for pv_signal in PV_SIGNALS:
+            pv_id = str(pv_signal["id"])
+            pv_input = signal_to_pv_input.get(pv_id)
+
+            if pv_input not in active_pvs:
+                _LOGGER.debug(
+                    "Skipping %s because its voltage and current are 0", pv_input
+                )
+                continue
+
+            has_data = any(
+                str(pv_item.get("id")) == pv_id and pv_item.get("value") is not None
+                for pv_item in pv_data
+            )
+
+            if has_data:
+                unique_id = (
+                    f"{list(device_info['identifiers'])[0][1]}_pv_{pv_signal['id']}"
+                )
+                if unique_id not in unique_ids:
+                    entity = FusionSolarInverterSensor(
+                        coordinator,
+                        pv_signal["id"],
+                        pv_signal["custom_name"],
+                        pv_signal["unit"],
+                        device_info,
+                        pv_signal.get("device_class"),
+                        pv_signal.get("state_class"),
+                        is_pv_signal=True,
+                    )
+                    entities.append(entity)
+                    unique_ids.add(unique_id)
+
     modules_data = coordinator.data.get("modules", {}) if coordinator.data else {}
     for module_id, module_signals in MODULE_SIGNAL_MAP.items():
         module_signals_data = modules_data.get(module_id)
@@ -2387,8 +2575,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
 #
 #   Inverter
 #
-
-
 class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
     def __init__(
         self,
@@ -2399,6 +2585,7 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         device_info,
         device_class=None,
         state_class=None,
+        is_pv_signal=False,
     ):
         super().__init__(coordinator)
         self._signal_id = signal_id
@@ -2408,23 +2595,40 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal_id}"
         self._attr_device_class = device_class
         self._attr_state_class = state_class
+        self._is_pv_signal = is_pv_signal
 
     @property
     def state(self):
         data = self.coordinator.data
         if not data:
             return None
+
+        # Handle PV signals
+        if self._is_pv_signal:
+            pv_data = data.get("pv", [])  # now this is a list
+            for item in pv_data:
+                if str(item.get("id")) == str(self._signal_id):
+                    value = item.get("value")
+                    try:
+                        return float(value)
+                    except (TypeError, ValueError):
+                        return value
+            return None
+
+        # Handle regular inverter signals
         for group in data.get("data", []):
             if "signals" in group:
                 for signal in group["signals"]:
                     if signal["id"] == self._signal_id:
-                        if signal.get("unit"):
-                            try:
-                                return float(signal.get("value"))
-                            except (TypeError, ValueError):
-                                return None
-                        else:
-                            return signal.get("value")
+                        value = signal.get("value")
+                        if value is not None:
+                            if signal.get("unit"):
+                                try:
+                                    return float(value)
+                                except (TypeError, ValueError):
+                                    return None
+                            else:
+                                return value
         return None
 
     @property

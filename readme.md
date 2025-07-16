@@ -226,7 +226,33 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
       <td></td>
       <td></td>
    </tr>
+   <tr>
+      <td align="center">20</td>
+      <td>[PV X] Input Voltage</td>
+      <td align="center">V</td>
+      <td></td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td align="center">21</td>
+      <td>[PV X] Input Current</td>
+      <td align="center">A</td>
+      <td></td>
+      <td></td>
+      <td></td>
+   </tr>
+   <tr>
+      <td align="center">22</td>
+      <td>[PV X] Input Power</td>
+      <td align="center">W</td>
+      <td></td>
+      <td></td>
+      <td></td>
+   </tr>
 </table>
+
+*X ranges from 1 - 4 depending on how many PV Strings your inverter has connected.
 
 ### Battery & Optimizer
 
@@ -713,7 +739,9 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
       <td></td>
    </tr>
 </table>
-*X ranges from 1 - 4 depending on how many modules your battery has.
+*The optimizer entities can be found under the Diagnostic section for Inverter devices. The optimizer entities are automatically created if your inverter has optimizers connected.
+
+**X ranges from 1 - 4 depending on how many modules your battery has.
 
 **⚠️ Note:** Currently, this integration only supports battery modules 1 and 2. If your battery has 3 or 4 modules, please [open an issue](https://github.com/JortvanSchijndel/FusionSolarPlus/issues).
 
