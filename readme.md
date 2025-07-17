@@ -127,16 +127,16 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
       <td>Output Mode</td>
       <td align="center">Text</td>
       <td></td>
-      <td></td>
-      <td></td>
+      <td>Self Used Energy Today**</td>
+      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">8</td>
       <td>Phase A Current</td>
       <td align="center">A</td>
       <td></td>
-      <td></td>
-      <td></td>
+      <td>Consumption Today**</td>
+      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">9</td>
@@ -253,6 +253,7 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
 </table>
 
 *X ranges from 1 - 4 depending on how many PV Strings your inverter has connected.
+**These entities only show up if you have a power meter connected.
 
 ### Battery & Optimizer
 

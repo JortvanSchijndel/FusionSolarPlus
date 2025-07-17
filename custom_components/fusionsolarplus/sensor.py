@@ -409,6 +409,22 @@ PLANT_SIGNALS = [
         "state_class": SensorStateClass.TOTAL,
     },
     {
+        "key": "dailySelfUseEnergy",
+        "name": "Self Used Energy Today",
+        "unit": "kWh",
+        "custom_name": "Self used Energy Today",
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL,
+    },
+    {
+        "key": "dailyUseEnergy",
+        "name": "Consumption Today",
+        "unit": "kWh",
+        "custom_name": "Consumption Today",
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL,
+    },
+    {
         "key": "yearEnergy",
         "name": "Yearly Energy",
         "unit": "kWh",
@@ -2415,12 +2431,36 @@ async def async_setup_entry(hass, entry, async_add_entities):
     unique_ids = set()
     entities = []
 
-    for signal in signals:
-        unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal[id_key]}"
+    if device_type != "Plant":
+        for signal in signals:
+            unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal[id_key]}"
+            if unique_id not in unique_ids:
+                entity = entity_class(
+                    coordinator,
+                    signal[id_key],
+                    signal.get("custom_name", signal["name"]),
+                    signal["unit"],
+                    device_info,
+                    signal.get("device_class"),
+                    signal.get("state_class"),
+                )
+                entities.append(entity)
+                unique_ids.add(unique_id)
+
+    exist_meter = coordinator.data.get("existMeter", True) if coordinator.data else True
+
+    plant_signals_filtered = [
+        signal
+        for signal in PLANT_SIGNALS
+        if exist_meter or signal["key"] not in ["dailySelfUseEnergy", "dailyUseEnergy"]
+    ]
+
+    for signal in plant_signals_filtered:
+        unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal['key']}"
         if unique_id not in unique_ids:
-            entity = entity_class(
+            entity = FusionSolarPlantSensor(
                 coordinator,
-                signal[id_key],
+                signal["key"],
                 signal.get("custom_name", signal["name"]),
                 signal["unit"],
                 device_info,
