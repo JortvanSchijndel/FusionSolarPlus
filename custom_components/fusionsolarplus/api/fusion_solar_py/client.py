@@ -256,9 +256,17 @@ class FusionSolarClient:
             self._session = requests.Session()
         else:
             self._session = session
+
+        suffix = ".fusionsolar.huawei.com"
+
+        while huawei_subdomain.endswith(suffix):
+            huawei_subdomain = huawei_subdomain[: -len(suffix)]
+
         self._huawei_subdomain = huawei_subdomain
+
         # hierarchy: company <- plants <- devices <- subdevices
         self._company_id = None
+
         if self._huawei_subdomain.startswith("region"):
             self._login_subdomain = self._huawei_subdomain[8:]
         elif self._huawei_subdomain.startswith("uni"):
@@ -371,6 +379,7 @@ class FusionSolarClient:
         if key_data["enableEncrypt"]:
             _LOGGER.debug("Using V3 loging function with encrypted passwords")
             url = f"https://{self._login_subdomain}.fusionsolar.huawei.com/unisso/v3/validateUser.action"
+            _LOGGER.debug(url)
             url_params["timeStamp"] = key_data["timeStamp"]
             url_params["nonce"] = get_secure_random()
 
@@ -402,6 +411,7 @@ class FusionSolarClient:
             login_response = r.json()
         except Exception as e:
             _LOGGER.error("Retrieved invalid data as login response.")
+            _LOGGER.debug(r.json())
             _LOGGER.exception(e)
             raise FusionSolarException("Failed to process login response")
 

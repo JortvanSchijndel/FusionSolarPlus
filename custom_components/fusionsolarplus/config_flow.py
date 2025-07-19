@@ -51,7 +51,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             suffix = ".fusionsolar.huawei.com"
 
-            if self.subdomain.endswith(suffix):
+            while self.subdomain.endswith(suffix):
                 self.subdomain = self.subdomain[: -len(suffix)]
 
             try:
