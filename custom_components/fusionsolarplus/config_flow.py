@@ -49,6 +49,11 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.password = user_input[CONF_PASSWORD]
             self.subdomain = user_input[CONF_SUBDOMAIN]
 
+            suffix = ".fusionsolar.huawei.com"
+
+            if self.subdomain.endswith(suffix):
+                self.subdomain = self.subdomain[: -len(suffix)]
+
             try:
                 self.client = await self.hass.async_add_executor_job(
                     partial(
