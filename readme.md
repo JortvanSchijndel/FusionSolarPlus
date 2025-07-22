@@ -253,6 +253,7 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
 </table>
 
 *X ranges from 1 - 4 depending on how many PV Strings your inverter has connected.
+
 **These entities only show up if you have a power meter connected.
 
 ### Battery & Optimizer

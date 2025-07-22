@@ -19,7 +19,7 @@ from .exceptions import (
 from .constants import MODULE_SIGNALS
 from .encryption import encrypt_password, get_secure_random
 
-ENABLE_FAKE_BATTERY = False  # True/False » Will give predefined API responses. Useful if you don't have a battery
+ENABLE_FAKE_DATA = False  # True/False » Will give predefined API responses
 
 # global logger object
 _LOGGER = logging.getLogger(__name__)
@@ -691,7 +691,7 @@ class FusionSolarClient:
         for device in device_data["data"]:
             devices += [dict(type=device["mocTypeName"], deviceDn=device["dn"])]
 
-        if ENABLE_FAKE_BATTERY:
+        if ENABLE_FAKE_DATA:
             devices.append({"type": "Power Sensor", "deviceDn": "NE=140517905"})
 
         return devices
@@ -736,12 +736,12 @@ class FusionSolarClient:
         :rtype: dict
 
         """
-        if ENABLE_FAKE_BATTERY and device_dn == "NE=140517905":
+        if ENABLE_FAKE_DATA and device_dn == "NE=140517905":
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "power_sensor.json")
+            json_path = os.path.join(base_dir, "./fake_requests/power_sensor.json")
             with open(json_path) as f:
-                power_sensor = json.load(f)
-            return power_sensor
+                data = json.load(f)
+            return data
         else:
             url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-realtime-data"
             params = (
@@ -755,52 +755,59 @@ class FusionSolarClient:
 
     @logged_in
     def get_pv_info(self, device_dn: str = None) -> dict:
-        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-real-kpi"
-        params = (
-            ("signalIds", "11001"),
-            ("signalIds", "11002"),
-            ("signalIds", "11004"),
-            ("signalIds", "11005"),
-            ("signalIds", "11007"),
-            ("signalIds", "11008"),
-            ("signalIds", "11010"),
-            ("signalIds", "11011"),
-            ("deviceDn", device_dn),
-            ("_", round(time.time() * 1000)),
-        )
+        if ENABLE_FAKE_DATA:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            json_path = os.path.join(base_dir, "./fake_requests/pv.json")
+            with open(json_path) as f:
+                data = json.load(f)
+            return data
+        else:
+            url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-real-kpi"
+            params = (
+                ("signalIds", "11001"),
+                ("signalIds", "11002"),
+                ("signalIds", "11004"),
+                ("signalIds", "11005"),
+                ("signalIds", "11007"),
+                ("signalIds", "11008"),
+                ("signalIds", "11010"),
+                ("signalIds", "11011"),
+                ("deviceDn", device_dn),
+                ("_", round(time.time() * 1000)),
+            )
 
-        r = self._session.get(url=url, params=params)
-        r.raise_for_status()
-        data = r.json()
+            r = self._session.get(url=url, params=params)
+            r.raise_for_status()
+            data = r.json()
 
-        signals = data.get("data", {}).get("signals", {})
+            signals = data.get("data", {}).get("signals", {})
 
-        # Calculate Current Power using voltage & current
-        multiplication_map = {
-            ("11001", "11002"): "11003",
-            ("11004", "11005"): "11006",
-            ("11007", "11008"): "11009",
-            ("11010", "11011"): "11012",
-        }
+            # Calculate Current Power using voltage & current
+            multiplication_map = {
+                ("11001", "11002"): "11003",
+                ("11004", "11005"): "11006",
+                ("11007", "11008"): "11009",
+                ("11010", "11011"): "11012",
+            }
 
-        latest_time = int(time.time())
+            latest_time = int(time.time())
 
-        for (sig1, sig2), result_id in multiplication_map.items():
-            val1 = signals.get(sig1, {}).get("realValue")
-            val2 = signals.get(sig2, {}).get("realValue")
+            for (sig1, sig2), result_id in multiplication_map.items():
+                val1 = signals.get(sig1, {}).get("realValue")
+                val2 = signals.get(sig2, {}).get("realValue")
 
-            try:
-                product = float(val1) * float(val2)
+                try:
+                    product = float(val1) * float(val2)
 
-                signals[result_id] = {
-                    "value": f"{product:.2f}",
-                    "realValue": f"{product:.2f}",
-                    "latestTime": latest_time,
-                }
-            except (TypeError, ValueError):
-                continue
+                    signals[result_id] = {
+                        "value": f"{product:.2f}",
+                        "realValue": f"{product:.2f}",
+                        "latestTime": latest_time,
+                    }
+                except (TypeError, ValueError):
+                    continue
 
-        return data["data"]
+            return data["data"]
 
     @logged_in
     def get_alarm_data(self, device_dn: str = None) -> dict:
@@ -934,25 +941,31 @@ class FusionSolarClient:
         :return: The complete data structure as a dict
         """
 
-        if ENABLE_FAKE_BATTERY:
+        if ENABLE_FAKE_DATA:
             if module_id == "1":
                 base_dir = os.path.dirname(os.path.abspath(__file__))
-                json_path = os.path.join(base_dir, "battery_module_1.json")
+                json_path = os.path.join(
+                    base_dir, "./fake_requests/battery_module_1.json"
+                )
                 with open(json_path) as f:
-                    battery_module = json.load(f)
-                return battery_module["data"]
+                    data = json.load(f)
+                return data["data"]
             elif module_id == "2":
                 base_dir = os.path.dirname(os.path.abspath(__file__))
-                json_path = os.path.join(base_dir, "battery_module_2.json")
+                json_path = os.path.join(
+                    base_dir, "./fake_requests/battery_module_2.json"
+                )
                 with open(json_path) as f:
-                    battery_module = json.load(f)
-                return battery_module["data"]
+                    data = json.load(f)
+                return data["data"]
             else:
                 base_dir = os.path.dirname(os.path.abspath(__file__))
-                json_path = os.path.join(base_dir, "battery_module_empty.json")
+                json_path = os.path.join(
+                    base_dir, "./fake_requests/battery_module_empty.json"
+                )
                 with open(json_path) as f:
-                    battery_module = json.load(f)
-                return battery_module["data"]
+                    data = json.load(f)
+                return data["data"]
         else:
             if signal_ids is None:
                 signal_ids = MODULE_SIGNALS[module_id]
@@ -993,12 +1006,12 @@ class FusionSolarClient:
         :type battery_id: str
         :return: The current status as a dict
         """
-        if ENABLE_FAKE_BATTERY:
+        if ENABLE_FAKE_DATA:
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "battery_status.json")
+            json_path = os.path.join(base_dir, "./fake_requests/battery_status.json")
             with open(json_path) as f:
-                battery_status = json.load(f)
-            return battery_status["data"][1]["signals"]
+                data = json.load(f)
+            return data["data"][1]["signals"]
         else:
             r = self._session.get(
                 url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-realtime-data",
@@ -1055,12 +1068,12 @@ class FusionSolarClient:
         :return: The complete data structure as a dict
         """
 
-        if ENABLE_FAKE_BATTERY:
+        if ENABLE_FAKE_DATA:
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "flow.json")
+            json_path = os.path.join(base_dir, "./fake_requests/flow.json")
             with open(json_path) as f:
-                plantflow = json.load(f)
-            return plantflow
+                data = json.load(f)
+            return data
         else:
             # https://region01eu5.fusionsolar.huawei.com/rest/pvms/web/station/v1/overview/energy-flow?stationDn=NE%3D33594051&_=1652469979488
             r = self._session.get(
@@ -1215,13 +1228,13 @@ class FusionSolarClient:
         :return: _description_
         """
 
-        if ENABLE_FAKE_BATTERY:
+        if ENABLE_FAKE_DATA:
             if inverter_id == "NE=138957388":
                 base_dir = os.path.dirname(os.path.abspath(__file__))
-                json_path = os.path.join(base_dir, "optimizer.json")
+                json_path = os.path.join(base_dir, "./fake_requests/optimizer.json")
                 with open(json_path) as f:
-                    optimizer = json.load(f)
-                return optimizer["data"]
+                    data = json.load(f)
+                return data["data"]
             else:
                 return []
         else:

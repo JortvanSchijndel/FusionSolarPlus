@@ -2,7 +2,6 @@ from homeassistant.helpers.device_registry import async_get as async_get_device_
 from .api.fusion_solar_py.client import FusionSolarClient
 from functools import partial
 
-
 DOMAIN = "fusionsolarplus"
 
 
@@ -16,15 +15,18 @@ async def async_setup_entry(hass, entry):
             FusionSolarClient,
             username,
             password,
-            captcha_model_path=hass,
+            captcha_model_path=hass,  # Use captcha_model_path to pass hass
             huawei_subdomain=subdomain,
         )
     )
 
     if DOMAIN not in hass.data:
         hass.data[DOMAIN] = {}
+
+    # Store client integration data
     hass.data[DOMAIN][entry.entry_id] = client
 
+    # Register device
     device_registry = async_get_device_registry(hass)
     device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
@@ -34,6 +36,7 @@ async def async_setup_entry(hass, entry):
         model=entry.data["device_type"],
     )
 
+    # Forward entry so sensors can be created
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
 
     return True
