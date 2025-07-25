@@ -161,22 +161,11 @@ class InverterDeviceHandler(BaseDeviceHandler):
             response["optimizers"] = optimizer_stats
 
             # Get PV info
-            pv_stats_raw = await self.hass.async_add_executor_job(
+            pv_stats = await self.hass.async_add_executor_job(
                 client.get_pv_info, self.device_id
             )
 
-            signals = (
-                pv_stats_raw.get("signals", {})
-                if isinstance(pv_stats_raw, dict)
-                else {}
-            )
-
-            normalized_pv = [
-                {"id": str(signal_id), "value": data.get("value")}
-                for signal_id, data in signals.items()
-                if data.get("value") is not None
-            ]
-            response["pv"] = normalized_pv
+            response["pv"] = pv_stats
 
             return response
 
@@ -211,80 +200,74 @@ class InverterDeviceHandler(BaseDeviceHandler):
     def _create_pv_entities(
         self, coordinator: DataUpdateCoordinator, entities: List, unique_ids: Set[str]
     ):
-        """Create PV entities for inverters"""
         if not coordinator.data:
             return
 
-        pv_data = coordinator.data.get("pv", [])
+        pv_data = coordinator.data.get("pv", {})
+
+        signals = pv_data.get("signals", {})
         pv_lookup = {
-            item["id"]: item["value"]
-            for item in pv_data
-            if "id" in item and "value" in item
+            signal_id: signal_data.get("value")
+            for signal_id, signal_data in signals.items()
+        }
+        available_pvs = {pv.lower() for pv in pv_data.get("available_pvs", [])}
+
+        signals_to_input = {
+            "PV1": ("11001", "11002", "11003"),
+            "PV2": ("11004", "11005", "11006"),
+            "PV3": ("11007", "11008", "11009"),
+            "PV4": ("11010", "11011", "11012"),
+            "PV5": ("11013", "11014", "11015"),
+            "PV6": ("11016", "11017", "11018"),
+            "PV7": ("11019", "11020", "11021"),
+            "PV8": ("11022", "11023", "11024"),
+            "PV9": ("11025", "11026", "11027"),
+            "PV10": ("11028", "11029", "11030"),
+            "PV11": ("11031", "11032", "11033"),
+            "PV12": ("11034", "11035", "11036"),
+            "PV13": ("11037", "11038", "11039"),
+            "PV14": ("11040", "11041", "11042"),
+            "PV15": ("11043", "11044", "11045"),
+            "PV16": ("11046", "11047", "11048"),
+            "PV17": ("11049", "11050", "11051"),
+            "PV18": ("11052", "11053", "11054"),
+            "PV19": ("11055", "11056", "11057"),
+            "PV20": ("11058", "11059", "11060"),
         }
 
-        # Find PV inputs
-        active_pvs = set()
-        for pv_name, ids in pv_inputs.items():
-            voltage_str = pv_lookup.get(ids["voltage"])
-            current_str = pv_lookup.get(ids["current"])
+        for pv_name in available_pvs:
+            pv_key = pv_name.upper()
 
-            try:
-                voltage = float(voltage_str) if voltage_str else 0.0
-            except (ValueError, TypeError):
-                voltage = 0.0
-
-            try:
-                current = float(current_str) if current_str else 0.0
-            except (ValueError, TypeError):
-                current = 0.0
-
-            if voltage > 0 or current > 0:
-                active_pvs.add(pv_name)
-
-        # Define signals to which pv
-        signal_to_pv_input = {
-            "11001": "pv1",
-            "11002": "pv1",
-            "11003": "pv1",
-            "11004": "pv2",
-            "11005": "pv2",
-            "11006": "pv2",
-            "11007": "pv3",
-            "11008": "pv3",
-            "11009": "pv3",
-            "11010": "pv4",
-            "11011": "pv4",
-            "11012": "pv4",
-        }
-
-        # Create PV signal entities
-        for pv_signal in PV_SIGNALS:
-            pv_id = str(pv_signal["id"])
-            pv_input = signal_to_pv_input.get(pv_id)
-
-            if pv_input not in active_pvs:
+            signal_ids = signals_to_input.get(pv_key)
+            if not signal_ids:
                 continue
 
-            has_data = any(
-                str(pv_item.get("id")) == pv_id and pv_item.get("value") is not None
-                for pv_item in pv_data
-            )
+            for sig_id in signal_ids:
+                pv_signal = next(
+                    (ps for ps in PV_SIGNALS if str(ps["id"]) == sig_id), None
+                )
+                if not pv_signal:
+                    continue
 
-            if has_data:
-                unique_id = f"{list(self.device_info['identifiers'])[0][1]}_pv_{pv_signal['id']}"
-                if unique_id not in unique_ids:
-                    entity = FusionSolarInverterSensor(
-                        coordinator,
-                        pv_signal["id"],
-                        pv_signal["custom_name"],
-                        pv_signal["unit"],
-                        self.device_info,
-                        pv_signal.get("device_class"),
-                        pv_signal.get("state_class"),
-                        is_pv_signal=True,
-                    )
-                    entities.append(entity)
-                    unique_ids.add(unique_id)
+                if sig_id not in pv_lookup or pv_lookup[sig_id] is None:
+                    continue
+
+                unique_id = f"{list(self.device_info['identifiers'])[0][1]}_pv_{sig_id}"
+                if unique_id in unique_ids:
+                    continue
+
+                entity = FusionSolarInverterSensor(
+                    coordinator,
+                    int(sig_id),
+                    pv_signal["custom_name"],
+                    pv_signal["unit"],
+                    self.device_info,
+                    pv_signal.get("device_class"),
+                    pv_signal.get("state_class"),
+                    is_pv_signal=True,
+                )
+                entities.append(entity)
+                unique_ids.add(unique_id)
 
     def _create_optimizer_entities(
         self, coordinator: DataUpdateCoordinator, entities: List, unique_ids: Set[str]

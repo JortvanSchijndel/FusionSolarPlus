@@ -39,11 +39,17 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
 
         # PV signals
         if self._is_pv_signal:
-            pv_data = data.get("pv", [])
-            for item in pv_data:
-                if str(item.get("id")) == str(self._signal_id):
-                    value = item.get("value")
-                    break
+            pv_data = data.get("pv", {})
+            if isinstance(pv_data, dict):
+                signals = pv_data.get("signals", {})
+                signal_data = signals.get(str(self._signal_id))
+                if signal_data:
+                    value = signal_data.get("value")
+            else:
+                for item in pv_data:
+                    if str(item.get("id")) == str(self._signal_id):
+                        value = item.get("value")
+                        break
 
         # Normal inverter signals
         else:

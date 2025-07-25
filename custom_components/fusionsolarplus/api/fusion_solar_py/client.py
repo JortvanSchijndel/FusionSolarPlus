@@ -8,7 +8,7 @@ from functools import wraps
 import json
 import os
 from typing import Any, Optional
-
+import re
 import requests
 
 from .exceptions import (
@@ -754,27 +754,76 @@ class FusionSolarClient:
             return r.json()
 
     @logged_in
-    def get_pv_info(self, device_dn: str = None) -> dict:
-        if ENABLE_FAKE_DATA:
+    def get_pv_info(
+        self, device_dn: str = None
+    ) -> dict:  # Doesn't generate the Power Entities for PV only Current & Volt
+        if ENABLE_FAKE_DATA and device_dn == "NE=138957388":
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "./fake_requests/pv.json")
+            json_path = os.path.join(base_dir, "./fake_requests/pv_info.json")
             with open(json_path) as f:
                 data = json.load(f)
             return data
         else:
+            #
+            # Get Available PV's
+            #
+            avail_url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-statistics-signal"
+            avail_params = {
+                "deviceDn": device_dn,
+                "_": round(time.time() * 1000),
+            }
+            r_avail = self._session.get(url=avail_url, params=avail_params)
+            r_avail.raise_for_status()
+            avail_data = r_avail.json()
+
+            available_pvs = []
+            for signal in avail_data.get("data", {}).get("signalList", []):
+                name = signal.get("name", "")
+                match = re.search(r"\bPV\d+\b", name)
+                if match:
+                    pv_id = match.group(0)
+                    if pv_id not in available_pvs:
+                        available_pvs.append(pv_id)
+
+            #
+            # Fetch PV Data
+            #
+            PV_SIGNAL_MAP = {
+                "PV1": [("11001", "11002", "11003")],
+                "PV2": [("11004", "11005", "11006")],
+                "PV3": [("11007", "11008", "11009")],
+                "PV4": [("11010", "11011", "11012")],
+                "PV5": [("11013", "11014", "11015")],
+                "PV6": [("11016", "11017", "11018")],
+                "PV7": [("11019", "11020", "11021")],
+                "PV8": [("11022", "11023", "11024")],
+                "PV9": [("11025", "11026", "11027")],
+                "PV10": [("11028", "11029", "11030")],
+                "PV11": [("11031", "11032", "11033")],
+                "PV12": [("11034", "11035", "11036")],
+                "PV13": [("11037", "11038", "11039")],
+                "PV14": [("11040", "11041", "11042")],
+                "PV15": [("11043", "11044", "11045")],
+                "PV16": [("11046", "11047", "11048")],
+                "PV17": [("11049", "11050", "11051")],
+                "PV18": [("11052", "11053", "11054")],
+                "PV19": [("11055", "11056", "11057")],
+                "PV20": [("11058", "11059", "11060")],
+            }
+
+            signal_ids = []
+            for pv in available_pvs:
+                pairs = PV_SIGNAL_MAP.get(pv)
+                if pairs:
+                    for voltage_id, current_id, power_id in pairs:
+                        signal_ids.append(voltage_id)
+                        signal_ids.append(current_id)
+
+            params = [(("signalIds", sid)) for sid in signal_ids]
+            params.append(("deviceDn", device_dn))
+            params.append(("_", round(time.time() * 1000)))
+
             url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-real-kpi"
-            params = (
-                ("signalIds", "11001"),
-                ("signalIds", "11002"),
-                ("signalIds", "11004"),
-                ("signalIds", "11005"),
-                ("signalIds", "11007"),
-                ("signalIds", "11008"),
-                ("signalIds", "11010"),
-                ("signalIds", "11011"),
-                ("deviceDn", device_dn),
-                ("_", round(time.time() * 1000)),
-            )
 
             r = self._session.get(url=url, params=params)
             r.raise_for_status()
@@ -782,32 +831,42 @@ class FusionSolarClient:
 
             signals = data.get("data", {}).get("signals", {})
 
-            # Calculate Current Power using voltage & current
-            multiplication_map = {
-                ("11001", "11002"): "11003",
-                ("11004", "11005"): "11006",
-                ("11007", "11008"): "11009",
-                ("11010", "11011"): "11012",
-            }
-
+            #
+            # Calculate Power from volt & current
+            #
             latest_time = int(time.time())
+            for pv in available_pvs:
+                pairs = PV_SIGNAL_MAP.get(pv)
+                if pairs:
+                    for voltage_id, current_id, power_id in pairs:
+                        val1 = signals.get(voltage_id, {}).get("realValue")
+                        val2 = signals.get(current_id, {}).get("realValue")
+                        try:
+                            product = float(val1) * float(val2)
+                            signals[power_id] = {
+                                "value": f"{product:.2f}",
+                                "realValue": f"{product:.2f}",
+                                "latestTime": latest_time,
+                            }
+                        except (TypeError, ValueError):
+                            continue
 
-            for (sig1, sig2), result_id in multiplication_map.items():
-                val1 = signals.get(sig1, {}).get("realValue")
-                val2 = signals.get(sig2, {}).get("realValue")
+            #
+            # Return availble PVs & data of the PV's
+            #
+            filtered_signals = {}
+            for pv in available_pvs:
+                pairs = PV_SIGNAL_MAP.get(pv)
+                if pairs:
+                    for voltage_id, current_id, power_id in pairs:
+                        for sid in (voltage_id, current_id, power_id):
+                            if sid in signals:
+                                filtered_signals[sid] = signals[sid]
 
-                try:
-                    product = float(val1) * float(val2)
-
-                    signals[result_id] = {
-                        "value": f"{product:.2f}",
-                        "realValue": f"{product:.2f}",
-                        "latestTime": latest_time,
-                    }
-                except (TypeError, ValueError):
-                    continue
-
-            return data["data"]
+            return {
+                "signals": filtered_signals,
+                "available_pvs": available_pvs,
+            }
 
     @logged_in
     def get_alarm_data(self, device_dn: str = None) -> dict:
