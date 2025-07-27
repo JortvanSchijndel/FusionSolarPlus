@@ -44,11 +44,13 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
                 signals = pv_data.get("signals", {})
                 signal_data = signals.get(str(self._signal_id))
                 if signal_data:
-                    value = signal_data.get("value")
+                    raw_value = signal_data.get("value")
+                    value = 0 if raw_value == "-" else raw_value
             else:
                 for item in pv_data:
                     if str(item.get("id")) == str(self._signal_id):
-                        value = item.get("value")
+                        raw_value = item.get("value")
+                        value = 0 if raw_value == "-" else raw_value
                         break
 
         # Normal inverter signals
@@ -56,7 +58,8 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
             for group in data.get("data", []):
                 for signal in group.get("signals", []):
                     if signal["id"] == self._signal_id:
-                        value = signal.get("value")
+                        raw_value = signal.get("value")
+                        value = 0 if raw_value == "-" else raw_value
                         break
 
         if value is None:
@@ -112,7 +115,8 @@ class FusionSolarOptimizerSensor(CoordinatorEntity, SensorEntity):
         )
         for opt in data:
             if opt.get("optName") == self._optimizer_name:
-                value = opt.get(self._metric_key)
+                raw_value = opt.get(self._metric_key)
+                value = 0 if raw_value == "-" else raw_value
                 if value is not None and isinstance(value, str):
                     try:
                         value = float(value)
@@ -166,9 +170,13 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         data = self.coordinator.data
         if not data:
             return None
-        value = data.get(self._key)
-        if value is None:
+
+        raw_value = data.get(self._key)
+        if raw_value is None:
             return None
+
+        value = 0 if raw_value == "-" else raw_value
+
         if self.native_unit_of_measurement:
             try:
                 return float(value)
@@ -218,14 +226,16 @@ class FusionSolarBatterySensor(CoordinatorEntity, SensorEntity):
             return None
 
         for signal in signals:
+            value = 0 if signal.get("value") == "-" else signal.get("value")
+
             if signal["id"] == self._signal_id:
                 if signal.get("unit"):
                     try:
-                        return float(signal.get("value"))
+                        return float(value)
                     except (TypeError, ValueError):
                         return None
                 else:
-                    return signal.get("value")
+                    return value
         return None
 
     @property
@@ -269,13 +279,16 @@ class FusionSolarBatteryModuleSensor(CoordinatorEntity, SensorEntity):
         data = self.coordinator.data
         if not data or "modules" not in data:
             return None
+
         module_signals = data["modules"].get(self._module_id, [])
         for signal in module_signals:
             if signal["id"] == self._signal_id:
+                raw_value = signal.get("realValue")
+                value = 0 if raw_value == "-" else raw_value
                 try:
-                    return float(signal.get("realValue"))
+                    return float(value)
                 except (TypeError, ValueError):
-                    return signal.get("realValue")
+                    return value
         return None
 
     @property
@@ -318,17 +331,21 @@ class FusionSolarPowerSensor(CoordinatorEntity, SensorEntity):
         data = self.coordinator.data
         if not data:
             return None
+
         for group in data.get("data", []):
             if "signals" in group:
                 for signal in group["signals"]:
                     if signal["id"] == self._signal_id:
+                        raw_value = signal.get("value")
+                        value = 0 if raw_value == "-" else raw_value
+
                         if signal.get("unit"):
                             try:
-                                return float(signal.get("value"))
+                                return float(value)
                             except (TypeError, ValueError):
                                 return None
                         else:
-                            return signal.get("value")
+                            return value
         return None
 
     @property
