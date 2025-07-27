@@ -339,7 +339,6 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
       <td>Input Current</td>
       <td align="center">A</td>
    </tr>
-   <!-- Module-specific rows without counter on Optimizer side -->
    <tr>
       <td align="center">10</td>
       <td>[Module X] No.</td>
@@ -762,12 +761,12 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
    </tr>
    <tr>
       <td align="center">2</td>
-      <td>Positive Active Energy</td>
+      <td>Positive Active Energy (Exported Energy)</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">3</td>
-      <td>Negative Active Energy</td>
+      <td>Negative Active Energy (Imported Energy)</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
