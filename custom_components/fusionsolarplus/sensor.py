@@ -15,6 +15,8 @@ from .const import (
     DOMAIN,
     INVERTER_SIGNALS,
     PLANT_SIGNALS,
+    CHARGING_PILE_SIGNALS,
+    CHARGER_DEVICE_SIGNALS,
     BATTERY_STATUS_SIGNALS,
     POWER_SENSOR_SIGNALS,
     PV_SIGNALS,
@@ -28,6 +30,7 @@ from .sensor_entities import (
     FusionSolarBatteryModuleSensor,
     FusionSolarPowerSensor,
     FusionSolarOptimizerSensor,
+    FusionSolarChargerSensor,
 )
 from .api.fusion_solar_py.client import FusionSolarClient
 
@@ -301,6 +304,89 @@ class InverterDeviceHandler(BaseDeviceHandler):
                         unique_ids.add(unique_id)
 
 
+class ChargerDeviceHandler(BaseDeviceHandler):
+    """Handler for Charger devices"""
+
+    async def _async_get_data(self) -> Dict[str, Any]:
+        async def fetch_charger_data(client):
+            return await self.hass.async_add_executor_job(
+                client.get_charger_data, self.device_id
+            )
+
+        return await self._get_client_and_retry(fetch_charger_data)
+
+    def create_entities(self, coordinator: DataUpdateCoordinator) -> List:
+        entities = []
+        unique_ids = set()
+
+        if not coordinator.data:
+            return entities
+
+        for signal_type_id, signals_data in coordinator.data.items():
+            if not isinstance(signals_data, list):
+                continue
+
+            signal_list = self._get_signal_list_for_type(signals_data)
+
+            if not signal_list:
+                continue
+
+            for signal_config in signal_list:
+                matching_signal = next(
+                    (s for s in signals_data if s.get("id") == signal_config["id"]),
+                    None,
+                )
+
+                if matching_signal:
+                    unique_id = f"{list(self.device_info['identifiers'])[0][1]}_{signal_config['id']}"
+                    if unique_id not in unique_ids:
+                        entity = FusionSolarChargerSensor(
+                            coordinator,
+                            signal_config["id"],
+                            signal_config.get("custom_name", signal_config["name"]),
+                            signal_config.get("unit", None),
+                            self.device_info,
+                            signal_config.get("device_class"),
+                            signal_config.get("state_class"),
+                            signal_type_id,
+                        )
+                        entities.append(entity)
+                        unique_ids.add(unique_id)
+
+        return entities
+
+    def _get_signal_list_for_type(self, signals_data):
+        """Determine which signal list to use based on the signals present in the data"""
+        if not signals_data:
+            return None
+
+        present_ids = {signal.get("id") for signal in signals_data if signal.get("id")}
+
+        charging_pile_ids = {
+            10001,
+            10002,
+            10003,
+            10004,
+        }
+        if charging_pile_ids.intersection(present_ids):
+            if any(
+                signal.get("name") == "Charging Connector No."
+                for signal in signals_data
+            ):
+                return CHARGING_PILE_SIGNALS
+
+        charger_device_ids = {
+            10001,
+            10002,
+            455770003,
+        }
+        if charger_device_ids.intersection(present_ids):
+            if any(signal.get("name") == "Software Version" for signal in signals_data):
+                return CHARGER_DEVICE_SIGNALS
+
+        return None
+
+
 class PlantDeviceHandler(BaseDeviceHandler):
     """Handler for Plant devices"""
 
@@ -490,6 +576,8 @@ class DeviceHandlerFactory:
             return BatteryDeviceHandler(hass, entry, device_info)
         elif device_type == "Power Sensor":
             return PowerSensorDeviceHandler(hass, entry, device_info)
+        elif device_type == "Charger":
+            return ChargerDeviceHandler(hass, entry, device_info)
         else:
             raise ValueError(f"Unsupported device type: {device_type}")
 

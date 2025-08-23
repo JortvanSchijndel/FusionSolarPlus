@@ -680,7 +680,7 @@ class FusionSolarClient:
         url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/web/config/device/v1/device-list"
         params = {
             "conditionParams.parentDn": self._company_id,  # can be a plant or company id
-            "conditionParams.mocTypes": "20815,20816,20819,20822,50017,60066,60014,60015,23037",  # specifies the types of devices | 20814, for optimizers
+            "conditionParams.mocTypes": "20815,20816,20819,20822,50017,60066,60014,60015,23037,60080",  # specifies the types of devices | 20814 for optimizers. 60080 for chargers
             "_": round(time.time() * 1000),
         }
         r = self._session.get(url=url, params=params)
@@ -749,6 +749,65 @@ class FusionSolarClient:
                 ("_", round(time.time() * 1000)),
             )
             r = self._session.get(url=url, params=params)
+            r.raise_for_status()
+
+            return r.json()
+
+    @logged_in
+    def get_charger_data(self, device_dn: str = None) -> dict:
+        """retrieves real time data for requested device
+
+        :return: real time data for requested signals and device
+        :rtype: dict
+
+        """
+        if ENABLE_FAKE_DATA and device_dn == "NE=140517905":
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+            json_path = os.path.join(base_dir, "power_sensor.json")
+            with open(json_path) as f:
+                power_sensor = json.load(f)
+            return power_sensor
+        else:
+            # Get First DnID
+            url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/dp/pvms/organization/v1/tree"
+            payload = {
+                "parentDn": device_dn,
+                "treeDepth": "device",
+                "pageParam": {"needPage": True},
+                "filterCond": {"nameType": "device", "mocIdInclude": [60081]},
+                "displayCond": {"self": False, "status": True},
+            }
+            r = self._session.post(url=url, json=payload)
+            r.raise_for_status()
+
+            response = r.json()
+
+            if "childList" in response and len(response["childList"]) > 0:
+                dn_id_1 = response["childList"][0]["elementId"]
+            else:
+                print("elementId not found")
+
+            # Get Second DnID
+            url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/mo-details"
+            params = (
+                ("dn", device_dn),
+                ("_", round(time.time() * 1000)),
+            )
+            r = self._session.get(url=url, params=params)
+            r.raise_for_status()
+
+            response = r.json()
+            dn_id_2 = str(response.get("data", {}).get("mo", {}).get("dnId"))
+
+            # Get the actual device info
+            url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/web/homemgr/v1/device/get-realtime-info"
+            payload = {
+                "conditions": [
+                    {"dnId": dn_id_1, "queryAll": True},
+                    {"dnId": dn_id_2, "queryAll": True},
+                ]
+            }
+            r = self._session.post(url=url, json=payload)
             r.raise_for_status()
 
             return r.json()

@@ -130,6 +130,83 @@ class FusionSolarOptimizerSensor(CoordinatorEntity, SensorEntity):
         return self.coordinator.last_update_success
 
 
+class FusionSolarChargerSensor(CoordinatorEntity, SensorEntity):
+    """Sensor for Charger devices."""
+
+    def __init__(
+        self,
+        coordinator,
+        signal_id,
+        name,
+        unit,
+        device_info,
+        device_class=None,
+        state_class=None,
+        signal_type_id=None,
+    ):
+        super().__init__(coordinator)
+        self._signal_id = signal_id
+        self._signal_type_id = signal_type_id
+        self._attr_name = name
+        self._base_unit = unit
+        self._attr_device_info = device_info
+        self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal_id}"
+        self._attr_device_class = device_class
+        self._attr_state_class = state_class
+
+    @property
+    def native_unit_of_measurement(self):
+        """Return the unit of measurement."""
+        return self._base_unit
+
+    @property
+    def native_value(self):
+        """Return the state of the sensor."""
+        data = self.coordinator.data
+        if not data:
+            return None
+
+        # Find the signal data for this sensor
+        signal_data = None
+        for signal_type_id, signals_list in data.items():
+            if isinstance(signals_list, list):
+                signal_data = next(
+                    (s for s in signals_list if s.get("id") == self._signal_id), None
+                )
+                if signal_data:
+                    break
+
+        if not signal_data:
+            return None
+
+        # Get the real value from the signal data
+        raw_value = signal_data.get("realValue")
+        if raw_value is None:
+            return None
+
+        # Handle special cases
+        value = 0 if raw_value == "-" else raw_value
+
+        # Handle enum values - return the real value (text) for enum types
+        if self._attr_device_class == SensorDeviceClass.ENUM:
+            return value
+
+        # For numeric values, try to convert to float if unit is present
+        if self.native_unit_of_measurement:
+            try:
+                return float(value)
+            except (TypeError, ValueError):
+                return None
+        else:
+            return value
+
+    @property
+    def available(self):
+        return (
+            self.coordinator.last_update_success and self.coordinator.data is not None
+        )
+
+
 class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
     """Sensor for Plant devices."""
 

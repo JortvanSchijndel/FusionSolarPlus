@@ -746,93 +746,224 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
 
 **⚠️ Note:** Currently, this integration only supports battery modules 1 and 2. If your battery has 3 or 4 modules, please [open an issue](https://github.com/JortvanSchijndel/FusionSolarPlus/issues).
 
-### Power Sensor
+### Power Sensor & Car Charger
 
 <table>
    <tr>
       <td width="50" align="center"><b>#</b></td>
       <td width="400"><b>Power Sensor Entity</b></td>
       <td width="100" align="center"><b>Unit</b></td>
+      <td width="75"></td>
+      <td width="400"><b>Charger Entity</b></td>
+      <td width="100" align="center"><b>Unit</b></td>
    </tr>
    <tr>
       <td align="center">1</td>
       <td>Meter Status</td>
+      <td align="center">Text</td>
+      <td></td>
+      <td>Connector Number</td>
       <td align="center">Text</td>
    </tr>
    <tr>
       <td align="center">2</td>
       <td>Positive Active Energy (Exported Energy)</td>
       <td align="center">kWh</td>
+      <td></td>
+      <td>Connector Type</td>
+      <td align="center">Text</td>
    </tr>
    <tr>
       <td align="center">3</td>
       <td>Negative Active Energy (Imported Energy)</td>
       <td align="center">kWh</td>
+      <td></td>
+      <td>Rated Power</td>
+      <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">4</td>
       <td>Reactive Power</td>
       <td align="center">Var</td>
+      <td></td>
+      <td>Status</td>
+      <td align="center">Text</td>
    </tr>
    <tr>
       <td align="center">5</td>
       <td>Active Power</td>
       <td align="center">W</td>
+      <td></td>
+      <td>Relay Status</td>
+      <td align="center">Text</td>
    </tr>
    <tr>
       <td align="center">6</td>
       <td>Power Factor</td>
       <td align="center">Ratio</td>
+      <td></td>
+      <td>Connector Temp</td>
+      <td align="center">℃</td>
    </tr>
    <tr>
       <td align="center">7</td>
       <td>Phase A Active Power</td>
       <td align="center">W</td>
+      <td></td>
+      <td>Phase A Voltage</td>
+      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">8</td>
       <td>Phase B Active Power</td>
       <td align="center">W</td>
+      <td></td>
+      <td>Phase B Voltage</td>
+      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">9</td>
       <td>Phase C Active Power</td>
       <td align="center">W</td>
+      <td></td>
+      <td>Phase C Voltage</td>
+      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">10</td>
       <td>Phase A Voltage</td>
       <td align="center">V</td>
+      <td></td>
+      <td>Phase A Current</td>
+      <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">11</td>
       <td>Phase B Voltage</td>
       <td align="center">V</td>
+      <td></td>
+      <td>Phase B Current</td>
+      <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">12</td>
       <td>Phase C Voltage</td>
       <td align="center">V</td>
+      <td></td>
+      <td>Phase C Current</td>
+      <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">13</td>
       <td>Phase A Current</td>
       <td align="center">A</td>
+      <td></td>
+      <td>Output Power</td>
+      <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">14</td>
       <td>Phase B Current</td>
       <td align="center">A</td>
+      <td></td>
+      <td>Total Energy</td>
+      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">15</td>
       <td>Phase C Current</td>
       <td align="center">A</td>
+      <td></td>
+      <td>PWM Duty</td>
+      <td align="center">%</td>
    </tr>
    <tr>
       <td align="center">16</td>
       <td>Grid Frequency</td>
       <td align="center">Hz</td>
+      <td></td>
+      <td>Connector Lock</td>
+      <td align="center">Text</td>
+   </tr>
+   <tr>
+      <td align="center">17</td>
+      <td></td>
+      <td align="center"></td>
+      <td></td>
+      <td>Working Mode</td>
+      <td align="center">Text</td>
+   </tr>
+   <tr>
+      <td align="center">18</td>
+      <td></td>
+      <td align="center"></td>
+      <td></td>
+      <td>Departure Time</td>
+      <td align="center">DateTime</td>
+   </tr>
+   <tr>
+      <td align="center">19</td>
+      <td></td>
+      <td align="center"></td>
+      <td></td>
+      <td>Planned Charge Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">20</td>
+      <td></td>
+      <td align="center"></td>
+      <td></td>
+      <td>Connection Status</td>
+      <td align="center">Text</td>
+   </tr>
+   <tr>
+      <td align="center">21</td>
+      <td></td>
+      <td align="center"></td>
+      <td></td>
+      <td>Charging Duration (s)</td>
+      <td align="center">s</td>
+   </tr>
+   <tr>
+      <td align="center">22</td>
+      <td></td>
+      <td align="center"></td>
+      <td></td>
+      <td>Serial Number</td>
+      <td align="center">Text</td>
+   </tr>
+   <tr>
+      <td align="center">23</td>
+      <td></td>
+      <td align="center"></td>
+      <td></td>
+      <td>Model</td>
+      <td align="center">Text</td>
+   </tr>
+   <tr>
+      <td align="center">24</td>
+      <td></td>
+      <td align="center"></td>
+      <td></td>
+      <td>Charger Temp</td>
+      <td align="center">℃</td>
+   </tr>
+   <tr>
+      <td align="center">25</td>
+      <td></td>
+      <td align="center"></td>
+      <td></td>
+      <td>Port Count</td>
+      <td align="center">Text</td>
+   </tr>
+   <tr>
+      <td align="center">26</td>
+      <td></td>
+      <td align="center"></td>
+      <td></td>
+      <td>Bluetooth Name</td>
+      <td align="center">Text</td>
    </tr>
 </table>
 </details>
