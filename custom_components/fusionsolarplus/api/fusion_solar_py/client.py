@@ -768,6 +768,8 @@ class FusionSolarClient:
                 power_sensor = json.load(f)
             return power_sensor
         else:
+            self.keep_alive()  # Keep Session alive (temporary hot fix)
+
             # Get First DnID
             url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/dp/pvms/organization/v1/tree"
             payload = {
