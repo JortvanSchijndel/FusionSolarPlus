@@ -116,7 +116,7 @@ class FusionSolarOptimizerSensor(CoordinatorEntity, SensorEntity):
         self._optimizer_name = optimizer_name
 
         device_id = list(device_info["identifiers"])[0][1]
-        safe_name = name.lower().replace(" ", "_")
+        safe_name = optimizer_name.lower().replace(" ", "_")
         self.entity_id = generate_entity_id(
             ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
         )
