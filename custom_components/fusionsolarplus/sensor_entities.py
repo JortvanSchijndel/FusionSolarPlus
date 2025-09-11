@@ -1,4 +1,6 @@
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
+from homeassistant.helpers.entity import generate_entity_id
+from homeassistant.components.sensor import ENTITY_ID_FORMAT
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers.entity import EntityCategory
 
@@ -28,6 +30,12 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = device_class
         self._attr_state_class = state_class
         self._is_pv_signal = is_pv_signal
+
+        device_id = list(device_info["identifiers"])[0][1]
+        safe_name = name.lower().replace(" ", "_")
+        self.entity_id = generate_entity_id(
+            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+        )
 
     @property
     def native_value(self):
@@ -107,6 +115,12 @@ class FusionSolarOptimizerSensor(CoordinatorEntity, SensorEntity):
         self._metric_key = metric_key
         self._optimizer_name = optimizer_name
 
+        device_id = list(device_info["identifiers"])[0][1]
+        safe_name = name.lower().replace(" ", "_")
+        self.entity_id = generate_entity_id(
+            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+        )
+
     @property
     def native_value(self):
         """Return the state of the sensor."""
@@ -153,6 +167,12 @@ class FusionSolarChargerSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal_id}"
         self._attr_device_class = device_class
         self._attr_state_class = state_class
+
+        device_id = list(device_info["identifiers"])[0][1]
+        safe_name = name.lower().replace(" ", "_")
+        self.entity_id = generate_entity_id(
+            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+        )
 
     @property
     def native_unit_of_measurement(self):
@@ -229,6 +249,12 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = device_class
         self._attr_state_class = state_class
 
+        device_id = list(device_info["identifiers"])[0][1]
+        safe_name = name.lower().replace(" ", "_")
+        self.entity_id = generate_entity_id(
+            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+        )
+
     @property
     def native_unit_of_measurement(self):
         """Return the unit of measurement."""
@@ -291,6 +317,12 @@ class FusionSolarBatterySensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = device_class
         self._attr_state_class = state_class
 
+        device_id = list(device_info["identifiers"])[0][1]
+        safe_name = name.lower().replace(" ", "_")
+        self.entity_id = generate_entity_id(
+            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+        )
+
     @property
     def native_value(self):
         """Return the state of the sensor."""
@@ -350,6 +382,12 @@ class FusionSolarBatteryModuleSensor(CoordinatorEntity, SensorEntity):
         self._attr_entity_category = entity_category
         self._module_id = module_id
 
+        device_id = list(device_info["identifiers"])[0][1]
+        safe_name = name.lower().replace(" ", "_")
+        self.entity_id = generate_entity_id(
+            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+        )
+
     @property
     def native_value(self):
         """Return the state of the sensor."""
@@ -401,6 +439,12 @@ class FusionSolarPowerSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal_id}"
         self._attr_device_class = device_class
         self._attr_state_class = state_class
+
+        device_id = list(device_info["identifiers"])[0][1]
+        safe_name = name.lower().replace(" ", "_")
+        self.entity_id = generate_entity_id(
+            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+        )
 
     @property
     def native_value(self):
