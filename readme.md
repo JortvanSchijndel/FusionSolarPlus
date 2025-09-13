@@ -51,13 +51,13 @@ Once installed:
 
 FusionSolarPlus is fully compatible with the integrated Home Assistant energy dashboard. When configuring the energy dashboard you need to provide the following settings:
 
-|                          | Energy dashboard setting         | Device Type  | Entity                                                              |
-|--------------------------|----------------------------------|:------------:|---------------------------------------------------------------------|
-| **Electricity Grid**     | Grid Consumption                 | Power Sensor | Negative Active Energy                                              |
-|                          | Return to Grid                   | Power Sensor | Positive Active Energy                                              |
-| **Home Battery Storage** | Energy going in to the battery   |   Battery    | Energy Charged Today                                                |
-|                          | Energy coming out of the battery |   Battery    | Energy Discharged Today                                             |
-| **Solar Panels**         | Solar Production                 |    Plant     | Total Energy **or** Total Energy Produced for each of the inverters |
+|                          | Energy dashboard setting         | Device Type  | Entity                           |
+|--------------------------|----------------------------------|:------------:|----------------------------------|
+| **Electricity Grid**     | Grid Consumption                 | Power Sensor | Negative Active Energy           |
+|                          | Return to Grid                   | Power Sensor | Positive Active Energy           |
+| **Home Battery Storage** | Energy going in to the battery   |   Battery    | Energy Charged Today             |
+|                          | Energy coming out of the battery |   Battery    | Energy Discharged Today          |
+| **Solar Panels**         | Solar Production                 |    Plant     | Daily Energy (for each inverter) |
 # Entities
 
 <details>
