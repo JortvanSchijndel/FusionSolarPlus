@@ -47,7 +47,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None) -> FlowResult:
         errors = {}
 
-        model_path = os.path.join(os.path.dirname(__file__), "captcha_huawei.onnx")
+        model_path = os.path.join(os.path.dirname(__file__), "captcha_huawei.pt")
 
         if user_input:
             self.username = user_input[CONF_USERNAME]

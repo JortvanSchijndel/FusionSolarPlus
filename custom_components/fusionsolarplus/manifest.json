@@ -10,7 +10,7 @@
   "requirements": [
     "fusion-solar-py",
     "Pillow",
-    "onnxruntime"
+    "torch"
   ],
   "version": "2.1.3"
 }
