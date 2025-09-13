@@ -1,4 +1,5 @@
 import logging
+import os
 from functools import partial
 import voluptuous as vol
 from homeassistant import config_entries
@@ -46,6 +47,8 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None) -> FlowResult:
         errors = {}
 
+        model_path = os.path.join(os.path.dirname(__file__), "captcha_huawei.onnx")
+
         if user_input:
             self.username = user_input[CONF_USERNAME]
             self.password = user_input[CONF_PASSWORD]
@@ -62,7 +65,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         FusionSolarClient,
                         self.username,
                         self.password,
-                        captcha_model_path=self.hass,  # Using modelpath to pass self.hass
+                        captcha_model_path=model_path,
                         huawei_subdomain=self.subdomain,
                     )
                 )

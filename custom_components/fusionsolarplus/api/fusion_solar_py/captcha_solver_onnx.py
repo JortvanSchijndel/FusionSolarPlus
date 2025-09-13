@@ -1,9 +1,10 @@
 from .exceptions import FusionSolarException
 
 try:
-    from gradio_client import Client, handle_file
     from PIL import Image
-    from io import BytesIO
+    import numpy as np
+    import onnxruntime as rt
+    import io
 except ImportError:
     print(
         "Required libraries for CAPTCHA solving are not available. Please install the package using pip install fusion_solar_py[captcha]."
@@ -14,32 +15,55 @@ except ImportError:
 
 from fusion_solar_py.interfaces import GenericSolver
 
+from .ctc_decoder import decode
+
+alphabet = [
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "8",
+    "9",
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "l",
+    "r",
+    "t",
+    "y",
+]
+blank_idx = 20
+
 
 class Solver(GenericSolver):
     def _init_model(self):
-        self.hass = self.model_path  # Using modelpath to pass self.hass
-        if not self.hass:
-            raise FusionSolarException("hass instance not provided as model_path")
+        self.session = rt.InferenceSession(self.model_path, providers=self.device)
 
-    def save_image_to_disk(self, img_bytes, filename):
-        img = Image.open(BytesIO(img_bytes))
+    def solve_captcha(self, img):
+        if not isinstance(img, np.ndarray):
+            # Decode bytes buffer to grayscale image using PIL
+            image = Image.open(io.BytesIO(img)).convert("L")
+            img = np.array(image)
+        img = self.preprocess_image(img)
+        img = np.expand_dims(img, axis=0)
+        out = self.session.run(None, {"image": img.astype(np.float32), "label": None})
+        return self.decode_batch_predictions(out[0])
 
-        # Save in .storage directory
-        save_path = self.hass.config.path(".storage", filename)
-        img.save(save_path)
+    def decode_batch_predictions(self, pred):
+        results = decode(pred[0], beam_size=10, blank=blank_idx)
+        output_text = list(map(lambda n: alphabet[n - 1], results[0]))
+        return "".join(output_text)
 
-        return save_path
-
-    def solve_captcha(self, img_bytes):
-        # Save image and get path
-        image_path = self.save_image_to_disk(img_bytes, "captcha_input.png")
-
-        client = Client("docparser/Text_Captcha_breaker")
-        result = client.predict(img_org=handle_file(image_path), api_name="/predict")
-        return result
-
-    def decode_batch_predictions(self):
-        pass
-
-    def preprocess_image(self, img_bytes):
-        pass
+    def preprocess_image(self, img):
+        if len(img.shape) == 3:
+            img = img[..., 0]
+        img = img / 255.0
+        img = np.swapaxes(img, 0, 1)
+        img = np.expand_dims(img, axis=2)
+        return img

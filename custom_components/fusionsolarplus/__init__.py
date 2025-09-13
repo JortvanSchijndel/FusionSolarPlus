@@ -1,6 +1,7 @@
 from homeassistant.helpers.device_registry import async_get as async_get_device_registry
 from .api.fusion_solar_py.client import FusionSolarClient
 from functools import partial
+import os
 
 DOMAIN = "fusionsolarplus"
 
@@ -10,12 +11,14 @@ async def async_setup_entry(hass, entry):
     password = entry.data["password"]
     subdomain = entry.data.get("subdomain", "uni001eu5")
 
+    model_path = os.path.join(os.path.dirname(__file__), "captcha_huawei.onnx")
+
     client = await hass.async_add_executor_job(
         partial(
             FusionSolarClient,
             username,
             password,
-            captcha_model_path=hass,  # Use captcha_model_path to pass hass
+            captcha_model_path=model_path,
             huawei_subdomain=subdomain,
         )
     )
