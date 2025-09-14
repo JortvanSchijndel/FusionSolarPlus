@@ -27,6 +27,7 @@
     "error": {
       "invalid_auth": "Invalid username or password.",
       "fetch_error": "Failed to fetch devices.",
+      "rate_limit": "Captcha API rate limited, please try again later.",
       "unknown": "Unknown error occurred."
     },
     "abort": {

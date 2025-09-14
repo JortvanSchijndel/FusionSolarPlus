@@ -29,3 +29,9 @@ class CaptchaRequiredException(FusionSolarException):
     """
 
     pass
+
+
+class FusionSolarRateLimit(FusionSolarException):
+    """Exception raised when rate limit exceeded"""
+
+    pass

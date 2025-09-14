@@ -1,5 +1,4 @@
 import logging
-import os
 from functools import partial
 import voluptuous as vol
 from homeassistant import config_entries
@@ -14,7 +13,11 @@ from custom_components.fusionsolarplus.const import (
     CONF_DEVICE_NAME,
 )
 from .api.fusion_solar_py.client import FusionSolarClient
-from .api.fusion_solar_py.exceptions import AuthenticationException
+from .api.fusion_solar_py.exceptions import (
+    AuthenticationException,
+    FusionSolarRateLimit,
+)
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,8 +50,6 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(self, user_input=None) -> FlowResult:
         errors = {}
 
-        model_path = os.path.join(os.path.dirname(__file__), "captcha_huawei.pt")
-
         if user_input:
             self.username = user_input[CONF_USERNAME]
             self.password = user_input[CONF_PASSWORD]
@@ -65,7 +66,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         FusionSolarClient,
                         self.username,
                         self.password,
-                        captcha_model_path=model_path,
+                        captcha_model_path=self.hass,
                         huawei_subdomain=self.subdomain,
                     )
                 )
@@ -75,6 +76,12 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     str(auth_exc),
                 )
                 errors["base"] = "invalid_auth"
+            except FusionSolarRateLimit as rate_limit_exc:
+                _LOGGER.warning(
+                    "FusionSolarPlus: Captcha solver API rate limited, please try again later.",
+                    str(rate_limit_exc),
+                )
+                errors["base"] = "rate_limit"
             except Exception as e:
                 _LOGGER.warning(
                     "FusionSolarPlus: Unexpected error during authentication: %s",
