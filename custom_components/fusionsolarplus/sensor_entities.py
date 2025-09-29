@@ -6,8 +6,7 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .const import CURRENCY_MAP
 
-from datetime import datetime, time
-
+from datetime import datetime, time, date
 
 
 class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
@@ -103,7 +102,10 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         # --- Fix early reset ---
         if self._attr_name.lower().startswith("daily energy"):
             # Case 1: At or after midnight but before API reports 0 → force 0
-            if now >= datetime.strptime("00:00", "%H:%M").time() and not self._midnight_reset_done:
+            if (
+                now >= datetime.strptime("00:00", "%H:%M").time()
+                and not self._midnight_reset_done
+            ):
                 if numeric_value > 0:
                     return 0.0
                 else:
@@ -294,15 +296,6 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         # cache for freeze logic
         self._last_valid_value = None
 
-    ENERGY_KEYS_TO_FREEZE = {
-        "monthEnergy",
-        "cumulativeEnergy",
-        "dailyEnergy",
-        "dailySelfUseEnergy",
-        "dailyUseEnergy",
-        "yearEnergy",
-    }
-
     @property
     def native_unit_of_measurement(self):
         """Return the unit of measurement."""
@@ -318,6 +311,15 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
     def native_value(self):
         """Return the state of the sensor with freeze logic between 01:00–02:00."""
         now = datetime.now().time()
+
+        ENERGY_KEYS_TO_FREEZE = {
+            "monthEnergy",
+            "cumulativeEnergy",
+            "dailyEnergy",
+            "dailySelfUseEnergy",
+            "dailyUseEnergy",
+            "yearEnergy",
+        }
 
         # freeze window 01:00–02:00 for selected energy sensors
         in_freeze_window = time(1, 0) <= now < time(2, 0)
