@@ -6,6 +6,9 @@ from homeassistant.helpers.entity import EntityCategory
 
 from .const import CURRENCY_MAP
 
+from datetime import datetime, time
+
+
 
 class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
     """Sensor for Inverter devices."""
@@ -255,10 +258,21 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
             ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
         )
 
+        # cache for freeze logic
+        self._last_valid_value = None
+
+    ENERGY_KEYS_TO_FREEZE = {
+        "monthEnergy",
+        "cumulativeEnergy",
+        "dailyEnergy",
+        "dailySelfUseEnergy",
+        "dailyUseEnergy",
+        "yearEnergy",
+    }
+
     @property
     def native_unit_of_measurement(self):
         """Return the unit of measurement."""
-        # Set currency unit dynamically from API
         if self._key == "dailyIncome":
             data = self.coordinator.data
             if data:
@@ -269,24 +283,31 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
-        """Return the state of the sensor."""
+        """Return the state of the sensor with freeze logic between 01:00–02:00."""
+        now = datetime.now().time()
+
+        # freeze window 01:00–02:00 for selected energy sensors
+        in_freeze_window = time(1, 0) <= now < time(2, 0)
+        if self._key in ENERGY_KEYS_TO_FREEZE and in_freeze_window:
+            return self._last_valid_value
+
+        # otherwise use live data
         data = self.coordinator.data
         if not data:
-            return None
+            return self._last_valid_value
 
         raw_value = data.get(self._key)
-        if raw_value is None:
-            return None
+        if raw_value is None or raw_value == "-":
+            return self._last_valid_value
 
-        value = 0 if raw_value == "-" else raw_value
+        try:
+            value = float(raw_value) if self.native_unit_of_measurement else raw_value
+        except (TypeError, ValueError):
+            return self._last_valid_value
 
-        if self.native_unit_of_measurement:
-            try:
-                return float(value)
-            except (TypeError, ValueError):
-                return None
-        else:
-            return value
+        # cache valid values for later freeze
+        self._last_valid_value = value
+        return value
 
     @property
     def available(self):
