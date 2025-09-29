@@ -60,15 +60,21 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
             if isinstance(pv_data, dict):
                 signals = pv_data.get("signals", {})
                 signal_data = signals.get(str(self._signal_id))
-                if signal_data:
+                if signal_data and "value" in signal_data:
                     raw_value = signal_data.get("value")
                     value = 0 if raw_value == "-" else raw_value
+                    self._last_value = value  # <-- update cache
+                    return float(value)
+                else:
+                    return self._last_value  # <-- keep last value instead of None
             else:
                 for item in pv_data:
                     if str(item.get("id")) == str(self._signal_id):
                         raw_value = item.get("value")
                         value = 0 if raw_value == "-" else raw_value
-                        break
+                        self._last_value = value
+                        return float(value)
+                return self._last_value
         else:
             for group in data.get("data", []):
                 for signal in group.get("signals", []):
@@ -77,8 +83,13 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
                         value = 0 if raw_value == "-" else raw_value
                         break
 
+
         if value is None:
             return self._last_value
+
+        # Handle enumerated values
+        if self._attr_device_class == SensorDeviceClass.ENUM:
+            return str(value)
 
         # ---- Handle Daily Energy special case ----
         today = date.today()
@@ -101,21 +112,43 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
 
         # --- Fix early reset ---
         if self._attr_name.lower().startswith("daily energy"):
-            # Case 1: At or after midnight but before API reports 0 → force 0
-            if (
-                now >= datetime.strptime("00:00", "%H:%M").time()
-                and not self._midnight_reset_done
-            ):
-                if numeric_value > 0:
-                    return 0.0
-                else:
-                    self._midnight_reset_done = True
-                    self._last_value = 0.0
-                    return 0.0
+            six_pm = datetime.strptime("18:00", "%H:%M").time()
 
-            # Case 2: Before midnight, API goes to 0 early → hold last max
-            if now < datetime.strptime("23:59", "%H:%M").time() and numeric_value == 0:
-                return self._daily_max
+            # Case 1: At or after midnight but before API reports 0 → force 0
+            if self._attr_name.lower().startswith("daily energy"):
+                # Midnight reset protection window (00:00–00:10)
+                reset_window_start = datetime.strptime("00:00", "%H:%M").time()
+                reset_window_end = datetime.strptime("00:10", "%H:%M").time()
+
+                if reset_window_start <= now < reset_window_end and not self._midnight_reset_done:
+                    if numeric_value > 0:
+                        # Between 00:00–00:10 but API hasn't reset yet → force 0
+                        return 0.0
+                    else:
+                        # API says 0 → accept it and mark reset done
+                        self._midnight_reset_done = True
+                        self._last_value = 0.0
+                        return 0.0
+
+                # After reset window, just trust API (with early reset protection after 18:00)
+                six_pm = datetime.strptime("18:00", "%H:%M").time()
+                if numeric_value == 0 and six_pm <= now < datetime.strptime("23:59", "%H:%M").time():
+                    return self._daily_max
+
+
+            # Case 2: Before midnight, API goes to 0 too early → hold last max
+            if numeric_value == 0:
+                if now >= six_pm:
+                    # After 18:00, API should NOT reset yet → use daily max
+                    return self._daily_max
+                else:
+                    # Before 18:00, API might be flaky. If we already had a non-zero max, hold it.
+                    if self._daily_max > 0:
+                        return self._daily_max
+                    else:
+                        return 0.0
+
+
 
         # Default: update last value
         self._last_value = numeric_value
