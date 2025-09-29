@@ -11,7 +11,7 @@ from datetime import datetime, time
 
 
 class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
-    """Sensor for Inverter devices."""
+    """Sensor for Inverter devices with daily energy reset handling."""
 
     def __init__(
         self,
@@ -40,15 +40,22 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
             ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
         )
 
+        # Custom tracking for Daily Energy
+        self._last_value = None
+        self._daily_max = 0
+        self._last_update_day = date.today()
+        self._midnight_reset_done = False
+
     @property
     def native_value(self):
+        """Return sensor state with corrected daily energy reset handling."""
         data = self.coordinator.data
         if not data:
-            return None
+            return self._last_value
 
+        # ---- Extract value as before ----
         value = None
 
-        # PV signals
         if self._is_pv_signal:
             pv_data = data.get("pv", {})
             if isinstance(pv_data, dict):
@@ -63,8 +70,6 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
                         raw_value = item.get("value")
                         value = 0 if raw_value == "-" else raw_value
                         break
-
-        # Normal inverter signals
         else:
             for group in data.get("data", []):
                 for signal in group.get("signals", []):
@@ -74,17 +79,45 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
                         break
 
         if value is None:
-            return None
+            return self._last_value
 
-        # Handle enumerated values
-        if self._attr_device_class == SensorDeviceClass.ENUM:
-            return str(value)
+        # ---- Handle Daily Energy special case ----
+        today = date.today()
+        now = datetime.now().time()
 
-        # Handle numeric values
         try:
-            return float(value)
+            numeric_value = float(value)
         except (TypeError, ValueError):
-            return str(value)
+            return self._last_value
+
+        # Reset tracking when a new day starts
+        if today != self._last_update_day:
+            self._last_update_day = today
+            self._daily_max = 0
+            self._midnight_reset_done = False
+
+        # Track the highest value seen today
+        if numeric_value > self._daily_max:
+            self._daily_max = numeric_value
+
+        # --- Fix early reset ---
+        if self._attr_name.lower().startswith("daily energy"):
+            # Case 1: At or after midnight but before API reports 0 → force 0
+            if now >= datetime.strptime("00:00", "%H:%M").time() and not self._midnight_reset_done:
+                if numeric_value > 0:
+                    return 0.0
+                else:
+                    self._midnight_reset_done = True
+                    self._last_value = 0.0
+                    return 0.0
+
+            # Case 2: Before midnight, API goes to 0 early → hold last max
+            if now < datetime.strptime("23:59", "%H:%M").time() and numeric_value == 0:
+                return self._daily_max
+
+        # Default: update last value
+        self._last_value = numeric_value
+        return numeric_value
 
     @property
     def available(self):
