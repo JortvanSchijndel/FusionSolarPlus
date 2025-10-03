@@ -55,27 +55,23 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         # ---- Extract value as before ----
         value = None
 
+        # PV signals
         if self._is_pv_signal:
             pv_data = data.get("pv", {})
-            print(pv_data)
             if isinstance(pv_data, dict):
                 signals = pv_data.get("signals", {})
                 signal_data = signals.get(str(self._signal_id))
-                if signal_data and "value" in signal_data:
+                if signal_data:
                     raw_value = signal_data.get("value")
                     value = 0 if raw_value == "-" else raw_value
-                    self._last_value = value  # <-- update cache
-                    return float(value)
-                else:
-                    return self._last_value  # <-- keep last value instead of None
             else:
                 for item in pv_data:
                     if str(item.get("id")) == str(self._signal_id):
                         raw_value = item.get("value")
                         value = 0 if raw_value == "-" else raw_value
-                        self._last_value = value
-                        return float(value)
-                return self._last_value
+                        break
+
+        # Normal inverter signals
         else:
             for group in data.get("data", []):
                 for signal in group.get("signals", []):
@@ -85,52 +81,50 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
                         break
 
         if value is None:
-            return self._last_value
+            return None
 
         # Handle enumerated values
         if self._attr_device_class == SensorDeviceClass.ENUM:
             return str(value)
 
-        # ---- Handle Daily Energy special case ----
-        today = date.today()
-        now = datetime.now().time()
-
+        # Try numeric conversion
         try:
             numeric_value = float(value)
         except (TypeError, ValueError):
             return self._last_value
 
-        # Reset tracking when a new day starts
-        if today != self._last_update_day:
-            self._last_update_day = today
-            self._daily_max = 0
-            self._midnight_reset_done = False
-
-        # Track the highest value seen today
-        if numeric_value > self._daily_max:
-            self._daily_max = numeric_value
-
-        # --- Fix early reset ---
+        # ---- Handle Daily Energy special case ----
         if self._attr_name.lower().startswith("daily energy"):
-            midnight = datetime.strptime("00:00", "%H:%M").time()
+            today = date.today()
+            now = datetime.now().time()
 
-            # If it's midnight, reset to 0
-            if now == midnight:
+            # Reset tracking when a new day starts
+            if today != self._last_update_day:
+                self._last_update_day = today
                 self._daily_max = 0
-                self._last_value = 0.0
-                return 0.0
+                self._midnight_reset_done = False
 
-            # Before midnight, block early resets
-            if numeric_value == 0:
-                return self._daily_max
-
-            # Otherwise update normally
+            # Track the highest value seen today
             if numeric_value > self._daily_max:
                 self._daily_max = numeric_value
 
-        # Default: update last value
-        self._last_value = numeric_value
+            midnight = datetime.strptime("00:00", "%H:%M").time()
+
+            # At midnight, force reset to 0
+            if now == midnight and not self._midnight_reset_done:
+                self._daily_max = 0
+                self._last_value = 0.0
+                self._midnight_reset_done = True
+                return 0.0
+
+            # Before midnight: if inverter reset early (value=0), hold last max
+            if numeric_value == 0 and not self._midnight_reset_done:
+                return self._daily_max
+
+            return numeric_value
+
         return numeric_value
+
 
     @property
     def available(self):
