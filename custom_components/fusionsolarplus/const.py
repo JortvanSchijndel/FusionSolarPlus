@@ -756,7 +756,7 @@ CHARGING_PILE_SIGNALS = [
         "unit": "kWh",
         "custom_name": "Planned Charge Energy",
         "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.MEASUREMENT,
+        "state_class": SensorStateClass.TOTAL,
     },
     {
         "id": 19999,
