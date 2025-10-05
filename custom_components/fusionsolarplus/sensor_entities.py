@@ -114,7 +114,7 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         # ---- Handle Daily Energy special case ----
         if self._attr_name.lower().startswith("daily energy"):
             today = ha_now().date()
-            now_time = ha_now().time()
+            now_time = ha_now().time().replace(microsecond=0)
 
             # Track the highest value seen today
             if numeric_value > self._daily_max:
@@ -122,10 +122,12 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
 
             midnight_start = datetime.strptime("00:00:00", "%H:%M:%S").time()
             midnight_end = datetime.strptime("00:00:59", "%H:%M:%S").time()
+            _LOGGER.warning(f"Current date/time: {today, time}")
 
             # Check if we are in the midnight reset window and reset only once per day
             if midnight_start <= now_time < midnight_end:
                 if not self._midnight_reset_done or self._last_update_day != today:
+                    _LOGGER.warning("Midnight reset!!")
                     self._daily_max = 0
                     self._last_value = 0.0
                     self._midnight_reset_done = True
@@ -137,6 +139,7 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
 
             # Before midnight: if inverter resets early (value=0), hold last max value
             if numeric_value == 0 and not self._midnight_reset_done:
+                _LOGGER.warning(f"Returning Daily Max: {self._daily_max}")
                 return self._daily_max
 
             # Normal case, return the current numeric value
