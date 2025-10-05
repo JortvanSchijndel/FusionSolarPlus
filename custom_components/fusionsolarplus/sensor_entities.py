@@ -88,9 +88,12 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
                 for signal in group.get("signals", []):
                     if signal["id"] == self._signal_id:
                         raw_value = signal.get("value")
+                        # Return "-" for enumerated sensors, 0 for numeric, "Inverter is shutdown" for status when "-"
                         if raw_value == "-":
-                            # Return "-" for enumerated sensors, 0 for numeric
-                            value = "-" if self._attr_device_class == SensorDeviceClass.ENUM else 0
+                            if self._attr_name.lower().startswith("status"):
+                                value = "Inverter is Shutdown"
+                            else:
+                                value = "-" if self._attr_device_class == SensorDeviceClass.ENUM else 0
                         else:
                             value = raw_value
                         break
