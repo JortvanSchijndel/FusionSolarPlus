@@ -88,7 +88,11 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
                 for signal in group.get("signals", []):
                     if signal["id"] == self._signal_id:
                         raw_value = signal.get("value")
-                        value = 0 if raw_value == "-" else raw_value
+                        if raw_value == "-":
+                            # Return "-" for enumerated sensors, 0 for numeric
+                            value = "-" if self._attr_device_class == SensorDeviceClass.ENUM else 0
+                        else:
+                            value = raw_value
                         break
 
         if value is None:
