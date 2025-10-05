@@ -93,7 +93,11 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
                             if self._attr_name.lower().startswith("status"):
                                 value = "Inverter is Shutdown"
                             else:
-                                value = "-" if self._attr_device_class == SensorDeviceClass.ENUM else 0
+                                value = (
+                                    "-"
+                                    if self._attr_device_class == SensorDeviceClass.ENUM
+                                    else 0
+                                )
                         else:
                             value = raw_value
                         break
