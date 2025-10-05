@@ -323,7 +323,7 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
-        """Return the state of the sensor with freeze logic between 01:00–02:00."""
+        """Return the state of the sensor with freeze logic between 23:00–02:00."""
         now = datetime.now().time()
 
         ENERGY_KEYS_TO_FREEZE = {
@@ -335,8 +335,8 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
             "yearEnergy",
         }
 
-        # freeze window 01:00–02:00 for selected energy sensors
-        in_freeze_window = time(1, 0) <= now < time(2, 0)
+        # freeze window 23:00–02:00 for selected energy sensors
+        in_freeze_window = time(23, 0) <= now < time(2, 0)
         if self._key in ENERGY_KEYS_TO_FREEZE and in_freeze_window:
             return self._last_valid_value
 
