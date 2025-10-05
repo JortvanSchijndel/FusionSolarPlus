@@ -17,7 +17,7 @@ from fusion_solar_py.interfaces import GenericSolver
 
 
 class Solver(GenericSolver):
-    RATE_LIMIT_COOLDOWN = 24 * 60 * 60
+    RATE_LIMIT_COOLDOWN = 6 * 60 * 60 # 6 Hour cooldown
     last_rate_limit = 0
 
     def _init_model(self):
@@ -50,7 +50,7 @@ class Solver(GenericSolver):
         except Exception:
             self.last_rate_limit = time.time()
             raise FusionSolarRateLimit(
-                "Captcha API rate limited, please try again in 24 hours."
+                "Captcha API rate limited, please try again in 6 hours."
             )
 
     def decode_batch_predictions(self):
