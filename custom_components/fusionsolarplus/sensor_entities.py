@@ -63,16 +63,18 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         # PV signals
         if self._is_pv_signal:
             pv_data = data.get("pv", {})
-            _LOGGER.warning(
-                "pv data - %s",
-                pv_data,
-            )
+
             if isinstance(pv_data, dict):
                 signals = pv_data.get("signals", {})
                 signal_data = signals.get(str(self._signal_id))
                 if signal_data:
                     raw_value = signal_data.get("value")
                     value = 0 if raw_value == "-" else raw_value
+                else:
+                    # Handle case where pv_data exists but has no signal values
+                    if not signals and pv_data.get("available_pvs"):
+                        value = 0
+
             else:
                 for item in pv_data:
                     if str(item.get("id")) == str(self._signal_id):
