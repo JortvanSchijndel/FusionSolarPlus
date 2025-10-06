@@ -17,7 +17,7 @@ from fusion_solar_py.interfaces import GenericSolver
 
 
 class Solver(GenericSolver):
-    RATE_LIMIT_COOLDOWN = 6 * 60 * 60 # 6 Hour cooldown
+    RATE_LIMIT_COOLDOWN = 6 * 60 * 60  # 6 Hour cooldown
     last_rate_limit = 0
 
     def _init_model(self):

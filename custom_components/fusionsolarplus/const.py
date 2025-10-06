@@ -54,7 +54,7 @@ INVERTER_SIGNALS = [
         "unit": "kWh",
         "custom_name": "Daily Energy",
         "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "id": 10029,
@@ -2583,7 +2583,7 @@ BATTERY_STATUS_SIGNALS = [
         "custom_name": "Energy Charged Today",
         "unit": "kWh",
         "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "id": 10002,
@@ -2591,7 +2591,7 @@ BATTERY_STATUS_SIGNALS = [
         "custom_name": "Energy Discharged Today",
         "unit": "kWh",
         "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "id": 10004,
