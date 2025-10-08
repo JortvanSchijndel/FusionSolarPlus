@@ -872,7 +872,7 @@ PLANT_SIGNALS = [
         "unit": "kWh",
         "custom_name": "Monthly Energy",
         "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "key": "cumulativeEnergy",
@@ -896,7 +896,7 @@ PLANT_SIGNALS = [
         "unit": "",
         "custom_name": "Today Income",
         "device_class": SensorDeviceClass.MONETARY,
-        "state_class": SensorStateClass.TOTAL,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "key": "dailyEnergy",
@@ -904,7 +904,7 @@ PLANT_SIGNALS = [
         "unit": "kWh",
         "custom_name": "Today Energy",
         "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "key": "dailySelfUseEnergy",
@@ -912,7 +912,7 @@ PLANT_SIGNALS = [
         "unit": "kWh",
         "custom_name": "Self used Energy Today",
         "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "key": "dailyUseEnergy",
@@ -920,7 +920,7 @@ PLANT_SIGNALS = [
         "unit": "kWh",
         "custom_name": "Consumption Today",
         "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
         "key": "yearEnergy",
@@ -928,7 +928,7 @@ PLANT_SIGNALS = [
         "unit": "kWh",
         "custom_name": "Yearly Energy",
         "device_class": SensorDeviceClass.ENERGY,
-        "state_class": SensorStateClass.TOTAL,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
     },
 ]
 

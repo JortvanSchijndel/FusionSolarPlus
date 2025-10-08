@@ -248,6 +248,7 @@ class FusionSolarChargerSensor(CoordinatorEntity, SensorEntity):
     def native_value(self):
         """Return the state of the sensor."""
         data = self.coordinator.data
+        _LOGGER.debug(f"Charger Data: {data}")
         if not data:
             return None
 
