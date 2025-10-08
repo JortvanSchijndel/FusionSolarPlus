@@ -924,6 +924,28 @@ class FusionSolarClient:
                             if sid in signals:
                                 filtered_signals[sid] = signals[sid]
 
+            if not filtered_signals:
+                latest_time = int(time.time())
+                for pv in available_pvs:
+                    pairs = PV_SIGNAL_MAP.get(pv)
+                    if pairs:
+                        for voltage_id, current_id, power_id in pairs:
+                            filtered_signals[voltage_id] = {
+                                "value": "0.00",
+                                "realValue": "0.00",
+                                "latestTime": latest_time,
+                            }
+                            filtered_signals[current_id] = {
+                                "value": "0.00",
+                                "realValue": "0.00",
+                                "latestTime": latest_time,
+                            }
+                            filtered_signals[power_id] = {
+                                "value": "0.00",
+                                "realValue": "0.00",
+                                "latestTime": latest_time,
+                            }
+
             return {
                 "signals": filtered_signals,
                 "available_pvs": available_pvs,
