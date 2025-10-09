@@ -340,6 +340,10 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         """Return the state of the sensor with freeze logic between 23:00–02:00."""
         now = datetime.now().time()
 
+        # Define freeze window
+        freeze_start = time(22, 0)
+        freeze_end = time(3, 0)
+
         ENERGY_KEYS_TO_FREEZE = {
             "monthEnergy",
             "cumulativeEnergy",
@@ -349,10 +353,9 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
             "yearEnergy",
         }
 
-        # freeze window 23:00–02:00 for selected energy sensors
-        in_freeze_window = time(23, 0) <= now < time(2, 0)
-        if self._key in ENERGY_KEYS_TO_FREEZE and in_freeze_window:
-            return self._last_valid_value
+        if self._key in ENERGY_KEYS_TO_FREEZE:
+            if freeze_start <= now or now <= freeze_end:
+                return self._last_valid_value
 
         # otherwise use live data
         data = self.coordinator.data
