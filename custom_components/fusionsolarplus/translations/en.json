@@ -4,11 +4,12 @@
     "step": {
       "user": {
         "title": "Login to FusionSolar",
-        "description": "Please enter your FusionSolar credentials.\n\nFor a list of available subdomains click [here](https://support.huawei.com/enterprise/en/doc/EDOC1100165054/dbeb5df3/domain-name-list-of-management-systems)\n\neg. 'region01eu5'",
+        "description": "# FusionSolarPlus\n\nPlease enter your FusionSolar credentials.\n\nFor a list of available subdomains click [here](https://support.huawei.com/enterprise/en/doc/EDOC1100165054/dbeb5df3/domain-name-list-of-management-systems), e.g. 'region01eu5'.\n\n If you wish to control the device, please enable installer access. This is not required if you only want to read data from the device.\n\n ## Disclaimer \n\n If you want to enable installer access please read the disclaimer that can be found [here](https://github.com/JortvanSchijndel/FusionSolarPlus/blob/master/installer_disclaimer.md).",
         "data": {
           "username": "Username",
           "password": "Password",
-          "subdomain": "Subdomain"
+          "subdomain": "Subdomain",
+          "installer": "Enable installer access. By checking this checkbox I confirm that I have read the installer disclaimer."
         }
       },
       "choose_type": {
@@ -32,6 +33,20 @@
     },
     "abort": {
       "fetch_error": "Could not fetch device list from FusionSolar."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Reconfigure Device",
+        "description": "For a list of available subdomains click [here](https://support.huawei.com/enterprise/en/doc/EDOC1100165054/dbeb5df3/domain-name-list-of-management-systems), e.g. 'region01eu5'.\n\n If you wish to control the device, please enable installer access. This is not required if you only want to read data from the device.\n\n ## Disclaimer \n\n If you want to enable installer access please read the disclaimer that can be found [here](https://github.com/JortvanSchijndel/FusionSolarPlus/blob/master/installer_disclaimer.md).",
+        "data": {
+          "username": "Username",
+          "password": "Password",
+          "subdomain": "Subdomain",
+          "installer": "Enable installer access. By checking this checkbox I confirm that I have read the installer disclaimer."
+        }
+      }
     }
   }
 }

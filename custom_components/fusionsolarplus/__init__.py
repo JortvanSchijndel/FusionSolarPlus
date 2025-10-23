@@ -11,6 +11,8 @@ async def async_setup_entry(hass, entry):
     username = entry.options.get("username", entry.data["username"])
     password = entry.options.get("password", entry.data["password"])
     subdomain = entry.options.get("subdomain", entry.data.get("subdomain", "uni001eu5"))
+    installer = entry.options.get("installer", entry.data.get("installer"))
+    print(installer)
 
     client = await hass.async_add_executor_job(
         partial(

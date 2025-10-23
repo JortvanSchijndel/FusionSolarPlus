@@ -6,6 +6,7 @@ DOMAIN = "fusionsolarplus"
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
 CONF_SUBDOMAIN = "subdomain"
+CONF_INSTALLER = "installer"
 
 CONF_DEVICE_TYPE = "device_type"
 CONF_DEVICE_ID = "device_id"

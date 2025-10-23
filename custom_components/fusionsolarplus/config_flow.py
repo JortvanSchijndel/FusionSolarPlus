@@ -8,6 +8,7 @@ from custom_components.fusionsolarplus.const import (
     CONF_USERNAME,
     CONF_PASSWORD,
     CONF_SUBDOMAIN,
+    CONF_INSTALLER,
     DOMAIN,
     CONF_DEVICE_TYPE,
     CONF_DEVICE_ID,
@@ -44,6 +45,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.username = None
         self.password = None
         self.subdomain = None
+        self.installer = False
         self.device_type = None
         self.device_options = {}
         self.client = None
@@ -55,6 +57,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             self.username = user_input[CONF_USERNAME]
             self.password = user_input[CONF_PASSWORD]
             self.subdomain = user_input[CONF_SUBDOMAIN]
+            self.installer = user_input.get("installer", False)
 
             suffix = ".fusionsolar.huawei.com"
 
@@ -100,6 +103,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_USERNAME): str,
                     vol.Required(CONF_PASSWORD): str,
                     vol.Required(CONF_SUBDOMAIN): str,
+                    vol.Optional("installer", default=False): bool,
                 }
             ),
             errors=errors,
@@ -196,13 +200,13 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             device_name = user_input[CONF_DEVICE_NAME]
             device_id = self.device_options[device_name]
-
             return self.async_create_entry(
                 title=f"{device_name}",
                 data={
                     CONF_USERNAME: self.username,
                     CONF_PASSWORD: self.password,
                     CONF_SUBDOMAIN: self.subdomain,
+                    CONF_INSTALLER: self.installer,
                     CONF_DEVICE_TYPE: self.device_type,
                     CONF_DEVICE_ID: device_id,
                     CONF_DEVICE_NAME: device_name,
@@ -233,23 +237,30 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             data_schema=vol.Schema(
                 {
                     vol.Optional(
-                        "username",
+                        CONF_USERNAME,
                         default=self.config_entry.options.get(
-                            "username", self.config_entry.data["username"]
+                            CONF_USERNAME, self.config_entry.data[CONF_USERNAME]
                         ),
                     ): str,
                     vol.Optional(
-                        "password",
+                        CONF_PASSWORD,
                         default=self.config_entry.options.get(
-                            "password", self.config_entry.data["password"]
+                            CONF_PASSWORD, self.config_entry.data[CONF_PASSWORD]
                         ),
                     ): str,
                     vol.Optional(
-                        "subdomain",
+                        CONF_SUBDOMAIN,
                         default=self.config_entry.options.get(
-                            "subdomain", self.config_entry.data["subdomain"]
+                            CONF_SUBDOMAIN, self.config_entry.data[CONF_SUBDOMAIN]
                         ),
                     ): str,
+                    vol.Optional(
+                        CONF_INSTALLER,
+                        default=self.config_entry.options.get(
+                            CONF_INSTALLER,
+                            self.config_entry.data.get(CONF_INSTALLER),
+                        ),
+                    ): bool,
                 }
             ),
         )
