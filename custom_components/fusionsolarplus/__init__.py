@@ -6,9 +6,11 @@ DOMAIN = "fusionsolarplus"
 
 
 async def async_setup_entry(hass, entry):
-    username = entry.data["username"]
-    password = entry.data["password"]
-    subdomain = entry.data.get("subdomain", "uni001eu5")
+    entry.async_on_unload(entry.add_update_listener(update_listener))
+
+    username = entry.options.get("username", entry.data["username"])
+    password = entry.options.get("password", entry.data["password"])
+    subdomain = entry.options.get("subdomain", entry.data.get("subdomain", "uni001eu5"))
 
     client = await hass.async_add_executor_job(
         partial(
@@ -40,3 +42,16 @@ async def async_setup_entry(hass, entry):
     await hass.config_entries.async_forward_entry_setups(entry, ["sensor"])
 
     return True
+
+
+async def update_listener(hass, entry):
+    await hass.config_entries.async_reload(entry.entry_id)
+
+
+async def async_unload_entry(hass, entry):
+    unload_ok = await hass.config_entries.async_unload_platforms(entry, ["sensor"])
+
+    # Remove stored client and data
+    hass.data[DOMAIN].pop(entry.entry_id)
+
+    return unload_ok

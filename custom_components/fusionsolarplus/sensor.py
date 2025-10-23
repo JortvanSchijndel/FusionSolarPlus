@@ -71,9 +71,12 @@ class BaseDeviceHandler:
     async def _get_client_and_retry(self, operation_func):
         """Common client management and retry logic"""
         client = self.hass.data[DOMAIN][self.entry.entry_id]
-        username = self.entry.data["username"]
-        password = self.entry.data["password"]
-        subdomain = self.entry.data.get("subdomain", "uni001eu5")
+
+        username = self.entry.options.get("username", self.entry.data["username"])
+        password = self.entry.options.get("password", self.entry.data["password"])
+        subdomain = self.entry.options.get(
+            "subdomain", self.entry.data.get("subdomain", "uni001eu5")
+        )
 
         async def ensure_logged_in(client_instance):
             try:

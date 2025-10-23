@@ -2,6 +2,7 @@ import logging
 from functools import partial
 import voluptuous as vol
 from homeassistant import config_entries
+from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
 from custom_components.fusionsolarplus.const import (
     CONF_USERNAME,
@@ -214,4 +215,41 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 {vol.Required(CONF_DEVICE_NAME): vol.In(self.device_options)}
             ),
             errors={},
+        )
+
+    @staticmethod
+    @callback
+    def async_get_options_flow(config_entry):
+        return OptionsFlowHandler()
+
+
+class OptionsFlowHandler(config_entries.OptionsFlow):
+    async def async_step_init(self, user_input=None):
+        if user_input is not None:
+            return self.async_create_entry(title="", data=user_input)
+
+        return self.async_show_form(
+            step_id="init",
+            data_schema=vol.Schema(
+                {
+                    vol.Optional(
+                        "username",
+                        default=self.config_entry.options.get(
+                            "username", self.config_entry.data["username"]
+                        ),
+                    ): str,
+                    vol.Optional(
+                        "password",
+                        default=self.config_entry.options.get(
+                            "password", self.config_entry.data["password"]
+                        ),
+                    ): str,
+                    vol.Optional(
+                        "subdomain",
+                        default=self.config_entry.options.get(
+                            "subdomain", self.config_entry.data["subdomain"]
+                        ),
+                    ): str,
+                }
+            ),
         )
