@@ -31,7 +31,7 @@ PLANT_SIGNALS = [
         "unit": "",
         "custom_name": "Today Income",
         "device_class": SensorDeviceClass.MONETARY,
-        "state_class": SensorStateClass.TOTAL_INCREASING,
+        "state_class": SensorStateClass.TOTAL,
     },
     {
         "key": "dailyEnergy",
