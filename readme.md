@@ -28,7 +28,7 @@
 
 ___
 > [!NOTE] 
-> For some development (eg. batteries, optimizers & car chargers) I will need access to an account which has access to (one of) these devices. 
+> For some development (e.g. batteries, optimizers & car chargers) I will need access to an account which has access to (one of) these devices. 
 > If you are willing to help by granting me access to your account, please [open an issue](https://github.com/JortvanSchijndel/FusionSolarPlus/issues).
 
 # FusionSolarPlus
@@ -44,7 +44,7 @@ Once installed:
 1. Restart Home Assistant and head over to **Settings » Devices & Services.**  
 2. Click on **"Add Integration."**  
 3. Search for **"FusionSolarPlus."**  
-4. Enter your FusionSolar username, password and subdomain. (For a list of available subdomains click [here](https://support.huawei.com/enterprise/en/doc/EDOC1100165054/dbeb5df3/domain-name-list-of-management-systems). eg. 'region01eu5)  
+4. Enter your FusionSolar username, password and subdomain.
 5. Select the device type you want to add, then choose the specific device.
 
 # Energy Dashboard
@@ -252,7 +252,7 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
    </tr>
 </table>
 
-*X ranges from 1 - 20 depending on how many PV Strings your inverter has connected.
+*X ranges from 1 to 20 depending on how many PV Strings your inverter has connected.
 
 **These entities only show up if you have a power meter connected.
 
@@ -742,7 +742,7 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
 </table>
 *The optimizer entities can be found under the Diagnostic section for Inverter devices. The optimizer entities are automatically created if your inverter has optimizers connected.
 
-**X ranges from 1 - 4 depending on how many modules your battery has.
+**X ranges from 1 to 4 depending on how many modules your battery has.
 
 **⚠️ Note:** Currently, this integration only supports battery modules 1 and 2. If your battery has 3 or 4 modules, please [open an issue](https://github.com/JortvanSchijndel/FusionSolarPlus/issues).
 
