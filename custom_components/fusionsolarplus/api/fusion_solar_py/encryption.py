@@ -21,7 +21,7 @@ def get_secure_random() -> str:
     """This function replicates the random value
        generation found in the fusion solar code
 
-    :return: A random 16 bit random value as a hex string.
+    :return: A random 16-bit random value as a hex string.
     :rtype: str
     """
     random_data = os.urandom(16)
@@ -34,7 +34,7 @@ def encrypt_password(key_data: dict, password: str) -> str:
 
     :param key_data: The complete key data as a dict as returned by the pubkey endpoint.
     :type key_data: dict
-    :param password: The password to encrpyt.
+    :param password: The password to encrypt.
     :type password: str
     :return: The encrypted password
     :rtype: str

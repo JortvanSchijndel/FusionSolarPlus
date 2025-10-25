@@ -190,7 +190,7 @@ def logged_in(func):
 
 def with_solver(func):
     """
-    Decorator to solve captchas when required
+    Decorator to solve captcha when required
     """
 
     @wraps(func)
@@ -231,7 +231,7 @@ class FusionSolarClient:
         captcha_model_path: Optional[str] = None,
         captcha_device: Optional[Any] = ["CPUExecutionProvider"],
     ) -> None:
-        """Initialiazes a new FusionSolarClient instance. This is the main
+        """Initializes a new FusionSolarClient instance. This is the main
            class to interact with the FusionSolar API.
            The client tests the login credentials as soon as it is initialized
         :param username: The username for the system
@@ -546,7 +546,7 @@ class FusionSolarClient:
             return True
 
     @logged_in
-    def keep_alive(self) -> str:
+    def keep_alive(self):
         """This function replicates a call sent by the web-based application. Currently,
         the rate at which this function is called is unclear. It seems to be called around
         every 30 seconds.
@@ -575,7 +575,7 @@ class FusionSolarClient:
     @logged_in
     def get_power_status(self) -> PowerStatus:
         """Retrieve the current power status. This is the complete
-           summary accross all stations.
+           summary across all stations.
         :return: The current status as a PowerStatus object
         """
 
@@ -590,7 +590,7 @@ class FusionSolarClient:
         r.raise_for_status()
 
         # errors in decoding the object generally mean that the login expired
-        # this is handeled by @logged_in
+        # this is handled by @logged_in
         power_obj = r.json()
 
         power_status = PowerStatus(
@@ -619,7 +619,7 @@ class FusionSolarClient:
         r.raise_for_status()
 
         # errors in decoding the object generally mean that the login expired
-        # this is handeled by @logged_in
+        # this is handled by @logged_in
         power_obj = r.json()
 
         if "data" not in power_obj:
@@ -784,10 +784,7 @@ class FusionSolarClient:
 
             response = r.json()
 
-            if "childList" in response and len(response["childList"]) > 0:
-                dn_id_1 = response["childList"][0]["elementId"]
-            else:
-                print("elementId not found")
+            dn_id_1 = response["childList"][0]["elementId"]
 
             # Get Second DnID
             url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/mo-details"
@@ -849,7 +846,7 @@ class FusionSolarClient:
             #
             # Fetch PV Data
             #
-            PV_SIGNAL_MAP = {
+            pv_signal_map = {
                 "PV1": [("11001", "11002", "11003")],
                 "PV2": [("11004", "11005", "11006")],
                 "PV3": [("11007", "11008", "11009")],
@@ -874,13 +871,13 @@ class FusionSolarClient:
 
             signal_ids = []
             for pv in available_pvs:
-                pairs = PV_SIGNAL_MAP.get(pv)
+                pairs = pv_signal_map.get(pv)
                 if pairs:
                     for voltage_id, current_id, power_id in pairs:
                         signal_ids.append(voltage_id)
                         signal_ids.append(current_id)
 
-            params = [(("signalIds", sid)) for sid in signal_ids]
+            params = [("signalIds", sid) for sid in signal_ids]
             params.append(("deviceDn", device_dn))
             params.append(("_", round(time.time() * 1000)))
 
@@ -897,7 +894,7 @@ class FusionSolarClient:
             #
             latest_time = int(time.time())
             for pv in available_pvs:
-                pairs = PV_SIGNAL_MAP.get(pv)
+                pairs = pv_signal_map.get(pv)
                 if pairs:
                     for voltage_id, current_id, power_id in pairs:
                         val1 = signals.get(voltage_id, {}).get("realValue")
@@ -913,11 +910,11 @@ class FusionSolarClient:
                             continue
 
             #
-            # Return availble PVs & data of the PV's
+            # Return available PVs & data of the PV's
             #
             filtered_signals = {}
             for pv in available_pvs:
-                pairs = PV_SIGNAL_MAP.get(pv)
+                pairs = pv_signal_map.get(pv)
                 if pairs:
                     for voltage_id, current_id, power_id in pairs:
                         for sid in (voltage_id, current_id, power_id):
@@ -927,7 +924,7 @@ class FusionSolarClient:
             if not filtered_signals:
                 latest_time = int(time.time())
                 for pv in available_pvs:
-                    pairs = PV_SIGNAL_MAP.get(pv)
+                    pairs = pv_signal_map.get(pv)
                     if pairs:
                         for voltage_id, current_id, power_id in pairs:
                             filtered_signals[voltage_id] = {
@@ -1143,7 +1140,7 @@ class FusionSolarClient:
     @logged_in
     def get_battery_status(self, battery_id: str) -> dict:
         """Retrieve the current battery status. This is the complete
-           summary accross all battery modules.
+           summary across all battery modules.
         :param battery_id: The battery's id
         :type battery_id: str
         :return: The current status as a dict
@@ -1176,9 +1173,9 @@ class FusionSolarClient:
     @logged_in
     def active_power_control(self, power_setting) -> None:
         """apply active power control.
-        This can be usefull when electrity prices are
+        This can be useful when electricity prices are
         negative (sunny summer holiday) and you want
-        to limit the power that is exported into the grid"""
+        to limit the power exported into the grid"""
         power_setting_options = {
             "No limit": 0,
             "Zero Export Limitation": 5,
@@ -1288,6 +1285,8 @@ class FusionSolarClient:
 
         # process the complete data
         for key_name in plant_data.keys():
+            key_value = plant_data[key_name]
+
             try:
                 # fields to ignore
                 if key_name in (
@@ -1297,8 +1296,6 @@ class FusionSolarClient:
                     "stationDn",
                 ):
                     continue
-
-                key_value = plant_data[key_name]
 
                 if type(key_value) is list:
                     extracted_data[key_name] = self._get_last_value(
@@ -1362,11 +1359,10 @@ class FusionSolarClient:
         return seconds
 
     @logged_in
-    def get_optimizer_stats(self, inverter_id: str) -> dict:
+    def get_optimizer_stats(self, inverter_id: str):
         """Retrieves the complete list of optimizers and returns real time stats.
 
         :param inverter_id: The inverter ID
-        :type plant_id: str
         :return: _description_
         """
 

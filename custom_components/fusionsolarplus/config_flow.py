@@ -3,7 +3,6 @@ from functools import partial
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
-from homeassistant.data_entry_flow import FlowResult
 from custom_components.fusionsolarplus.const import (
     CONF_USERNAME,
     CONF_PASSWORD,
@@ -50,7 +49,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self.device_options = {}
         self.client = None
 
-    async def async_step_user(self, user_input=None) -> FlowResult:
+    async def async_step_user(self, user_input=None):
         errors = {}
 
         if user_input:
@@ -109,7 +108,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
-    async def async_step_choose_type(self, user_input=None) -> FlowResult:
+    async def async_step_choose_type(self, user_input=None):
         if user_input is not None:
             self.device_type = DEVICE_TYPE_OPTIONS[user_input[CONF_DEVICE_TYPE]]
             return await self.async_step_select_device()
@@ -124,7 +123,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors={},
         )
 
-    async def async_step_select_device(self, user_input=None) -> FlowResult:
+    async def async_step_select_device(self, user_input=None):
         if not self.device_options:
             try:
                 device_options = {}

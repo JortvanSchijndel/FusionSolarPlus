@@ -1,4 +1,6 @@
 import time
+from abc import ABC
+
 from .exceptions import FusionSolarException, FusionSolarRateLimit
 
 try:
@@ -16,12 +18,12 @@ except ImportError:
 from fusion_solar_py.interfaces import GenericSolver
 
 
-class Solver(GenericSolver):
-    RATE_LIMIT_COOLDOWN = 6 * 60 * 60  # 6 Hour cooldown
+class Solver(GenericSolver, ABC):
+    RATE_LIMIT_COOLDOWN = 6 * 60 * 60  # 6-Hour cooldown
     last_rate_limit = 0
 
     def _init_model(self):
-        self.hass = self.model_path  # Using modelpath to pass self.hass
+        self.hass = self.model_path  # Using model-path to pass self.hass
         if not self.hass:
             raise FusionSolarException("hass instance not provided as model_path")
 
@@ -35,7 +37,7 @@ class Solver(GenericSolver):
         return save_path
 
     def solve_captcha(self, img_bytes):
-        # Check cooldown before making API request
+        # Check cooldown before making an API request
         if time.time() - self.last_rate_limit < self.RATE_LIMIT_COOLDOWN:
             raise FusionSolarRateLimit(
                 "Captcha solving temporarily disabled due to rate limiting. Try again later."
@@ -52,9 +54,3 @@ class Solver(GenericSolver):
             raise FusionSolarRateLimit(
                 "Captcha API rate limited, please try again in 6 hours."
             )
-
-    def decode_batch_predictions(self):
-        pass
-
-    def preprocess_image(self, img_bytes):
-        pass

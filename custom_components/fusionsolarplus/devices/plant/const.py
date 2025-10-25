@@ -1,0 +1,68 @@
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+
+PLANT_SIGNALS = [
+    {
+        "key": "monthEnergy",
+        "name": "Monthly Energy",
+        "unit": "kWh",
+        "custom_name": "Monthly Energy",
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+    {
+        "key": "cumulativeEnergy",
+        "name": "Cumulative Energy",
+        "unit": "kWh",
+        "custom_name": "Total Energy",
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+    {
+        "key": "currentPower",
+        "name": "Current Power",
+        "unit": "kW",
+        "custom_name": "Current Power",
+        "device_class": SensorDeviceClass.POWER,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "key": "dailyIncome",
+        "name": "Daily Income",
+        "unit": "",
+        "custom_name": "Today Income",
+        "device_class": SensorDeviceClass.MONETARY,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+    {
+        "key": "dailyEnergy",
+        "name": "Daily Energy",
+        "unit": "kWh",
+        "custom_name": "Today Energy",
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+    {
+        "key": "dailySelfUseEnergy",
+        "name": "Self Used Energy Today",
+        "unit": "kWh",
+        "custom_name": "Self used Energy Today",
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+    {
+        "key": "dailyUseEnergy",
+        "name": "Consumption Today",
+        "unit": "kWh",
+        "custom_name": "Consumption Today",
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+    {
+        "key": "yearEnergy",
+        "name": "Yearly Energy",
+        "unit": "kWh",
+        "custom_name": "Yearly Energy",
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+]

@@ -2,36 +2,24 @@
 
 
 class FusionSolarException(Exception):
-    """Base class for all exceptions.
-
-    :param Exception: _description_
-    :type Exception: _type_
-    """
+    """Base class for all exceptions."""
 
     pass
 
 
 class AuthenticationException(FusionSolarException):
-    """Issues with the supplied username or password
-
-    :param FusionSolarException: _description_
-    :type FusionSolarException: _type_
-    """
+    """Issues with the supplied username or password"""
 
     pass
 
 
 class CaptchaRequiredException(FusionSolarException):
-    """A captcha is required for the login flow to proceed
-
-    :param FusionSolarException: _description_
-    :type FusionSolarException: _type_
-    """
+    """A captcha is required for the login flow to proceed"""
 
     pass
 
 
 class FusionSolarRateLimit(FusionSolarException):
-    """Exception raised when rate limit exceeded"""
+    """Exception raised when the rate limit exceeded"""
 
     pass
