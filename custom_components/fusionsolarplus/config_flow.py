@@ -101,7 +101,24 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(CONF_USERNAME): str,
                     vol.Required(CONF_PASSWORD): str,
-                    vol.Required(CONF_SUBDOMAIN): vol.In(["region01eu5", "region02eu5", "region03eu5", "region04eu5", "region05eu5", "eu5", "intl", "intlobt", "au1", "au7", "jp5", "la5", "sg5",  "br1"]),
+                    vol.Required(CONF_SUBDOMAIN): vol.In(
+                        [
+                            "region01eu5",
+                            "region02eu5",
+                            "region03eu5",
+                            "region04eu5",
+                            "region05eu5",
+                            "eu5",
+                            "intl",
+                            "intlobt",
+                            "au1",
+                            "au7",
+                            "jp5",
+                            "la5",
+                            "sg5",
+                            "br1",
+                        ]
+                    ),
                     vol.Optional("installer", default=False): bool,
                 }
             ),
@@ -252,9 +269,24 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                         default=self.config_entry.options.get(
                             CONF_SUBDOMAIN, self.config_entry.data[CONF_SUBDOMAIN]
                         ),
-                    ): vol.In([
-                        "region01eu5", "region02eu5", "region03eu5", "region04eu5", "region05eu5", "eu5", "intl", "intlobt", "au1", "au7", "jp5", "la5", "sg5",  "br1",
-                    ]),
+                    ): vol.In(
+                        [
+                            "region01eu5",
+                            "region02eu5",
+                            "region03eu5",
+                            "region04eu5",
+                            "region05eu5",
+                            "eu5",
+                            "intl",
+                            "intlobt",
+                            "au1",
+                            "au7",
+                            "jp5",
+                            "la5",
+                            "sg5",
+                            "br1",
+                        ]
+                    ),
                     vol.Optional(
                         CONF_INSTALLER,
                         default=self.config_entry.options.get(
