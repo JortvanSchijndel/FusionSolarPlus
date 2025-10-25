@@ -57,7 +57,7 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
 |                          | Return to Grid                   | Power Sensor | Positive Active Energy           |
 | **Home Battery Storage** | Energy going in to the battery   |   Battery    | Energy Charged Today             |
 |                          | Energy coming out of the battery |   Battery    | Energy Discharged Today          |
-| **Solar Panels**         | Solar Production                 |    Plant     | Daily Energy (for each inverter) |
+| **Solar Panels**         | Solar Production                 |   Inverter   | Daily Energy (for each inverter) |
 # Entities
 
 <details>
