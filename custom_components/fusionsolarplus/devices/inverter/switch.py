@@ -1,4 +1,5 @@
 """Switch platform for Inverter devices."""
+
 import asyncio
 import logging
 from typing import Dict, Any

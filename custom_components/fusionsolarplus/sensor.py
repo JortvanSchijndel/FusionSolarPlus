@@ -52,13 +52,20 @@ async def async_setup_entry(
     handler = hass.data[DOMAIN].get(f"{entry.entry_id}_sensor_handler")
 
     if not coordinator or not handler:
-        _LOGGER.debug("Coordinator or handler not found for device %s. Skipping sensor setup.", device_name)
+        _LOGGER.debug(
+            "Coordinator or handler not found for device %s. Skipping sensor setup.",
+            device_name,
+        )
         return
 
     try:
         entities = handler.create_entities(coordinator)
-        _LOGGER.info("Adding %d sensor entities for device %s", len(entities), device_name)
+        _LOGGER.info(
+            "Adding %d sensor entities for device %s", len(entities), device_name
+        )
         async_add_entities(entities)
     except Exception as e:
-        _LOGGER.error("Failed to set up sensor entities for device %s: %s", device_name, e)
+        _LOGGER.error(
+            "Failed to set up sensor entities for device %s: %s", device_name, e
+        )
         raise

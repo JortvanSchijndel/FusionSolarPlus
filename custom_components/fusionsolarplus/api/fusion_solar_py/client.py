@@ -574,7 +574,9 @@ class FusionSolarClient:
         return None
 
     @logged_in
-    def toggle_device(self, device_dn: str, signal: str, password: str, value: str) -> dict:
+    def toggle_device(
+        self, device_dn: str, signal: str, password: str, value: str
+    ) -> dict:
         # Get randomVal
         url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/management/v1/config/change_Pwd"
         payload = {"pwdCode": password}
@@ -588,7 +590,7 @@ class FusionSolarClient:
         params = {
             "dn": f"{device_dn}",
             "changeValues": json.dumps([{"id": str(signal), "value": value}]),
-            "randomVal": random_val
+            "randomVal": random_val,
         }
         encoded = urlencode(params)
         headers = {"Content-Type": "application/x-www-form-urlencoded"}

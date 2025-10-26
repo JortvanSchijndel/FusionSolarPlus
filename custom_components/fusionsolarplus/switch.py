@@ -1,4 +1,5 @@
 """Switch platform for FusionSolar Plus."""
+
 import logging
 from typing import Dict, Any
 
@@ -54,7 +55,9 @@ async def async_setup_entry(
 
         entities = handler.create_entities(coordinator)
 
-        _LOGGER.info("Adding %d switch entities for device %s", len(entities), device_name)
+        _LOGGER.info(
+            "Adding %d switch entities for device %s", len(entities), device_name
+        )
         async_add_entities(entities)
 
     except Exception as e:
