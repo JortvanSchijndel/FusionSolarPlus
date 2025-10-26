@@ -47,31 +47,18 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ):
     """Set up sensor platform."""
-    device_id = entry.data.get("device_id")
     device_name = entry.data.get("device_name")
-    device_type = entry.data.get("device_type")
+    coordinator = hass.data[DOMAIN].get(f"{entry.entry_id}_coordinator")
+    handler = hass.data[DOMAIN].get(f"{entry.entry_id}_sensor_handler")
 
-    device_info = {
-        "identifiers": {(DOMAIN, str(device_id))},
-        "name": device_name,
-        "manufacturer": "FusionSolar",
-        "model": device_type or "Unknown",
-        "via_device": None,
-    }
+    if not coordinator or not handler:
+        _LOGGER.debug("Coordinator or handler not found for device %s. Skipping sensor setup.", device_name)
+        return
 
     try:
-        # Create device handler
-        handler = DeviceHandlerFactory.create_handler(hass, entry, device_info)
-
-        # Create coordinator
-        coordinator = await handler.create_coordinator()
-
-        # Create entities
         entities = handler.create_entities(coordinator)
-
-        _LOGGER.info("Adding %d entities for device %s", len(entities), device_name)
+        _LOGGER.info("Adding %d sensor entities for device %s", len(entities), device_name)
         async_add_entities(entities)
-
     except Exception as e:
-        _LOGGER.error("Failed to set up device %s: %s", device_name, e)
+        _LOGGER.error("Failed to set up sensor entities for device %s: %s", device_name, e)
         raise

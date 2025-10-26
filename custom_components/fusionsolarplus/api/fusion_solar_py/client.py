@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 from decimal import Decimal
 from functools import wraps
+from urllib.parse import urlencode
 import json
 import os
 from typing import Any, Optional
@@ -571,6 +572,31 @@ class FusionSolarClient:
             return response_data["payload"]
 
         return None
+
+    @logged_in
+    def toggle_device(self, device_dn: str, signal: str, password: str, value: str) -> dict:
+        # Get randomVal
+        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/management/v1/config/change_Pwd"
+        payload = {"pwdCode": password}
+        r = self._session.post(url, json=payload)
+        r.raise_for_status()
+        data = r.json()
+        random_val = data["data"]["check"]
+
+        # Prepare control command
+        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/config/device/v1/config/set-signal-with-randomval"
+        params = {
+            "dn": f"{device_dn}",
+            "changeValues": json.dumps([{"id": str(signal), "value": value}]),
+            "randomVal": random_val
+        }
+        encoded = urlencode(params)
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+
+        r = self._session.post(url, data=encoded, headers=headers)
+
+        r.raise_for_status()
+        return r.json()
 
     @logged_in
     def get_power_status(self) -> PowerStatus:
