@@ -9,7 +9,7 @@ from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
 
 from ...device_handler import BaseDeviceHandler
-from .const import POWER_SENSOR_SIGNALS
+from .const import POWER_SENSOR_SIGNALS, EMMA_A02_SIGNALS
 
 
 class PowerSensorDeviceHandler(BaseDeviceHandler):
@@ -23,11 +23,36 @@ class PowerSensorDeviceHandler(BaseDeviceHandler):
 
         return await self._get_client_and_retry(fetch_power_sensor_data)
 
+    def _detect_model_and_get_signals(self, data: Dict[str, Any]):
+        """Determine which signal list to use based on available signal IDs."""
+        all_signal_ids = set()
+
+        # Extract all signal IDs from the data
+        for group in data.get("data", []):
+            if "signals" in group:
+                for signal in group["signals"]:
+                    all_signal_ids.add(signal.get("id"))
+
+        # Detect model based on specific signal IDs
+        if 230700283 in all_signal_ids:
+            self.model = "Emma A02"
+            return EMMA_A02_SIGNALS
+        elif 10001 in all_signal_ids:
+            self.model = "Standard"
+            return POWER_SENSOR_SIGNALS
+        else:
+            self.model = "Unknown"
+            # Fallback to default signals
+            return POWER_SENSOR_SIGNALS
+
     def create_entities(self, coordinator: DataUpdateCoordinator) -> List:
         entities = []
         unique_ids = set()
 
-        for signal in POWER_SENSOR_SIGNALS:
+        # Auto-detect which signals to use based on which model
+        signals = self._detect_model_and_get_signals(coordinator.data or {})
+
+        for signal in signals:
             unique_id = f"{list(self.device_info['identifiers'])[0][1]}_{signal['id']}"
             if unique_id not in unique_ids:
                 entity = FusionSolarPowerSensor(
