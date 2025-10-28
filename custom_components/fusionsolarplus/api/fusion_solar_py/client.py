@@ -356,6 +356,7 @@ class FusionSolarClient:
         from .captcha_solver_onnx import Solver
 
         self._captcha_solver = Solver(self._captcha_model_path, self.captcha_device)
+        self._captcha_solver = Solver(self._captcha_model_path)
 
     @with_solver
     def _login(self, allow_captcha_exception=True):
@@ -419,6 +420,50 @@ class FusionSolarClient:
         # in the new login procedure, an errorCode 470 is pointing to a success
         # but requires another request to start the session
         if login_response["errorCode"] == "470":
+            resp_multi = login_response.get("respMultiRegionName")
+            if not isinstance(resp_multi[1], list) and not resp_multi[1].startswith("/"):
+                # If subdomain end with eu5 eg. region01eu5 remove the eu5 part
+                if self._huawei_subdomain.endswith("eu5"):
+                    self.subdomain_wihout_eu = self._huawei_subdomain[:-3]
+
+                key_data = key_request.json()
+
+                # find the correct login function
+                url = f"https://{self._login_subdomain}.fusionsolar.huawei.com/unisso/v2/validateUser.action"
+                url_params = {}
+                password = self._password
+
+                if key_data["enableEncrypt"]:
+                    _LOGGER.debug("Using V3 loging function with encrypted passwords")
+                    url = f"https://{self._login_subdomain}.fusionsolar.huawei.com/unisso/v3/validateUser.action"
+                    _LOGGER.debug(url)
+                    url_params["timeStamp"] = key_data["timeStamp"]
+                    url_params["nonce"] = get_secure_random()
+
+                    # encrypt the password
+                    password = encrypt_password(key_data=key_data, password=password)
+
+                json_data = {
+                    "organizationName": "",
+                    "username": self._user,
+                    "password": password,
+                    "multiRegionName":self.subdomain_wihout_eu
+                }
+
+                self._check_captcha()
+
+                # add the verify code if it was set
+                if self._captcha_verify_code:
+                    json_data["verifycode"] = self._captcha_verify_code
+                    # invalidate verify code after use
+                    self._captcha_verify_code = None
+
+                # send the request
+                r = self._session.post(url=url, params=url_params, json=json_data)
+                r.raise_for_status()
+                login_response = r.json()
+
+
             _LOGGER.debug("New loging procedure successful, sending additional request")
             target_subdomain = login_response["respMultiRegionName"][1]
             target_url = f"https://{self._login_subdomain}.fusionsolar.huawei.com{target_subdomain}"
