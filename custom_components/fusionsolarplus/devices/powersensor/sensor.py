@@ -9,7 +9,7 @@ from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
 
 from ...device_handler import BaseDeviceHandler
-from .const import POWER_SENSOR_SIGNALS, EMMA_A02_SIGNALS
+from .const import POWER_SENSOR_SIGNALS, EMMA_A02_SIGNALS, DTSU666_SIGNALS
 
 
 class PowerSensorDeviceHandler(BaseDeviceHandler):
@@ -40,6 +40,9 @@ class PowerSensorDeviceHandler(BaseDeviceHandler):
         elif 10001 in all_signal_ids:
             self.model = "Standard"
             return POWER_SENSOR_SIGNALS
+        elif 2101249 in all_signal_ids:
+            self.model = "DTSU666-FE"
+            return DTSU666_SIGNALS
         else:
             self.model = "Unknown"
             # Fallback to default signals
