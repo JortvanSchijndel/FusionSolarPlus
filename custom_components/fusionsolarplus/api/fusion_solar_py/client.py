@@ -811,7 +811,9 @@ class FusionSolarClient:
         """
         if ENABLE_FAKE_DATA and device_dn == "NE=140517905":
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "./fake_requests/power_sensor.json")
+            json_path = os.path.join(
+                base_dir, "./fake_requests/standard_powersensor.json"
+            )
             with open(json_path) as f:
                 data = json.load(f)
             return data
@@ -836,7 +838,7 @@ class FusionSolarClient:
         """
         if ENABLE_FAKE_DATA and device_dn == "NE=140517905":
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "power_sensor.json")
+            json_path = os.path.join(base_dir, "DTSU666_power_sensor.json")
             with open(json_path) as f:
                 power_sensor = json.load(f)
             return power_sensor

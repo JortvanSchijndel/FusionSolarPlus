@@ -1,0 +1,201 @@
+
+{
+    "129428710": [
+        {
+            "enumMap": {},
+            "id": 2101249,
+            "name": "Communication Status",
+            "realValue": "0",
+            "unit": "",
+            "value": "0",
+            "displayExp": "false"
+        },
+        {
+            "enumMap": {},
+            "id": 2101252,
+            "name": "AB line voltage",
+            "realValue": "234.3",
+            "unit": "V",
+            "value": "234.3",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101253,
+            "name": "BC line voltage",
+            "realValue": "0.0",
+            "unit": "V",
+            "value": "0.0",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101254,
+            "name": "CA line voltage",
+            "realValue": "234.3",
+            "unit": "V",
+            "value": "234.3",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101256,
+            "name": "Phase A voltage",
+            "realValue": "234.3",
+            "unit": "V",
+            "value": "234.3",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101257,
+            "name": "Phase B voltage",
+            "realValue": "0.0",
+            "unit": "V",
+            "value": "0.0",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101264,
+            "name": "Phase C voltage",
+            "realValue": "0.0",
+            "unit": "V",
+            "value": "0.0",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101268,
+            "name": "Phase A current",
+            "realValue": "-2.36",
+            "unit": "A",
+            "value": "-2.36",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101269,
+            "name": "Phase B current",
+            "realValue": "-0.01",
+            "unit": "A",
+            "value": "-0.01",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101270,
+            "name": "Phase C current",
+            "realValue": "0.00",
+            "unit": "A",
+            "value": "0.00",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101271,
+            "name": "Active power",
+            "realValue": "-0.39",
+            "unit": "kW",
+            "value": "-0.39",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101272,
+            "name": "Reactive power",
+            "realValue": "0.33",
+            "unit": "kVar",
+            "value": "0.33",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101280,
+            "name": "Power factor",
+            "realValue": "-0.696",
+            "unit": "",
+            "value": "-0.696",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101281,
+            "name": "Phase A active power",
+            "realValue": "-0.39",
+            "unit": "kW",
+            "value": "-0.39",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101282,
+            "name": "Phase B active power",
+            "realValue": "0.00",
+            "unit": "kW",
+            "value": "0.00",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101283,
+            "name": "Phase C active power",
+            "realValue": "0.00",
+            "unit": "kW",
+            "value": "0.00",
+            "displayExp": "true"
+        },
+        {
+            "enumMap": {},
+            "id": 2101600,
+            "name": "iAcMeter",
+            "realValue": "1",
+            "unit": "",
+            "value": "1",
+            "displayExp": "false"
+        },
+        {
+            "enumMap": {},
+            "id": 2101601,
+            "name": "iAcMeter",
+            "realValue": "192.168.11.2",
+            "unit": "",
+            "value": "192.168.11.2",
+            "displayExp": "false"
+        },
+        {
+            "enumMap": {},
+            "id": 2101602,
+            "name": "Comm Status",
+            "realValue": "1",
+            "unit": "",
+            "value": "1",
+            "displayExp": "false"
+        },
+        {
+            "enumMap": {
+                "1": "Server",
+                "2": "Client"
+            },
+            "id": 2101605,
+            "name": "iAcMeter",
+            "realValue": "Server",
+            "unit": "",
+            "value": "1",
+            "displayExp": "false"
+        },
+        {
+            "enumMap": {
+                "0": "CHNT Meter",
+                "1": "Dongle Virtual Meter",
+                "2": "Carlo Gavazzi Meter"
+            },
+            "id": 2101606,
+            "name": "Meter Data Source",
+            "realValue": "CHNT Meter",
+            "unit": "",
+            "value": "0",
+            "displayExp": "true"
+        }
+    ]
+}
