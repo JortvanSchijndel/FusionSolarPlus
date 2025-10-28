@@ -355,7 +355,6 @@ class FusionSolarClient:
 
         from .captcha_solver_onnx import Solver
 
-        self._captcha_solver = Solver(self._captcha_model_path, self.captcha_device)
         self._captcha_solver = Solver(self._captcha_model_path)
 
     @with_solver
@@ -402,7 +401,6 @@ class FusionSolarClient:
         # add the verify code if it was set
         if self._captcha_verify_code:
             json_data["verifycode"] = self._captcha_verify_code
-            # invalidate verify code after use
             self._captcha_verify_code = None
 
         # send the request
@@ -421,7 +419,9 @@ class FusionSolarClient:
         # but requires another request to start the session
         if login_response["errorCode"] == "470":
             resp_multi = login_response.get("respMultiRegionName")
-            if not isinstance(resp_multi[1], list) and not resp_multi[1].startswith("/"):
+            if not isinstance(resp_multi[1], list) and not resp_multi[1].startswith(
+                "/"
+            ):
                 # If subdomain end with eu5 eg. region01eu5 remove the eu5 part
                 if self._huawei_subdomain.endswith("eu5"):
                     self.subdomain_wihout_eu = self._huawei_subdomain[:-3]
@@ -447,7 +447,7 @@ class FusionSolarClient:
                     "organizationName": "",
                     "username": self._user,
                     "password": password,
-                    "multiRegionName":self.subdomain_wihout_eu
+                    "multiRegionName": self.subdomain_wihout_eu,
                 }
 
                 self._check_captcha()
@@ -463,10 +463,10 @@ class FusionSolarClient:
                 r.raise_for_status()
                 login_response = r.json()
 
-
             _LOGGER.debug("New loging procedure successful, sending additional request")
             target_subdomain = login_response["respMultiRegionName"][1]
             target_url = f"https://{self._login_subdomain}.fusionsolar.huawei.com{target_subdomain}"
+
             new_procedure_response = self._session.get(target_url)
             new_procedure_response.raise_for_status()
 

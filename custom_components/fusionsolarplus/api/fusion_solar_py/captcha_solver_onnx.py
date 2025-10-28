@@ -17,6 +17,7 @@ except ImportError:
         "Required libraries for CAPTCHA solving are not available. Please install the package using pip install fusion_solar_py[captcha]."
     )
 
+
 class Solver(object):
     def __init__(self, hass):
         self.hass = hass
@@ -24,13 +25,10 @@ class Solver(object):
 
     RATE_LIMIT_COOLDOWN = 6 * 60 * 60  # 6-Hour cooldown
 
-
     def _init_model(self):
         self.hass = self.model_path  # Using model-path to pass self.hass
         if not self.hass:
             raise FusionSolarException("hass instance not provided as model_path")
-
-
 
     def save_image_to_disk(self, img_bytes, prefix="captcha"):
         filename = f"{prefix}_{uuid.uuid4().hex}.png"
