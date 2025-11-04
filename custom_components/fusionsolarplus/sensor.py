@@ -14,6 +14,8 @@ from .devices.plant.sensor import PlantDeviceHandler
 from .devices.charger.sensor import ChargerDeviceHandler
 from .devices.battery.sensor import BatteryDeviceHandler
 from .devices.powersensor.sensor import PowerSensorDeviceHandler
+from .devices.backupbox.sensor import BackupBoxDeviceHandler
+from .devices.emma.sensor import EMMADeviceHandler
 
 from .device_handler import BaseDeviceHandler
 
@@ -39,6 +41,10 @@ class DeviceHandlerFactory:
             return PowerSensorDeviceHandler(hass, entry, device_info)
         elif device_type == "Charger":
             return ChargerDeviceHandler(hass, entry, device_info)
+        elif device_type == "BackupBox":
+            return BackupBoxDeviceHandler(hass, entry, device_info)
+        elif device_type == "EMMA":
+            return EMMADeviceHandler(hass, entry, device_info)
         else:
             raise ValueError(f"Unsupported device type: {device_type}")
 

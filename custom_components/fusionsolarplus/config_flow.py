@@ -27,6 +27,8 @@ DEVICE_TYPE_INVERTER = "Inverter"
 DEVICE_TYPE_CHARGER = "Charger"
 DEVICE_TYPE_BATTERY = "Battery"
 DEVICE_TYPE_POWER_SENSOR = "Power Sensor"
+DEVICE_TYPE_EMMA = "EMMA"
+DEVICE_TYPE_BACKUPBOX = "BackupBox"
 
 DEVICE_TYPE_OPTIONS = {
     "Plant": DEVICE_TYPE_PLANT,
@@ -34,6 +36,8 @@ DEVICE_TYPE_OPTIONS = {
     "Charger": DEVICE_TYPE_CHARGER,
     "Battery": DEVICE_TYPE_BATTERY,
     "Power Sensor": DEVICE_TYPE_POWER_SENSOR,
+    "EMMA": DEVICE_TYPE_EMMA,
+    "BackupBox": DEVICE_TYPE_BACKUPBOX,
 }
 
 
@@ -200,6 +204,30 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         if device["type"] == "Power Sensor":
                             device_dn = device["deviceDn"]
                             device_options[f"Power Sensor (ID: {device_dn})"] = (
+                                device_dn
+                            )
+
+                # Handle EMMA
+                elif self.device_type == DEVICE_TYPE_EMMA:
+                    response = await self.hass.async_add_executor_job(
+                        self.client.get_device_ids
+                    )
+                    for device in response:
+                        if device["type"] == "EMMA":
+                            device_dn = device["deviceDn"]
+                            device_options[f"EMMA (ID: {device_dn})"] = (
+                                device_dn
+                            )
+
+                # Handle BackupBox
+                elif self.device_type == DEVICE_TYPE_BACKUPBOX:
+                    response = await self.hass.async_add_executor_job(
+                        self.client.get_device_ids
+                    )
+                    for device in response:
+                        if device["type"] == "BackupBox":
+                            device_dn = device["deviceDn"]
+                            device_options[f"BackupBox (ID: {device_dn})"] = (
                                 device_dn
                             )
 

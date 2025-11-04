@@ -1,0 +1,67 @@
+from homeassistant.components.sensor import SensorDeviceClass, SensorStateClass
+
+BACKUPBOX_SIGNALS = [
+    {
+        "id": 10001,
+        "name": "Status",
+        "custom_name": "Status",
+        "device_class": SensorDeviceClass.ENUM,
+        "unit": None,
+    },
+    {
+        "id": 10007,
+        "name": "Grid A phase voltage",
+        "unit": "V",
+        "custom_name": "Grid A Phase Voltage",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 10008,
+        "name": "Grid B phase voltage",
+        "unit": "V",
+        "custom_name": "Grid B Phase Voltage",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 10009,
+        "name": "Grid C phase voltage",
+        "unit": "V",
+        "custom_name": "Grid C Phase Voltage",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 10063,
+        "name": "Phase A voltage of backup load",
+        "unit": "V",
+        "custom_name": "Phase A Voltage of Backup Load",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 10064,
+        "name": "Phase B voltage of backup load",
+        "unit": "V",
+        "custom_name": "Phase B Voltage of Backup Load",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 10065,
+        "name": "Phase C voltage of backup load",
+        "unit": "V",
+        "custom_name": "Phase C Voltage of Backup Load",
+        "device_class": SensorDeviceClass.VOLTAGE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+    {
+        "id": 10061,
+        "name": "Internal ambient temperature",
+        "unit": "°C",
+        "custom_name": "Internal Ambient Temperature",
+        "device_class": SensorDeviceClass.TEMPERATURE,
+        "state_class": SensorStateClass.MEASUREMENT,
+    },
+]

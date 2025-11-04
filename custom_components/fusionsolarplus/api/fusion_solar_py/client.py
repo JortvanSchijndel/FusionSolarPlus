@@ -753,7 +753,7 @@ class FusionSolarClient:
         url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/web/config/device/v1/device-list"
         params = {
             "conditionParams.parentDn": self._company_id,  # can be a plant or company id
-            "conditionParams.mocTypes": "20815,20816,20819,20822,50017,60066,60014,60015,23037,60080",  # specifies the types of devices | 20814 for optimizers. 60080 for chargers
+            "conditionParams.mocTypes": "20815,20816,20819,20822,50017,60066,60014,60015,23037,60080,20817,20851",  # specifies the types of devices | 20814 for optimizers, 60080 for chargers, 20817 for backupbox, 20851 for emma
             "_": round(time.time() * 1000),
         }
         r = self._session.get(url=url, params=params)
