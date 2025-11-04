@@ -1,19 +1,15 @@
-from typing import Dict, Any, List, Set
-from datetime import date, datetime
+from typing import Dict, Any, List
 
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     CoordinatorEntity,
 )
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
-from homeassistant.helpers.entity import generate_entity_id, EntityCategory
+from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
-from homeassistant.util.dt import now as ha_now
 
 from ...device_handler import BaseDeviceHandler
-from .const import (
-    EMMA_SIGNALS
-)
+from .const import EMMA_SIGNALS
 
 
 class EMMADeviceHandler(BaseDeviceHandler):
@@ -110,7 +106,10 @@ class FusionSolarEMMASensor(CoordinatorEntity, SensorEntity):
                 return None
 
             # Handle enumerated values
-            if self._attr_device_class == SensorDeviceClass.ENUM or self._attr_device_class is None:
+            if (
+                self._attr_device_class == SensorDeviceClass.ENUM
+                or self._attr_device_class is None
+            ):
                 self._last_value = str(value)
                 return str(value)
 
@@ -119,7 +118,7 @@ class FusionSolarEMMASensor(CoordinatorEntity, SensorEntity):
             except (ValueError, TypeError):
                 return str(value)
 
-        except Exception as err:
+        except Exception:
             # Safe fallback on any parsing error
             return self._last_value
 

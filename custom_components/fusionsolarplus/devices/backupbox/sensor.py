@@ -1,19 +1,15 @@
-from typing import Dict, Any, List, Set
-from datetime import date, datetime
+from typing import Dict, Any, List
 
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     CoordinatorEntity,
 )
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
-from homeassistant.helpers.entity import generate_entity_id, EntityCategory
+from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
-from homeassistant.util.dt import now as ha_now
 
 from ...device_handler import BaseDeviceHandler
-from .const import (
-    BACKUPBOX_SIGNALS
-)
+from .const import BACKUPBOX_SIGNALS
 
 
 class BackupBoxDeviceHandler(BaseDeviceHandler):
@@ -125,7 +121,7 @@ class FusionSolarBackupBoxSensor(CoordinatorEntity, SensorEntity):
             self._last_value = value
             return value
 
-        except Exception as err:
+        except Exception:
             # Safe fallback on any parsing error
             return self._last_value
 

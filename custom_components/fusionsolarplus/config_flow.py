@@ -215,9 +215,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     for device in response:
                         if device["type"] == "EMMA":
                             device_dn = device["deviceDn"]
-                            device_options[f"EMMA (ID: {device_dn})"] = (
-                                device_dn
-                            )
+                            device_options[f"EMMA (ID: {device_dn})"] = device_dn
 
                 # Handle BackupBox
                 elif self.device_type == DEVICE_TYPE_BACKUPBOX:
@@ -227,9 +225,7 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     for device in response:
                         if device["type"] == "BackupBox":
                             device_dn = device["deviceDn"]
-                            device_options[f"BackupBox (ID: {device_dn})"] = (
-                                device_dn
-                            )
+                            device_options[f"BackupBox (ID: {device_dn})"] = device_dn
 
                 if not device_options:
                     _LOGGER.warning(

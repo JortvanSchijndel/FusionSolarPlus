@@ -112,5 +112,5 @@ EMMA_SIGNALS = [
         "custom_name": "Phase C Current",
         "device_class": SensorDeviceClass.CURRENT,
         "state_class": SensorStateClass.MEASUREMENT,
-    }
+    },
 ]
