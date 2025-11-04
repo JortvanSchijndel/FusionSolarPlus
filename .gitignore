@@ -2,7 +2,8 @@
 
 .venv/
 
-.devcontainer/
+.devcontainer/*
+!.devcontainer/devcontainer.sample.json
 
 config/
 *.pyc

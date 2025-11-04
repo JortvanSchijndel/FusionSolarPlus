@@ -972,6 +972,38 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
 If you encounter any problems while using the integration, please [open an issue](https://github.com/JortvanSchijndel/FusionSolarPlus/issues).
 Be sure to include as much relevant information as possible, this helps with troubleshooting and speeds up the resolution process.
 
+# Development
+
+To contribute or run FusionSolarPlus locally, follow these steps:
+
+1. **Install VS Code:**  
+   [Download and install Visual Studio Code](https://code.visualstudio.com/).
+
+2. **Install Docker:**  
+   [Download and install Docker](https://docs.docker.com/get-docker/).
+
+3. **Clone the repository:**
+   ```bash
+   git clone https://github.com/JortvanSchijndel/FusionSolarPlus.git && cd FusionSolarPlus
+   ```
+
+4. **Copy the dev container configuration:**
+   ```bash
+   cp .devcontainer/devcontainer.json.sample .devcontainer/devcontainer.json
+   ```
+
+5. **Open the project in VS Code:**
+   ```bash
+   code .
+   ```
+
+6. **Start the development container:**
+   - Open the Command Palette (Mac: `Cmd+Shift+P`, Windows/Linux: `Ctrl+Shift+P`)
+   - Type `Dev Containers: Rebuild and Reopen in Container` and press Enter.
+
+This will set up a reproducible development environment with all dependencies installed and Home Assistant will be accessible at http://localhost:8123.
+
 # Legal Notice
 This integration for Home Assistant uses a custom modified version of [FusionSolarPy](https://github.com/jgriss/FusionSolarPy).
+
 
