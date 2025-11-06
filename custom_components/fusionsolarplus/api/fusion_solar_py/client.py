@@ -422,9 +422,22 @@ class FusionSolarClient:
             if not isinstance(resp_multi[1], list) and not resp_multi[1].startswith(
                 "/"
             ):
+                self.MultiRegionName = self._huawei_subdomain
                 # If subdomain end with eu5 eg. region01eu5 remove the eu5 part
                 if self._huawei_subdomain.endswith("eu5"):
-                    self.subdomain_wihout_eu = self._huawei_subdomain[:-3]
+                    self.MultiRegionName = self._huawei_subdomain[:-3]
+
+                if (
+                    self.MultiRegionName.startswith("region")
+                    and not self.MultiRegionName == "region05"
+                ):
+                    pattern = r"(region0?)(\d{1,2})"
+
+                    def repl(match):
+                        prefix, num = match.groups()
+                        return f"region{int(num):03d}"
+
+                    self.MultiRegionName = re.sub(pattern, repl, self.MultiRegionName)
 
                 key_data = key_request.json()
 
@@ -447,7 +460,7 @@ class FusionSolarClient:
                     "organizationName": "",
                     "username": self._user,
                     "password": password,
-                    "multiRegionName": self.subdomain_wihout_eu,
+                    "multiRegionName": self.MultiRegionName,
                 }
 
                 self._check_captcha()
