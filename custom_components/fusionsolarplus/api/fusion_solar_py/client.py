@@ -357,11 +357,70 @@ class FusionSolarClient:
 
         self._captcha_solver = Solver(self._captcha_model_path)
 
+    def _is_intl_subdomain(self) -> bool:
+        """Check if this is the INTL subdomain which uses a different API."""
+        return self._huawei_subdomain == "intl"
+
+    def _login_intl(self):
+        """Login flow for the INTL subdomain which uses a different API."""
+        _LOGGER.debug("Using INTL login flow")
+
+        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/dp/uidm/unisso/v1/validate-user"
+        url_params = {"service": "/"}
+
+        json_data = {
+            "username": self._user,
+            "password": self._password,
+            "verifycode": self._captcha_verify_code or "",
+        }
+
+        headers = {"App-Id": "smartpvms"}
+
+        r = self._session.post(
+            url=url, params=url_params, json=json_data, headers=headers
+        )
+        r.raise_for_status()
+
+        try:
+            login_response = r.json()
+        except Exception as e:
+            _LOGGER.error("Retrieved invalid data as INTL login response.")
+            _LOGGER.exception(e)
+            raise FusionSolarException("Failed to process INTL login response")
+
+        # INTL uses "code" instead of "errorCode"
+        if login_response.get("code") != 0:
+            error_msg = login_response.get("payload", {}).get(
+                "exceptionMessage", "Unknown error"
+            )
+            raise AuthenticationException(
+                f"Failed to login into FusionSolarAPI (INTL): {error_msg}"
+            )
+
+        # Handle the redirect URL from the response
+        payload = login_response.get("payload", {})
+        redirect_url = payload.get("redirectURL")
+        if redirect_url:
+            # If redirect URL is relative, prepend the base URL
+            if redirect_url.startswith("/"):
+                redirect_url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com{redirect_url}"
+            _LOGGER.debug(f"Following INTL redirect: {redirect_url}")
+            # Don't follow redirects - we just need the cookies from the first response
+            # The final redirect may go to an internal domain that's not publicly accessible
+            redirect_response = self._session.get(redirect_url, allow_redirects=False)
+            # Accept 302 as success - it means the SSO ticket was accepted
+            if redirect_response.status_code not in (200, 302):
+                redirect_response.raise_for_status()
+
     @with_solver
     def _login(self, allow_captcha_exception=True):
+        # Use different login flow for INTL subdomain
+        if self._is_intl_subdomain():
+            return self._login_intl()
+
         # retrieve the public key in order to test which loging function to use
         key_request = self._session.get(
-            "https://eu5.fusionsolar.huawei.com/unisso/pubkey"
+            f"https://{self._login_subdomain}.fusionsolar.huawei.com/unisso/pubkey"
         )
 
         if key_request.status_code != 200:
