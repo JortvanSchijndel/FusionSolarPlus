@@ -376,7 +376,9 @@ class FusionSolarClient:
 
         headers = {"App-Id": "smartpvms"}
 
-        r = self._session.post(url=url, params=url_params, json=json_data, headers=headers)
+        r = self._session.post(
+            url=url, params=url_params, json=json_data, headers=headers
+        )
         r.raise_for_status()
 
         try:
@@ -388,7 +390,9 @@ class FusionSolarClient:
 
         # INTL uses "code" instead of "errorCode"
         if login_response.get("code") != 0:
-            error_msg = login_response.get("payload", {}).get("exceptionMessage", "Unknown error")
+            error_msg = login_response.get("payload", {}).get(
+                "exceptionMessage", "Unknown error"
+            )
             raise AuthenticationException(
                 f"Failed to login into FusionSolarAPI (INTL): {error_msg}"
             )
