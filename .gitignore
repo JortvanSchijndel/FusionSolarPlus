@@ -1,5 +1,7 @@
 .idea/
 
+.ai/
+
 .venv/
 
 .devcontainer/*
