@@ -49,7 +49,7 @@ class ChargerDeviceHandler(BaseDeviceHandler):
                 )
 
                 if matching_signal:
-                    unique_id = f"{list(self.device_info['identifiers'])[0][1]}_{signal_config['id']}"
+                    unique_id = f"{list(self.device_info['identifiers'])[0][1]}_{signal_type_id}_{signal_config['id']}"
                     if unique_id not in unique_ids:
                         entity = FusionSolarChargerSensor(
                             coordinator,
@@ -71,29 +71,18 @@ class ChargerDeviceHandler(BaseDeviceHandler):
         if not signals_data:
             return None
 
-        present_ids = {signal.get("id") for signal in signals_data if signal.get("id")}
-
-        charging_pile_ids = {
-            10001,
-            10002,
-            10003,
-            10004,
+        # Build a map of signal names for easier checking
+        signal_names = {
+            signal.get("name") for signal in signals_data if signal.get("name")
         }
-        if charging_pile_ids.intersection(present_ids):
-            if any(
-                signal.get("name") == "Charging Connector No."
-                for signal in signals_data
-            ):
-                return CHARGING_PILE_SIGNALS
 
-        charger_device_ids = {
-            10001,
-            10002,
-            455770003,
-        }
-        if charger_device_ids.intersection(present_ids):
-            if any(signal.get("name") == "Software Version" for signal in signals_data):
-                return CHARGER_DEVICE_SIGNALS
+        # Check for "Charging Connector No." to identify charging pile data
+        if "Charging Connector No." in signal_names:
+            return CHARGING_PILE_SIGNALS
+
+        # Check for "Software Version" to identify charger device data
+        if "Software Version" in signal_names:
+            return CHARGER_DEVICE_SIGNALS
 
         return None
 
@@ -118,7 +107,9 @@ class FusionSolarChargerSensor(CoordinatorEntity, SensorEntity):
         self._attr_name = name
         self._base_unit = unit
         self._attr_device_info = device_info
-        self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal_id}"
+        self._attr_unique_id = (
+            f"{list(device_info['identifiers'])[0][1]}_{signal_type_id}_{signal_id}"
+        )
         self._attr_device_class = device_class
         self._attr_state_class = state_class
 
