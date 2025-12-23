@@ -26,35 +26,25 @@ class PlantDeviceHandler(BaseDeviceHandler):
 
     def create_entities(self, coordinator: DataUpdateCoordinator) -> List:
         entities = []
-        unique_ids = set()
 
-        # Check if meter exists
-        exist_meter = (
-            coordinator.data.get("existMeter", True) if coordinator.data else True
-        )
+        exist_meter = coordinator.data.get("existMeter", False)
 
-        # Filter plant signals based on meter
-        plant_signals_filtered = [
-            signal
-            for signal in PLANT_SIGNALS
-            if exist_meter
-            or signal["key"] not in ["dailySelfUseEnergy", "dailyUseEnergy"]
-        ]
+        for signal in PLANT_SIGNALS:
+            # Skip creation entirely if this signal requires a meter and no meter exists
+            if signal.get("meter_required", False) and not exist_meter:
+                continue
 
-        for signal in plant_signals_filtered:
-            unique_id = f"{list(self.device_info['identifiers'])[0][1]}_{signal['key']}"
-            if unique_id not in unique_ids:
-                entity = FusionSolarPlantSensor(
-                    coordinator,
-                    signal["key"],
-                    signal.get("custom_name", signal["name"]),
-                    signal.get("unit", None),
-                    self.device_info,
-                    signal.get("device_class"),
-                    signal.get("state_class"),
+            entities.append(
+                FusionSolarPlantSensor(
+                    coordinator=coordinator,
+                    key=signal["key"],
+                    name=signal["name"],
+                    unit=signal.get("unit"),
+                    device_info=self.device_info,
+                    device_class=signal.get("device_class"),
+                    state_class=signal.get("state_class"),
                 )
-                entities.append(entity)
-                unique_ids.add(unique_id)
+            )
 
         return entities
 

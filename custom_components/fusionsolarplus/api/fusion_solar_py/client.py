@@ -2,7 +2,7 @@
 
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 from functools import wraps
 from urllib.parse import urlencode
@@ -748,29 +748,74 @@ class FusionSolarClient:
 
     @logged_in
     def get_current_plant_data(self, plant_id: str) -> dict:
-        """Retrieve the current power status for a specific plant.
-        :return: A dict object containing the whole data
+        """Retrieve the current power status and energy balance for a specific plant.
+        :return: A dict object containing both datasets
         """
 
+        ts = round(time.time() * 1000)
+
+        # --- First request: real-time KPI ---
         url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v1/overview/station-real-kpi"
         params = {
             "stationDn": plant_id,
-            "clientTime": round(time.time() * 1000),
+            "clientTime": ts,
             "timeZone": 1,
-            "_": round(time.time() * 1000),
+            "_": ts,
         }
 
         r = self._session.get(url=url, params=params)
         r.raise_for_status()
-
-        # errors in decoding the object generally mean that the login expired
-        # this is handled by @logged_in
         power_obj = r.json()
 
         if "data" not in power_obj:
-            raise FusionSolarException("Failed to retrieve plant data.")
+            raise FusionSolarException("Failed to retrieve plant KPI data.")
 
-        return power_obj["data"]
+        # --- Second request: energy balance ---
+        today = datetime.now(timezone.utc).astimezone()
+        query_time = int(
+            today.replace(hour=0, minute=0, second=0, microsecond=0).timestamp() * 1000
+        )
+        date_str = today.strftime("%Y-%m-%d 00:00:00")
+
+        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v3/overview/energy-balance"
+        params = {
+            "stationDn": plant_id,
+            "timeDim": 2,
+            "timeZone": 1.0,
+            "timeZoneStr": today.tzname(),
+            "queryTime": query_time,
+            "dateStr": date_str,
+            "_": ts,
+        }
+
+        r = self._session.get(url=url, params=params)
+        r.raise_for_status()
+        energy_obj = r.json()
+
+        if "data" not in energy_obj:
+            raise FusionSolarException("Failed to retrieve plant energy balance data.")
+
+        data = power_obj["data"]
+        energy = energy_obj["data"]
+
+        data.update(
+            {
+                "existMeter": energy.get("existMeter", False),
+                "existInverter": energy.get("existInverter", True),
+                "totalSelfUseEnergy": energy.get("totalSelfUsePower"),
+                "totalFeedInEnergy": energy.get("totalOnGridPower"),
+                "totalGridImportEnergy": energy.get("totalBuyPower"),
+                "totalConsumptionEnergy": energy.get("totalUsePower"),
+                "pvSelfConsumptionEnergy": energy.get("selfProvide"),
+                "gridImportRatio": energy.get("buyPowerRatio"),
+                "pvSelfConsumptionRatio": energy.get("selfUsePowerRatioByUse"),
+                "pvSelfConsumptionRatioByProduction": energy.get(
+                    "selfUsePowerRatioByProduct"
+                ),
+            }
+        )
+
+        return data
 
     @logged_in
     def get_plant_ids(self) -> list:
