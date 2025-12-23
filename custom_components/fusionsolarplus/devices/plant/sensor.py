@@ -1,5 +1,4 @@
 from typing import Dict, Any, List
-from datetime import datetime, time
 
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -105,26 +104,6 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Return the state of the sensor with freeze logic between 23:00–02:00."""
-        now = datetime.now().time()
-
-        # Define freeze window
-        freeze_start = time(22, 0)
-        freeze_end = time(3, 0)
-
-        energy_keys_to_freeze = {
-            "monthEnergy",
-            "cumulativeEnergy",
-            "dailyEnergy",
-            "dailySelfUseEnergy",
-            "dailyUseEnergy",
-            "yearEnergy",
-        }
-
-        if self._key in energy_keys_to_freeze:
-            if freeze_start <= now or now <= freeze_end:
-                return self._last_valid_value
-
-        # otherwise use live data
         data = self.coordinator.data
         if not data:
             return self._last_valid_value
