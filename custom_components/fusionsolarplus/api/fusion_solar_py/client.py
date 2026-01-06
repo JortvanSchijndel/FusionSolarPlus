@@ -384,9 +384,13 @@ class FusionSolarClient:
         try:
             login_response = r.json()
         except Exception as e:
-            _LOGGER.error(f"Retrieved invalid data as login response for {self._huawei_subdomain}.")
+            _LOGGER.error(
+                f"Retrieved invalid data as login response for {self._huawei_subdomain}."
+            )
             _LOGGER.exception(e)
-            raise FusionSolarException(f"Failed to process login response for {self._huawei_subdomain}")
+            raise FusionSolarException(
+                f"Failed to process login response for {self._huawei_subdomain}"
+            )
 
         # INTL uses "code" instead of "errorCode"
         if login_response.get("code") != 0:
@@ -404,7 +408,9 @@ class FusionSolarClient:
             # If redirect URL is relative, prepend the base URL
             if redirect_url.startswith("/"):
                 redirect_url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com{redirect_url}"
-            _LOGGER.debug(f"Following redirect for {self._huawei_subdomain}: {redirect_url}")
+            _LOGGER.debug(
+                f"Following redirect for {self._huawei_subdomain}: {redirect_url}"
+            )
             # Don't follow redirects - we just need the cookies from the first response
             # The final redirect may go to an internal domain that's not publicly accessible
             redirect_response = self._session.get(redirect_url, allow_redirects=False)

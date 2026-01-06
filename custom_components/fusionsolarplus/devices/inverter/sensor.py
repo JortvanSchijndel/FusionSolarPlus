@@ -1,5 +1,5 @@
 from typing import Dict, Any, List, Set
-from datetime import date, datetime
+from datetime import date
 
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -8,7 +8,6 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.components.sensor import SensorEntity, SensorDeviceClass
 from homeassistant.helpers.entity import generate_entity_id, EntityCategory
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
-from homeassistant.util.dt import now as ha_now
 
 from ...device_handler import BaseDeviceHandler
 from .const import (
