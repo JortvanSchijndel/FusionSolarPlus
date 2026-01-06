@@ -359,11 +359,11 @@ class FusionSolarClient:
 
     def _is_intl_subdomain(self) -> bool:
         """Check if this is the INTL subdomain which uses a different API."""
-        return self._huawei_subdomain == "intl"
+        return self._huawei_subdomain in ["intl", "la5"]
 
     def _login_intl(self):
         """Login flow for the INTL subdomain which uses a different API."""
-        _LOGGER.debug("Using INTL login flow")
+        _LOGGER.debug(f"Using INTL login flow for subdomain: {self._huawei_subdomain}")
 
         url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/dp/uidm/unisso/v1/validate-user"
         url_params = {"service": "/"}
@@ -384,9 +384,9 @@ class FusionSolarClient:
         try:
             login_response = r.json()
         except Exception as e:
-            _LOGGER.error("Retrieved invalid data as INTL login response.")
+            _LOGGER.error(f"Retrieved invalid data as login response for {self._huawei_subdomain}.")
             _LOGGER.exception(e)
-            raise FusionSolarException("Failed to process INTL login response")
+            raise FusionSolarException(f"Failed to process login response for {self._huawei_subdomain}")
 
         # INTL uses "code" instead of "errorCode"
         if login_response.get("code") != 0:
@@ -394,7 +394,7 @@ class FusionSolarClient:
                 "exceptionMessage", "Unknown error"
             )
             raise AuthenticationException(
-                f"Failed to login into FusionSolarAPI (INTL): {error_msg}"
+                f"Failed to login into FusionSolarAPI ({self._huawei_subdomain}): {error_msg}"
             )
 
         # Handle the redirect URL from the response
@@ -404,7 +404,7 @@ class FusionSolarClient:
             # If redirect URL is relative, prepend the base URL
             if redirect_url.startswith("/"):
                 redirect_url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com{redirect_url}"
-            _LOGGER.debug(f"Following INTL redirect: {redirect_url}")
+            _LOGGER.debug(f"Following redirect for {self._huawei_subdomain}: {redirect_url}")
             # Don't follow redirects - we just need the cookies from the first response
             # The final redirect may go to an internal domain that's not publicly accessible
             redirect_response = self._session.get(redirect_url, allow_redirects=False)
