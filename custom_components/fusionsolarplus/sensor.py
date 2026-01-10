@@ -43,7 +43,7 @@ class DeviceHandlerFactory:
             return ChargerDeviceHandler(hass, entry, device_info)
         elif device_type == "BackupBox":
             return BackupBoxDeviceHandler(hass, entry, device_info)
-        elif device_type == "EMMA":
+        elif device_type == "EMMA" or device_type == "SmartAssistant":
             return EMMADeviceHandler(hass, entry, device_info)
         else:
             raise ValueError(f"Unsupported device type: {device_type}")
