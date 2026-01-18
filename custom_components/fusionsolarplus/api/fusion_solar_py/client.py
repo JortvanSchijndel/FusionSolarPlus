@@ -1177,17 +1177,15 @@ class FusionSolarClient:
         nodes = plant_flow["data"]["flow"]["nodes"]
         battery_ids = []
 
-        # for node in nodes:
-        #     if "energy_store" in node["name"]:
-        #         battery_ids.append(node["devIds"][0])
-
         for node in nodes:
             name = node.get("name", "")
             dev_ids = node.get("devIds")
+
             logging.debug("Processing node: name=%r devIds=%r", name, dev_ids)
+
             if "energy_store" in name:
                 if isinstance(dev_ids, list) and dev_ids:
-                    battery_ids.append(dev_ids[0])
+                    battery_ids.extend(dev_ids)
                 else:
                     logging.warning(
                         "Node with 'energy_store' in name but devIds is not a non-empty list: %r",
