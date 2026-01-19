@@ -47,9 +47,13 @@ Once installed:
 4. Enter your FusionSolar username, password and subdomain.
 5. Select the device type you want to add, then choose the specific device.
 
+Repeat step 2 - 5 for each of the devices you want to add.
+
 # Energy Dashboard
 
-FusionSolarPlus is fully compatible with the integrated Home Assistant energy dashboard. When configuring the energy dashboard you need to provide the following settings:
+FusionSolarPlus is fully compatible with the integrated Home Assistant energy dashboard. Please make sure you’ve already added the correct device types (See step 2-5 above). 
+
+When configuring the energy dashboard you need to provide the following settings:
 
 |                          | Energy dashboard setting         | Device Type  | Entity                           |
 |--------------------------|----------------------------------|:------------:|----------------------------------|
@@ -62,7 +66,7 @@ FusionSolarPlus is fully compatible with the integrated Home Assistant energy da
 
 <details>
 
-<summary>Click here to see the list of entities</summary>
+<summary>Click here to see the list of entities [Outdated!]</summary>
 
 ### Inverter & Plant
 <table>
