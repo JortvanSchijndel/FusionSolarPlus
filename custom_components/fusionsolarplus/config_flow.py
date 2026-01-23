@@ -27,7 +27,7 @@ DEVICE_TYPE_INVERTER = "Inverter"
 DEVICE_TYPE_CHARGER = "Charger"
 DEVICE_TYPE_BATTERY = "Battery"
 DEVICE_TYPE_POWER_SENSOR = "Power Sensor"
-DEVICE_TYPE_EMMA = "EMMA"
+DEVICE_TYPE_EMMA = "SmartAssistant"
 DEVICE_TYPE_BACKUPBOX = "BackupBox"
 
 DEVICE_TYPE_OPTIONS = {
@@ -36,7 +36,7 @@ DEVICE_TYPE_OPTIONS = {
     "Charger": DEVICE_TYPE_CHARGER,
     "Battery": DEVICE_TYPE_BATTERY,
     "Power Sensor": DEVICE_TYPE_POWER_SENSOR,
-    "EMMA": DEVICE_TYPE_EMMA,
+    "SmartAssistant": DEVICE_TYPE_EMMA,
     "BackupBox": DEVICE_TYPE_BACKUPBOX,
 }
 
@@ -213,9 +213,11 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         self.client.get_device_ids
                     )
                     for device in response:
-                        if device["type"] == "EMMA":
+                        if device["type"] in ["EMMA", "SmartAssistant"]:
                             device_dn = device["deviceDn"]
-                            device_options[f"EMMA (ID: {device_dn})"] = device_dn
+                            device_options[f"SmartAssistant (ID: {device_dn})"] = (
+                                device_dn
+                            )
 
                 # Handle BackupBox
                 elif self.device_type == DEVICE_TYPE_BACKUPBOX:
