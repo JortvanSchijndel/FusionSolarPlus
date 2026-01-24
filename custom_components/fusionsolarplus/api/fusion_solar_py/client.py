@@ -299,41 +299,33 @@ class FusionSolarClient:
 
         :returns True if captcha is required, False otherwise
         """
-        # check if the import is available
-        try:
-            import bs4
-        except ImportError:
-            _LOGGER.error(
-                "Required libraries for CAPTCHA solving are not available. Please install the package using pip install fusion_solar_py[captcha]."
-            )
-            raise Exception("Required libraries for CAPTCHA solving are not available.")
-
         _LOGGER.debug("Checking if captcha is required")
 
-        url = f"https://{self._login_subdomain}.fusionsolar.huawei.com/"
-        params = {
-            "service": "%2Funisess%2Fv1%2Fauth%3Fservice%3D%252Fnetecowebext%252Fhome%252Findex.html",
-        }
-        r = self._session.get(url=url, params=params)
+        url = f"https://{self._login_subdomain}.fusionsolar.huawei.com/unisso/config"
+        r = self._session.get(url)
         r.raise_for_status()
-        soup = bs4.BeautifulSoup(r.text, "html.parser")
-        captcha_exists = soup.find(id="verificationCodeInput")
-        if captcha_exists:
+
+        data = r.json()
+
+        if data.get("showVerifyCode", False):
             captcha = self._get_captcha()
             self._init_solver()
             self._captcha_verify_code = self._captcha_solver.solve_captcha(captcha)
+
             r = self._session.post(
                 url=f"https://{self._login_subdomain}.fusionsolar.huawei.com/unisso/preValidVerifycode",
                 data={"verifycode": self._captcha_verify_code, "index": 0},
             )
             r.raise_for_status()
+
             if r.text != "success":
                 raise AuthenticationException(
                     "Login failed: captcha prevalidverify fail."
                 )
+
             return True
-        else:
-            return False
+
+        return False
 
     def _get_captcha(self):
         url = (
