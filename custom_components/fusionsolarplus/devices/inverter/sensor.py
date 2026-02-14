@@ -331,12 +331,20 @@ class FusionSolarOptimizerSensor(CoordinatorEntity, SensorEntity):
         for opt in data:
             if opt.get("optName") == self._optimizer_name:
                 raw_value = opt.get(self._metric_key)
+
+                if raw_value in ["N/A", "n/a"]:
+                    return None
+
                 value = 0 if raw_value == "-" else raw_value
                 if value is not None and isinstance(value, str):
                     try:
                         value = float(value)
                     except ValueError:
-                        pass
+                        if (
+                            self.device_class
+                            and self.device_class != SensorDeviceClass.ENUM
+                        ):
+                            return None
                 return value
         return None
 
