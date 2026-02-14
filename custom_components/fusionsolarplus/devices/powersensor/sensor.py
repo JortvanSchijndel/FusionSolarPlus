@@ -126,6 +126,7 @@ class FusionSolarPowerSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal_id}"
         self._attr_device_class = device_class
         self._attr_state_class = state_class
+        self._last_value = None
 
         device_id = list(device_info["identifiers"])[0][1]
         safe_name = name.lower().replace(" ", "_")
@@ -154,7 +155,12 @@ class FusionSolarPowerSensor(CoordinatorEntity, SensorEntity):
                 # if there's a unit present, try to coerce to float (numeric sensor)
                 if signal.get("unit"):
                     try:
-                        return float(value)
+                        float_value = float(value)
+                        if self._signal_id in [10008, 10009]:
+                            if float_value == 0 and self._last_value is not None:
+                                return self._last_value
+                            self._last_value = float_value
+                        return float_value
                     except (TypeError, ValueError):
                         return None
                 else:
