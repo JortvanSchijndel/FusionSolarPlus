@@ -9,6 +9,8 @@ Checklist
 
 # 🚀 FusionSolarPlus vx.x.x Release Notes
 
+## ⚠️ Breaking Change
+
 ## 🔥 New Features
 - **XXX:** xxx
 
