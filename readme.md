@@ -64,912 +64,1232 @@ When configuring the energy dashboard you need to provide the following settings
 | **Solar Panels**         | Solar Production                 |   Inverter   | Daily Energy (for each inverter) |
 # Entities
 
+
 <details>
+<summary>Click here to see the list of entities </summary>
 
-<summary>Click here to see the list of entities [Outdated!]</summary>
+<details>
+<summary><b><ins>Inverter</ins></b></summary>
 
-### Inverter & Plant
+<p><b>Inverter Signals</b></p>
 <table>
    <tr>
-      <td width="50" align="center"><b>#</b></td>
-      <td width="400"><b>Inverter Entity</b></td>
-      <td width="100" align="center"><b>Unit</b></td>
-      <td width="75"></td>
-      <td width="400"><b>Plant Entity</b></td>
-      <td width="100" align="center"><b>Unit</b></td>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
    </tr>
    <tr>
       <td align="center">1</td>
-      <td>Current Active Power</td>
-      <td align="center">kW</td>
-      <td></td>
-      <td>Current Power</td>
-      <td align="center">kW</td>
+      <td>Status</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">2</td>
-      <td>Daily Energy</td>
-      <td align="center">kWh</td>
-      <td></td>
-      <td>Today Energy</td>
-      <td align="center">kWh</td>
+      <td>Power Factor</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">3</td>
-      <td>Grid Frequency</td>
-      <td align="center">Hz</td>
-      <td></td>
-      <td>Monthly Energy</td>
-      <td align="center">kWh</td>
+      <td>Output Mode</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">4</td>
-      <td>Insulation Resistance</td>
-      <td align="center">MΩ</td>
-      <td></td>
-      <td>Yearly Energy</td>
-      <td align="center">kWh</td>
+      <td>Last Startup Time</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">5</td>
       <td>Last Shutdown Time</td>
-      <td align="center">Datetime</td>
-      <td></td>
-      <td>Total Energy</td>
-      <td align="center">kWh</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">6</td>
-      <td>Last Startup Time</td>
-      <td align="center">Datetime</td>
-      <td></td>
-      <td>Today Income</td>
-      <td align="center"><a href="https://en.wikipedia.org/wiki/ISO_4217#Active_codes">ISO 4217</a></td>
+      <td>Daily Energy</td>
+      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">7</td>
-      <td>Output Mode</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td>Self Used Energy Today**</td>
+      <td>Total Energy Produced</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">8</td>
-      <td>Phase A Current</td>
-      <td align="center">A</td>
-      <td></td>
-      <td>Consumption Today**</td>
-      <td align="center">kWh</td>
+      <td>Current Active Power</td>
+      <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">9</td>
-      <td>Phase A Voltage</td>
-      <td align="center">V</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>Reactive Power</td>
+      <td align="center">kvar</td>
    </tr>
    <tr>
       <td align="center">10</td>
-      <td>Phase B Current</td>
-      <td align="center">A</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>Rated Power</td>
+      <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">11</td>
-      <td>Phase B Voltage</td>
-      <td align="center">V</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>Grid Frequency</td>
+      <td align="center">Hz</td>
    </tr>
    <tr>
       <td align="center">12</td>
-      <td>Phase C Current</td>
+      <td>Phase A Current</td>
       <td align="center">A</td>
-      <td></td>
-      <td></td>
-      <td></td>
    </tr>
    <tr>
       <td align="center">13</td>
-      <td>Phase C Voltage</td>
-      <td align="center">V</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>Phase B Current</td>
+      <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">14</td>
-      <td>Power Factor</td>
-      <td align="center">Ratio</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>Phase C Current</td>
+      <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">15</td>
-      <td>Rated Power</td>
-      <td align="center">kW</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>Phase A Voltage</td>
+      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">16</td>
-      <td>Reactive Power</td>
-      <td align="center">kvar</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>Phase B Voltage</td>
+      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">17</td>
-      <td>Status</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>Phase C Voltage</td>
+      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">18</td>
       <td>Temperature</td>
       <td align="center">°C</td>
-      <td></td>
-      <td></td>
-      <td></td>
    </tr>
    <tr>
       <td align="center">19</td>
-      <td>Total Energy Produced</td>
-      <td align="center">kWh</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">20</td>
-      <td>[PV X] Input Voltage</td>
-      <td align="center">V</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">21</td>
-      <td>[PV X] Input Current</td>
-      <td align="center">A</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">22</td>
-      <td>[PV X] Input Power</td>
-      <td align="center">W</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>Insulation Resistance</td>
+      <td align="center">MΩ</td>
    </tr>
 </table>
 
-*X ranges from 1 to 20 depending on how many PV Strings your inverter has connected.
-
-**These entities only show up if you have a power meter connected.
-
-### Battery & Optimizer
-
+<p><b>PV Signals</b></p>
 <table>
    <tr>
-      <td width="50" align="center"><b>#</b></td>
-      <td width="400"><b>Battery Entity</b></td>
-      <td width="100" align="center"><b>Unit</b></td>
-      <td width="75"></td>
-      <td width="400"><b>Optimizer Entity</b></td>
-      <td width="100" align="center"><b>Unit</b></td>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
    </tr>
    <tr>
       <td align="center">1</td>
-      <td>Operating Status</td>
-      <td align="center">Text</td>
-      <td></td>
+      <td>[PV 1] Input Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">2</td>
+      <td>[PV 1] Input Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">3</td>
+      <td>[PV 1] Input Power</td>
+      <td align="center">W</td>
+   </tr>
+</table>
+<p><i>* [PV 1] can be [PV 1] to [PV 20] depending on your device.</i></p>
+
+<p><b>Optimizer Metrics</b></p>
+<table>
+   <tr>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
+   </tr>
+   <tr>
+      <td align="center">1</td>
       <td>Output Power</td>
       <td align="center">W</td>
    </tr>
    <tr>
       <td align="center">2</td>
-      <td>Charge/Discharge Mode</td>
-      <td align="center">Text</td>
-      <td></td>
       <td>Total Energy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">3</td>
-      <td>Rated Capacity</td>
-      <td align="center">kWh</td>
-      <td></td>
       <td>Input Voltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">4</td>
-      <td>Backup Time</td>
-      <td align="center">min</td>
-      <td></td>
       <td>Running Status</td>
-      <td align="center">Text</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">5</td>
-      <td>Energy Charged Today</td>
-      <td align="center">kWh</td>
-      <td></td>
       <td>Temperature</td>
       <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">6</td>
+      <td>SN</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">7</td>
+      <td>Optimizer Number</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">8</td>
+      <td>Output Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">9</td>
+      <td>Input Current</td>
+      <td align="center">A</td>
+   </tr>
+</table>
+</details>
+
+<details>
+<summary><b><ins>Battery</ins></b></summary>
+
+<p><b>Battery Status Signals</b></p>
+<table>
+   <tr>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
+   </tr>
+   <tr>
+      <td align="center">1</td>
+      <td>Operating Status</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">2</td>
+      <td>Charge/Discharge Mode</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">3</td>
+      <td>Rated Capacity</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">4</td>
+      <td>Backup Time</td>
+      <td align="center">min</td>
+   </tr>
+   <tr>
+      <td align="center">5</td>
+      <td>Energy Charged Today</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">6</td>
       <td>Energy Discharged Today</td>
       <td align="center">kWh</td>
-      <td></td>
-      <td>Serial Number (SN)</td>
-      <td align="center">Text</td>
    </tr>
    <tr>
       <td align="center">7</td>
       <td>Charge/Discharge Power</td>
       <td align="center">kW</td>
-      <td></td>
-      <td>Optimizer Number</td>
-      <td align="center">Text</td>
    </tr>
    <tr>
       <td align="center">8</td>
       <td>Bus Voltage</td>
-      <td align="center">V</td>
-      <td></td>
-      <td>Output Voltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">9</td>
       <td>State of Charge</td>
       <td align="center">%</td>
-      <td></td>
-      <td>Input Current</td>
-      <td align="center">A</td>
+   </tr>
+</table>
+
+<p><b>Battery Module Signals</b></p>
+<table>
+   <tr>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
+   </tr>
+   <tr>
+      <td align="center">1</td>
+      <td>[Module 1] No.</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">2</td>
+      <td>[Module 1] Working Status</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">3</td>
+      <td>[Module 1] SN</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">4</td>
+      <td>[Module 1] Software Version</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">5</td>
+      <td>[Module 1] SOC</td>
+      <td align="center">%</td>
+   </tr>
+   <tr>
+      <td align="center">6</td>
+      <td>[Module 1] Charge and Discharge Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">7</td>
+      <td>[Module 1] Internal Temperature</td>
+      <td align="center">°C</td>
+   </tr>
+   <tr>
+      <td align="center">8</td>
+      <td>[Module 1] Daily Charge Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">9</td>
+      <td>[Module 1] Daily Discharge Energy</td>
+      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">10</td>
-      <td>[Module X] No.</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Total Discharge Energy</td>
+      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">11</td>
-      <td>[Module X] Working Status</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Bus Voltage</td>
+      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">12</td>
-      <td>[Module X] SN</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Bus Current</td>
+      <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">13</td>
-      <td>[Module X] Software Version</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] FE Connection</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">14</td>
-      <td>[Module X] SOC</td>
-      <td align="center">%</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Total Charge Energy</td>
+      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">15</td>
-      <td>[Module X] Charge and Discharge Power</td>
-      <td align="center">kW</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 No.</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">16</td>
-      <td>[Module X] Internal Temperature</td>
-      <td align="center">°C</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 No.</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">17</td>
-      <td>[Module X] Daily Charge Energy</td>
-      <td align="center">kWh</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 No.</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">18</td>
-      <td>[Module X] Daily Discharge Energy</td>
-      <td align="center">kWh</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 Firmware Version</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">19</td>
-      <td>[Module X] Total Discharge Energy</td>
-      <td align="center">kWh</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 Firmware Version</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">20</td>
-      <td>[Module X] Bus Voltage</td>
-      <td align="center">V</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 Firmware Version</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">21</td>
-      <td>[Module X] Bus Current</td>
-      <td align="center">A</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 SN</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">22</td>
-      <td>[Module X] FE Connection</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 SN</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">23</td>
-      <td>[Module X] Total Charge Energy</td>
-      <td align="center">kWh</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 SN</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">24</td>
-      <td>[Module X] Battery Pack 1 No.</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 Operating Status</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">25</td>
-      <td>[Module X] Battery Pack 2 No.</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 Operating Status</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">26</td>
-      <td>[Module X] Battery Pack 3 No.</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 Operating Status</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">27</td>
-      <td>[Module X] Battery Pack 1 Firmware Version</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 Voltage</td>
+      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">28</td>
-      <td>[Module X] Battery Pack 2 Firmware Version</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 Voltage</td>
+      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">29</td>
-      <td>[Module X] Battery Pack 3 Firmware Version</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 Voltage</td>
+      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">30</td>
-      <td>[Module X] Battery Pack 1 SN</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 Charge/Discharge Power</td>
+      <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">31</td>
-      <td>[Module X] Battery Pack 2 SN</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 Charge/Discharge Power</td>
+      <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">32</td>
-      <td>[Module X] Battery Pack 3 SN</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 Charge/Discharge Power</td>
+      <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">33</td>
-      <td>[Module X] Battery Pack 1 Operating Status</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 Maximum Temperature</td>
+      <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">34</td>
-      <td>[Module X] Battery Pack 2 Operating Status</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 Maximum Temperature</td>
+      <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">35</td>
-      <td>[Module X] Battery Pack 3 Operating Status</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 Maximum Temperature</td>
+      <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">36</td>
-      <td>[Module X] Battery Pack 1 Voltage</td>
-      <td align="center">V</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 Minimum Temperature</td>
+      <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">37</td>
-      <td>[Module X] Battery Pack 2 Voltage</td>
-      <td align="center">V</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 Minimum Temperature</td>
+      <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">38</td>
-      <td>[Module X] Battery Pack 3 Voltage</td>
-      <td align="center">V</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 Minimum Temperature</td>
+      <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">39</td>
-      <td>[Module X] Battery Pack 1 Charge/Discharge Power</td>
-      <td align="center">kW</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 SOC</td>
+      <td align="center">%</td>
    </tr>
    <tr>
       <td align="center">40</td>
-      <td>[Module X] Battery Pack 2 Charge/Discharge Power</td>
-      <td align="center">kW</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 SOC</td>
+      <td align="center">%</td>
    </tr>
    <tr>
       <td align="center">41</td>
-      <td>[Module X] Battery Pack 3 Charge/Discharge Power</td>
-      <td align="center">kW</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 SOC</td>
+      <td align="center">%</td>
    </tr>
    <tr>
       <td align="center">42</td>
-      <td>[Module X] Battery Pack 1 Maximum Temperature</td>
-      <td align="center">°C</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 Total Discharge Energy</td>
+      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">43</td>
-      <td>[Module X] Battery Pack 2 Maximum Temperature</td>
-      <td align="center">°C</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 Total Discharge Energy</td>
+      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">44</td>
-      <td>[Module X] Battery Pack 3 Maximum Temperature</td>
-      <td align="center">°C</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 Total Discharge Energy</td>
+      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">45</td>
-      <td>[Module X] Battery Pack 1 Minimum Temperature</td>
-      <td align="center">°C</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 Battery Health Check</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">46</td>
-      <td>[Module X] Battery Pack 2 Minimum Temperature</td>
-      <td align="center">°C</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 Battery Health Check</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">47</td>
-      <td>[Module X] Battery Pack 3 Minimum Temperature</td>
-      <td align="center">°C</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 Battery Health Check</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">48</td>
-      <td>[Module X] Battery Pack 1 SOC</td>
-      <td align="center">%</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 1 Heating Status</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">49</td>
-      <td>[Module X] Battery Pack 2 SOC</td>
-      <td align="center">%</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 2 Heating Status</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">50</td>
-      <td>[Module X] Battery Pack 3 SOC</td>
-      <td align="center">%</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">51</td>
-      <td>[Module X] Battery Pack 1 Total Discharge Energy</td>
-      <td align="center">kWh</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">52</td>
-      <td>[Module X] Battery Pack 2 Total Discharge Energy</td>
-      <td align="center">kWh</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">53</td>
-      <td>[Module X] Battery Pack 3 Total Discharge Energy</td>
-      <td align="center">kWh</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">54</td>
-      <td>[Module X] Battery Pack 1 Battery Health Check</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">55</td>
-      <td>[Module X] Battery Pack 2 Battery Health Check</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">56</td>
-      <td>[Module X] Battery Pack 3 Battery Health Check</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">57</td>
-      <td>[Module X] Battery Pack 1 Heating Status</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">58</td>
-      <td>[Module X] Battery Pack 2 Heating Status</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
-   </tr>
-   <tr>
-      <td align="center">59</td>
-      <td>[Module X] Battery Pack 3 Heating Status</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>[Module 1] Battery Pack 3 Heating Status</td>
+      <td align="center"></td>
    </tr>
 </table>
-*The optimizer entities can be found under the Diagnostic section for Inverter devices. The optimizer entities are automatically created if your inverter has optimizers connected.
+<p><i>* [Module 1] can be [Module 1] to [Module 4] depending on your device.</i></p>
+</details>
 
-**X ranges from 1 to 4 depending on how many modules your battery has.
+<details>
+<summary><b><ins>Power Sensor</ins></b></summary>
 
-**⚠️ Note:** Currently, this integration only supports battery modules 1 and 2. If your battery has 3 or 4 modules, please [open an issue](https://github.com/JortvanSchijndel/FusionSolarPlus/issues).
-
-### Power Sensor & Car Charger
-
+<p><b>Power Sensor Signals</b></p>
 <table>
    <tr>
-      <td width="50" align="center"><b>#</b></td>
-      <td width="400"><b>Power Sensor Entity</b></td>
-      <td width="100" align="center"><b>Unit</b></td>
-      <td width="75"></td>
-      <td width="400"><b>Charger Entity</b></td>
-      <td width="100" align="center"><b>Unit</b></td>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
    </tr>
    <tr>
       <td align="center">1</td>
       <td>Meter Status</td>
-      <td align="center">Text</td>
-      <td></td>
-      <td>Connector Number</td>
-      <td align="center">Text</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">2</td>
-      <td>Positive Active Energy (Exported Energy)</td>
+      <td>Positive Active Energy</td>
       <td align="center">kWh</td>
-      <td></td>
-      <td>Connector Type</td>
-      <td align="center">Text</td>
    </tr>
    <tr>
       <td align="center">3</td>
-      <td>Negative Active Energy (Imported Energy)</td>
+      <td>Negative Active Energy</td>
       <td align="center">kWh</td>
-      <td></td>
-      <td>Rated Power</td>
-      <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">4</td>
       <td>Reactive Power</td>
-      <td align="center">Var</td>
-      <td></td>
-      <td>Status</td>
-      <td align="center">Text</td>
+      <td align="center">var</td>
    </tr>
    <tr>
       <td align="center">5</td>
       <td>Active Power</td>
       <td align="center">W</td>
-      <td></td>
-      <td>Relay Status</td>
-      <td align="center">Text</td>
    </tr>
    <tr>
       <td align="center">6</td>
       <td>Power Factor</td>
-      <td align="center">Ratio</td>
-      <td></td>
-      <td>Connector Temp</td>
-      <td align="center">℃</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">7</td>
       <td>Phase A Active Power</td>
       <td align="center">W</td>
-      <td></td>
-      <td>Phase A Voltage</td>
-      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">8</td>
       <td>Phase B Active Power</td>
       <td align="center">W</td>
-      <td></td>
-      <td>Phase B Voltage</td>
-      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">9</td>
       <td>Phase C Active Power</td>
       <td align="center">W</td>
-      <td></td>
-      <td>Phase C Voltage</td>
-      <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">10</td>
       <td>Phase A Voltage</td>
       <td align="center">V</td>
-      <td></td>
-      <td>Phase A Current</td>
-      <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">11</td>
       <td>Phase B Voltage</td>
       <td align="center">V</td>
-      <td></td>
-      <td>Phase B Current</td>
-      <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">12</td>
       <td>Phase C Voltage</td>
       <td align="center">V</td>
-      <td></td>
-      <td>Phase C Current</td>
-      <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">13</td>
       <td>Phase A Current</td>
       <td align="center">A</td>
-      <td></td>
-      <td>Output Power</td>
-      <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">14</td>
       <td>Phase B Current</td>
       <td align="center">A</td>
-      <td></td>
-      <td>Total Energy</td>
-      <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">15</td>
       <td>Phase C Current</td>
       <td align="center">A</td>
-      <td></td>
-      <td>PWM Duty</td>
-      <td align="center">%</td>
    </tr>
    <tr>
       <td align="center">16</td>
       <td>Grid Frequency</td>
       <td align="center">Hz</td>
-      <td></td>
-      <td>Connector Lock</td>
-      <td align="center">Text</td>
+   </tr>
+</table>
+
+<p><b>Emma A02 Signals</b></p>
+<table>
+   <tr>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
+   </tr>
+   <tr>
+      <td align="center">1</td>
+      <td>Forward Active Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">2</td>
+      <td>Reverse Active Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">3</td>
+      <td>Reactive Power</td>
+      <td align="center">kvar</td>
+   </tr>
+   <tr>
+      <td align="center">4</td>
+      <td>Active Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">5</td>
+      <td>Power Factor</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">6</td>
+      <td>Phase A Active Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">7</td>
+      <td>Phase B Active Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">8</td>
+      <td>Phase C Active Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">9</td>
+      <td>Phase A Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">10</td>
+      <td>Phase B Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">11</td>
+      <td>Phase C Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">12</td>
+      <td>Phase A Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">13</td>
+      <td>Phase B Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">14</td>
+      <td>Phase C Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">15</td>
+      <td>RS485-2 Port Mode</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">16</td>
+      <td>WiFi Signal Strength</td>
+      <td align="center">dBm</td>
    </tr>
    <tr>
       <td align="center">17</td>
-      <td></td>
+      <td>Signal Strength</td>
+      <td align="center">dBm</td>
+   </tr>
+</table>
+
+<p><b>DTSU666-FE Signals</b></p>
+<table>
+   <tr>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
+   </tr>
+   <tr>
+      <td align="center">1</td>
+      <td>Communication Status</td>
       <td align="center"></td>
-      <td></td>
-      <td>Working Mode</td>
-      <td align="center">Text</td>
+   </tr>
+   <tr>
+      <td align="center">2</td>
+      <td>AB Line Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">3</td>
+      <td>BC Line Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">4</td>
+      <td>CA Line Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">5</td>
+      <td>Phase A Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">6</td>
+      <td>Phase B Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">7</td>
+      <td>Phase C Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">8</td>
+      <td>Phase A Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">9</td>
+      <td>Phase B Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">10</td>
+      <td>Phase C Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">11</td>
+      <td>Active Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">12</td>
+      <td>Reactive Power</td>
+      <td align="center">kVar</td>
+   </tr>
+   <tr>
+      <td align="center">13</td>
+      <td>Power Factor</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">14</td>
+      <td>Phase A Active Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">15</td>
+      <td>Phase B Active Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">16</td>
+      <td>Phase C Active Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">17</td>
+      <td>iAcMeter</td>
+      <td align="center"></td>
    </tr>
    <tr>
       <td align="center">18</td>
-      <td></td>
+      <td>iAcMeter IP</td>
       <td align="center"></td>
-      <td></td>
-      <td>Departure Time</td>
-      <td align="center">DateTime</td>
    </tr>
    <tr>
       <td align="center">19</td>
-      <td></td>
+      <td>Comm Status</td>
       <td align="center"></td>
-      <td></td>
+   </tr>
+   <tr>
+      <td align="center">20</td>
+      <td>iAcMeter Mode</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">21</td>
+      <td>Meter Data Source</td>
+      <td align="center"></td>
+   </tr>
+</table>
+</details>
+
+<details>
+<summary><b><ins>Charger</ins></b></summary>
+
+<p><b>Charging Pile Signals</b></p>
+<table>
+   <tr>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
+   </tr>
+   <tr>
+      <td align="center">1</td>
+      <td>Connector Number</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">2</td>
+      <td>Connector Type</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">3</td>
+      <td>Rated Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">4</td>
+      <td>Status</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">5</td>
+      <td>Relay Status</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">6</td>
+      <td>Connector Temp</td>
+      <td align="center">°C</td>
+   </tr>
+   <tr>
+      <td align="center">7</td>
+      <td>Phase A Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">8</td>
+      <td>Phase C Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">9</td>
+      <td>Phase B Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">10</td>
+      <td>Output Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">11</td>
+      <td>PWM Duty</td>
+      <td align="center">%</td>
+   </tr>
+   <tr>
+      <td align="center">12</td>
+      <td>Connector Lock</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">13</td>
+      <td>Working Mode</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">14</td>
+      <td>Departure Time</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">15</td>
       <td>Planned Charge Energy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
-      <td align="center">20</td>
-      <td></td>
-      <td align="center"></td>
-      <td></td>
+      <td align="center">16</td>
       <td>Connection Status</td>
-      <td align="center">Text</td>
+      <td align="center"></td>
    </tr>
    <tr>
-      <td align="center">21</td>
-      <td></td>
-      <td align="center"></td>
-      <td></td>
+      <td align="center">17</td>
       <td>Charging Duration (s)</td>
       <td align="center">s</td>
    </tr>
+</table>
+
+<p><b>Charger Device Signals</b></p>
+<table>
    <tr>
-      <td align="center">22</td>
-      <td></td>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
+   </tr>
+   <tr>
+      <td align="center">1</td>
+      <td>FW Version</td>
       <td align="center"></td>
-      <td></td>
+   </tr>
+   <tr>
+      <td align="center">2</td>
+      <td>HW Version</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">3</td>
       <td>Serial Number</td>
-      <td align="center">Text</td>
+      <td align="center"></td>
    </tr>
    <tr>
-      <td align="center">23</td>
-      <td></td>
-      <td align="center"></td>
-      <td></td>
+      <td align="center">4</td>
+      <td>Rated Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">5</td>
+      <td>Phase A Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">6</td>
+      <td>Phase B Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">7</td>
+      <td>Phase C Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">8</td>
       <td>Model</td>
-      <td align="center">Text</td>
+      <td align="center"></td>
    </tr>
    <tr>
-      <td align="center">24</td>
-      <td></td>
-      <td align="center"></td>
-      <td></td>
+      <td align="center">9</td>
+      <td>Total Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">10</td>
       <td>Charger Temp</td>
-      <td align="center">℃</td>
+      <td align="center">°C</td>
    </tr>
    <tr>
-      <td align="center">25</td>
-      <td></td>
-      <td align="center"></td>
-      <td></td>
+      <td align="center">11</td>
       <td>Port Count</td>
-      <td align="center">Text</td>
+      <td align="center"></td>
    </tr>
    <tr>
-      <td align="center">26</td>
-      <td></td>
-      <td align="center"></td>
-      <td></td>
+      <td align="center">12</td>
       <td>Bluetooth Name</td>
-      <td align="center">Text</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">13</td>
+      <td>Device Status</td>
+      <td align="center"></td>
    </tr>
 </table>
+</details>
+
+<details>
+<summary><b><ins>Plant</ins></b></summary>
+
+<p><b>Plant Signals</b></p>
+<table>
+   <tr>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
+   </tr>
+   <tr>
+      <td align="center">1</td>
+      <td>Monthly Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">2</td>
+      <td>Total Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">3</td>
+      <td>Current Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">4</td>
+      <td>Today Income</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">5</td>
+      <td>Today Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">6</td>
+      <td>Yearly Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">7</td>
+      <td>Self Used Energy Today</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">8</td>
+      <td>Consumption Today</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">9</td>
+      <td>PV Self Consumption</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">10</td>
+      <td>PV Feed-In Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">11</td>
+      <td>Imported Grid Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">12</td>
+      <td>Total Consumption</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">13</td>
+      <td>Grid Import Ratio</td>
+      <td align="center">%</td>
+   </tr>
+   <tr>
+      <td align="center">14</td>
+      <td>Self Consumption Ratio</td>
+      <td align="center">%</td>
+   </tr>
+   <tr>
+      <td align="center">15</td>
+      <td>Self Consumption Ratio (by PV production)</td>
+      <td align="center">%</td>
+   </tr>
+   <tr>
+      <td align="center">16</td>
+      <td>Flow Solar Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">17</td>
+      <td>Flow Battery Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">18</td>
+      <td>Flow Load Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">19</td>
+      <td>Flow Grid Power</td>
+      <td align="center">kW</td>
+   </tr>
+</table>
+</details>
+
+<details>
+<summary><b><ins>BackupBox</ins></b></summary>
+
+<p><b>BackupBox Signals</b></p>
+<table>
+   <tr>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
+   </tr>
+   <tr>
+      <td align="center">1</td>
+      <td>Status</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">2</td>
+      <td>Grid A Phase Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">3</td>
+      <td>Grid B Phase Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">4</td>
+      <td>Grid C Phase Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">5</td>
+      <td>Phase A Voltage of Backup Load</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">6</td>
+      <td>Phase B Voltage of Backup Load</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">7</td>
+      <td>Phase C Voltage of Backup Load</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">8</td>
+      <td>Internal Ambient Temperature</td>
+      <td align="center">°C</td>
+   </tr>
+</table>
+</details>
+
+<details>
+<summary><b><ins>EMMA</ins></b></summary>
+
+<p><b>EMMA Signals</b></p>
+<table>
+   <tr>
+      <td align="center"><b>#</b></td>
+      <td><b>Entity Display Name</b></td>
+      <td align="center"><b>Unit</b></td>
+   </tr>
+   <tr>
+      <td align="center">1</td>
+      <td>Forward Active Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">2</td>
+      <td>Reverse Active Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">3</td>
+      <td>Reactive Power</td>
+      <td align="center">kvar</td>
+   </tr>
+   <tr>
+      <td align="center">4</td>
+      <td>Active Power</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">5</td>
+      <td>Power Factor</td>
+      <td align="center"></td>
+   </tr>
+   <tr>
+      <td align="center">6</td>
+      <td>Active Power Pa</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">7</td>
+      <td>Active Power Pb</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">8</td>
+      <td>Active Power Pc</td>
+      <td align="center">kW</td>
+   </tr>
+   <tr>
+      <td align="center">9</td>
+      <td>Phase A Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">10</td>
+      <td>Phase B Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">11</td>
+      <td>Phase C Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">12</td>
+      <td>Phase A Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">13</td>
+      <td>Phase B Current</td>
+      <td align="center">A</td>
+   </tr>
+   <tr>
+      <td align="center">14</td>
+      <td>Phase C Current</td>
+      <td align="center">A</td>
+   </tr>
+</table>
+</details>
+
 </details>
 
 # Issues
