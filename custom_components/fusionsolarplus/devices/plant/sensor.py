@@ -34,6 +34,10 @@ class PlantDeviceHandler(BaseDeviceHandler):
             if signal.get("meter_required", False) and not exist_meter:
                 continue
 
+            # Skip creation if the signal is a flow signal and the value is None
+            if signal["key"].startswith("flow_") and coordinator.data.get(signal["key"]) is None:
+                continue
+
             entities.append(
                 FusionSolarPlantSensor(
                     coordinator=coordinator,

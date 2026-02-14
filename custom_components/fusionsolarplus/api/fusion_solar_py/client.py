@@ -796,6 +796,67 @@ class FusionSolarClient:
         data = power_obj["data"]
         energy = energy_obj["data"]
 
+        # --- Third request: energy flow ---
+        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v3/overview/energy-flow"
+        params = {
+            "stationDn": plant_id,
+            "featureId": "aifc",
+            "_": ts,
+        }
+
+        r = self._session.get(url=url, params=params)
+        r.raise_for_status()
+        flow_data = r.json()
+
+        if "data" in flow_data and "flow" in flow_data["data"]:
+            flow = flow_data["data"]["flow"]
+            nodes = flow.get("nodes", [])
+            links = flow.get("links", [])
+
+            # Helper to find node value by name
+            def get_node_value(name):
+                for node in nodes:
+                    if node.get("name") == name:
+                        return node.get("value")
+                return None
+
+            data["flow_solar_power"] = get_node_value("neteco.pvms.devTypeLangKey.string")
+            data["flow_battery_power"] = get_node_value("neteco.pvms.devTypeLangKey.energy_store")
+            data["flow_load_power"] = get_node_value("neteco.pvms.KPI.kpiView.electricalLoad")
+
+            # Grid: Inverter -> Meter
+            inverter_id = next(
+                (
+                    n["id"]
+                    for n in nodes
+                    if n.get("name") == "neteco.pvms.devTypeLangKey.inverter"
+                ),
+                None,
+            )
+            meter_id = next(
+                (
+                    n["id"]
+                    for n in nodes
+                    if n.get("name") == "neteco.pvms.devTypeLangKey.meter"
+                ),
+                None,
+            )
+
+            if inverter_id and meter_id:
+                for link in links:
+                    if (
+                        link.get("fromNode") == inverter_id
+                        and link.get("toNode") == meter_id
+                    ):
+                        desc = link.get("description", {})
+                        val_str = desc.get("value")
+                        if val_str and " " in val_str:
+                            try:
+                                data["flow_grid_power"] = float(val_str.split(" ")[0])
+                            except ValueError:
+                                pass
+                        break
+
         data.update(
             {
                 "existMeter": energy.get("existMeter", False),
