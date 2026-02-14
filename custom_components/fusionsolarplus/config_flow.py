@@ -132,6 +132,9 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors=errors,
+            description_placeholders={
+                "disclaimer_url": "https://github.com/JortvanSchijndel/FusionSolarPlus/blob/master/installer_disclaimer.md"
+            },
         )
 
     async def async_step_choose_type(self, user_input=None):
@@ -332,4 +335,7 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                     ): bool,
                 }
             ),
+            description_placeholders={
+                "disclaimer_url": "https://github.com/JortvanSchijndel/FusionSolarPlus/blob/master/installer_disclaimer.md"
+            },
         )
