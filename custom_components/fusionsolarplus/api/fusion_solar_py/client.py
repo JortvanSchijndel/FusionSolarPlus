@@ -820,9 +820,15 @@ class FusionSolarClient:
                         return node.get("value")
                 return None
 
-            data["flow_solar_power"] = get_node_value("neteco.pvms.devTypeLangKey.string")
-            data["flow_battery_power"] = get_node_value("neteco.pvms.devTypeLangKey.energy_store")
-            data["flow_load_power"] = get_node_value("neteco.pvms.KPI.kpiView.electricalLoad")
+            data["flow_solar_power"] = get_node_value(
+                "neteco.pvms.devTypeLangKey.string"
+            )
+            data["flow_battery_power"] = get_node_value(
+                "neteco.pvms.devTypeLangKey.energy_store"
+            )
+            data["flow_load_power"] = get_node_value(
+                "neteco.pvms.KPI.kpiView.electricalLoad"
+            )
 
             # Grid: Inverter -> Meter
             inverter_id = next(

@@ -35,7 +35,10 @@ class PlantDeviceHandler(BaseDeviceHandler):
                 continue
 
             # Skip creation if the signal is a flow signal and the value is None
-            if signal["key"].startswith("flow_") and coordinator.data.get(signal["key"]) is None:
+            if (
+                signal["key"].startswith("flow_")
+                and coordinator.data.get(signal["key"]) is None
+            ):
                 continue
 
             entities.append(
