@@ -830,12 +830,13 @@ class FusionSolarClient:
                 "neteco.pvms.KPI.kpiView.electricalLoad"
             )
 
-            # Grid: Inverter -> Meter
-            inverter_id = next(
+            # Grid: Grid -> Meter
+            grid_id = next(
                 (
                     n["id"]
                     for n in nodes
-                    if n.get("name") == "neteco.pvms.devTypeLangKey.inverter"
+                    if n.get("name")
+                    == "neteco.pvms.partials.main.dm.detailInfo.curInfo.grid"
                 ),
                 None,
             )
@@ -848,10 +849,10 @@ class FusionSolarClient:
                 None,
             )
 
-            if inverter_id and meter_id:
+            if grid_id and meter_id:
                 for link in links:
                     if (
-                        link.get("fromNode") == inverter_id
+                        link.get("fromNode") == grid_id
                         and link.get("toNode") == meter_id
                     ):
                         desc = link.get("description", {})

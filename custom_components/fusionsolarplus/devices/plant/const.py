@@ -147,7 +147,7 @@ PLANT_SIGNALS = [
     },
     {
         "key": "flow_grid_power",
-        "name": "Flow Grid Power",
+        "name": "Flow Buy Power",
         "unit": "kW",
         "meter_required": False,
         "device_class": SensorDeviceClass.POWER,
