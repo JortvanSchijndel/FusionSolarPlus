@@ -18,14 +18,6 @@ PLANT_SIGNALS = [
         "state_class": SensorStateClass.TOTAL_INCREASING,
     },
     {
-        "key": "currentPower",
-        "name": "Current Power",
-        "unit": "kW",
-        "meter_required": False,
-        "device_class": SensorDeviceClass.POWER,
-        "state_class": SensorStateClass.MEASUREMENT,
-    },
-    {
         "key": "dailyIncome",
         "name": "Today Income",
         "unit": "",
