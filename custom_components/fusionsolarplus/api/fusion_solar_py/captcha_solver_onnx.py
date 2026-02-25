@@ -1,21 +1,9 @@
 import time
-import base64
-import requests
-import uuid
-import os
+import logging
 
 from .exceptions import FusionSolarException, FusionSolarRateLimit
 
-try:
-    from PIL import Image
-    from io import BytesIO
-except ImportError:
-    print(
-        "Required libraries for CAPTCHA solving are not available. Please install the package using pip install fusion_solar_py[captcha]."
-    )
-    raise FusionSolarException(
-        "Required libraries for CAPTCHA solving are not available. Please install the package using pip install fusion_solar_py[captcha]."
-    )
+_LOGGER = logging.getLogger(__name__)
 
 
 class Solver(object):
@@ -23,59 +11,49 @@ class Solver(object):
         self.hass = hass
         self.last_rate_limit = 0
 
-    RATE_LIMIT_COOLDOWN = 6 * 60 * 60  # 6-Hour cooldown
+    RATE_LIMIT_COOLDOWN = 6 * 60 * 60  # 6-hour cooldown
 
-    def _init_model(self):
-        self.hass = self.model_path  # Using model-path to pass self.hass
-        if not self.hass:
-            raise FusionSolarException("hass instance not provided as model_path")
+    def solve_captcha_rest(self, img_bytes: bytes) -> str:
+        """Send captcha image bytes to Nischay103/captcha_recognition via gradio_client."""
+        try:
+            from gradio_client import Client, handle_file
+        except ImportError:
+            raise FusionSolarException(
+                "gradio_client is not installed. Run: pip install gradio_client"
+            )
 
-    def save_image_to_disk(self, img_bytes, prefix="captcha"):
-        filename = f"{prefix}_{uuid.uuid4().hex}.png"
-        save_path = self.hass.config.path(".storage", filename)
-        img = Image.open(BytesIO(img_bytes))
-        img.save(save_path)
-        return save_path
+        import tempfile
+        import os
 
-    def solve_captcha_rest(self, img_path):
-        """Send captcha image to Hugging Face REST API and return result."""
-        with open(img_path, "rb") as f:
-            img_bytes = f.read()
-            img_b64 = base64.b64encode(img_bytes).decode("utf-8")
+        # Write bytes to a temp file since handle_file expects a path or URL
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+            tmp.write(img_bytes)
+            tmp_path = tmp.name
 
-        response = requests.post(
-            "https://bready11-captchabreakerr.hf.space/run/predict",
-            json={"data": [f"data:image/png;base64,{img_b64}"]},
-            headers={"Content-Type": "application/json"},
-            timeout=60,
-        )
-        response.raise_for_status()
-        data = response.json()
-        predicted_code = data["data"][0]
-        return predicted_code
+        try:
+            client = Client("Nischay103/captcha_recognition")
+            result = client.predict(
+                input=handle_file(tmp_path),
+                api_name="/predict",
+            )
+            _LOGGER.debug("Captcha solved: %s", result)
+            return str(result).strip().upper()
+        finally:
+            os.remove(tmp_path)
 
-    def solve_captcha(self, img_bytes):
+    def solve_captcha(self, img_bytes: bytes) -> str:
         if time.time() - self.last_rate_limit < self.RATE_LIMIT_COOLDOWN:
             raise FusionSolarRateLimit(
                 "Captcha solving temporarily disabled due to rate limiting. Try again later."
             )
 
-        image_path = None
         try:
-            # Save captcha to disk
-            image_path = self.save_image_to_disk(img_bytes, "captcha_input.png")
-            # Solve captcha via REST API
-            result = self.solve_captcha_rest(image_path)
-            return str(result)
+            return self.solve_captcha_rest(img_bytes)
+        except FusionSolarRateLimit:
+            raise
         except Exception as e:
-            print(e)
+            _LOGGER.error("Captcha solving failed: %s", e)
+            self.last_rate_limit = time.time()
             raise FusionSolarRateLimit(
-                "Captcha API rate limited, please try again in 6 hours."
+                f"Captcha API failed, please try again in 6 hours: {e}"
             )
-        finally:
-            # Delete captcha image after processing
-            if image_path and os.path.exists(image_path):
-                try:
-                    os.remove(image_path)
-                except Exception as e:
-                    print(f"Failed to delete captcha image {image_path}: {e}")
