@@ -112,6 +112,7 @@ class FusionSolarChargerSensor(CoordinatorEntity, SensorEntity):
         )
         self._attr_device_class = device_class
         self._attr_state_class = state_class
+        self._last_value = None
 
         device_id = list(device_info["identifiers"])[0][1]
         safe_name = name.lower().replace(" ", "_")
@@ -159,7 +160,12 @@ class FusionSolarChargerSensor(CoordinatorEntity, SensorEntity):
         # For numeric values, try to convert to float if unit is present
         if self.native_unit_of_measurement:
             try:
-                return float(value)
+                float_value = float(value)
+                if self._signal_id == 10008:  # Total Energy Charged entity
+                    if float_value == 0 and self._last_value is not None:
+                        return self._last_value
+                    self._last_value = float_value
+                return float_value
             except (TypeError, ValueError):
                 return None
         else:
