@@ -10,7 +10,8 @@
   "requirements": [
     "fusion-solar-py",
     "Pillow",
-    "beautifulsoup4"
+    "beautifulsoup4",
+    "gradio_client"
   ],
-  "version": "2.2.15"
+  "version": "2.2.16"
 }
