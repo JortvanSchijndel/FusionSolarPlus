@@ -16,7 +16,7 @@ CHARGING_PILE_SIGNALS = [
     {
         "id": 10003,
         "name": "Rated Output Power",
-        "custom_name": "Rated Power",
+        "custom_name": "Rated Output Power",
         "unit": "kW",
         "device_class": SensorDeviceClass.POWER,
         "state_class": SensorStateClass.MEASUREMENT,
@@ -115,10 +115,18 @@ CHARGING_PILE_SIGNALS = [
     },
     {
         "id": 10036,
-        "name": "Energy Charged",
+        "name": "Charging Duration",
         "unit": "s",
         "custom_name": "Charging Duration (s)",
         "device_class": SensorDeviceClass.DURATION,
+        "state_class": SensorStateClass.TOTAL_INCREASING,
+    },
+    {
+        "id": 10035,
+        "name": "Energy Charged",
+        "unit": "kWh",
+        "custom_name": "Energy Charged",
+        "device_class": SensorDeviceClass.ENERGY,
         "state_class": SensorStateClass.TOTAL_INCREASING,
     },
 ]
