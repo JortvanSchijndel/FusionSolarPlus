@@ -966,7 +966,7 @@ When configuring the energy dashboard you need to provide the following settings
    </tr>
    <tr>
       <td align="center">17</td>
-      <td>Charging Duration (s)</td>
+      <td>Charging Duration</td>
       <td align="center">s</td>
    </tr>
 </table>
