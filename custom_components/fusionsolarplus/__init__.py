@@ -1,11 +1,8 @@
 import logging
-from datetime import timedelta
+from homeassistant.helpers.device_registry import async_get as async_get_device_registry
+from .api.fusion_solar_py.client import FusionSolarClient
 from functools import partial
 
-from homeassistant.helpers.device_registry import async_get as async_get_device_registry
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-
-from .api.fusion_solar_py.client import FusionSolarClient
 from .const import DOMAIN
 from .sensor import DeviceHandlerFactory
 
@@ -17,8 +14,8 @@ PLATFORMS: list[str] = ["sensor", "switch", "number", "select"]
 async def async_setup_entry(hass, entry):
     entry.async_on_unload(entry.add_update_listener(update_listener))
 
-    username  = entry.options.get("username",  entry.data["username"])
-    password  = entry.options.get("password",  entry.data["password"])
+    username = entry.options.get("username", entry.data["username"])
+    password = entry.options.get("password", entry.data["password"])
     subdomain = entry.options.get("subdomain", entry.data.get("subdomain", "uni001eu5"))
 
     client = await hass.async_add_executor_job(
@@ -36,7 +33,7 @@ async def async_setup_entry(hass, entry):
 
     hass.data[DOMAIN][entry.entry_id] = client
 
-    device_id   = entry.data.get("device_id")
+    device_id = entry.data.get("device_id")
     device_name = entry.data.get("device_name")
     device_type = entry.data.get("device_type")
 
@@ -49,45 +46,15 @@ async def async_setup_entry(hass, entry):
     }
     hass.data[DOMAIN][f"{entry.entry_id}_device_info"] = device_info
 
-    # Coordinator principal (données temps réel — sensor/switch)
     try:
         sensor_handler = DeviceHandlerFactory.create_handler(hass, entry, device_info)
         coordinator = await sensor_handler.create_coordinator()
-        hass.data[DOMAIN][f"{entry.entry_id}_coordinator"]    = coordinator
+
+        hass.data[DOMAIN][f"{entry.entry_id}_coordinator"] = coordinator
         hass.data[DOMAIN][f"{entry.entry_id}_sensor_handler"] = sensor_handler
     except Exception as e:
         _LOGGER.error("Failed to create coordinator for device %s: %s", device_name, e)
         return False
-
-    # Coordinator de config (number + select) — wallbox uniquement
-    # get_charger_config retourne parent + enfant combinés dans un seul dict
-    if device_type == "Charger":
-        try:
-            async def _fetch_charger_config():
-                return await hass.async_add_executor_job(
-                    client.get_charger_config, str(device_id)
-                )
-
-            config_coordinator = DataUpdateCoordinator(
-                hass,
-                _LOGGER,
-                name=f"fusionsolarplus_charger_config_{entry.entry_id}",
-                update_method=_fetch_charger_config,
-                update_interval=timedelta(seconds=30),
-            )
-            await config_coordinator.async_config_entry_first_refresh()
-            hass.data[DOMAIN][f"{entry.entry_id}_config_coordinator"] = config_coordinator
-            _LOGGER.info(
-                "Config coordinator créé pour wallbox %s — dnIds: %s",
-                device_name,
-                list(config_coordinator.data.keys()) if config_coordinator.data else [],
-            )
-        except Exception as e:
-            _LOGGER.warning(
-                "Failed to create config coordinator for charger %s: %s "
-                "— number/select entities unavailable.",
-                device_name, e,
-            )
 
     device_registry = async_get_device_registry(hass)
     device_registry.async_get_or_create(
@@ -99,6 +66,7 @@ async def async_setup_entry(hass, entry):
     )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
     return True
 
 
@@ -108,10 +76,10 @@ async def update_listener(hass, entry):
 
 async def async_unload_entry(hass, entry):
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+
     if unload_ok:
-        hass.data[DOMAIN].pop(f"{entry.entry_id}_coordinator",        None)
-        hass.data[DOMAIN].pop(f"{entry.entry_id}_config_coordinator", None)
-        hass.data[DOMAIN].pop(f"{entry.entry_id}_sensor_handler",     None)
-        hass.data[DOMAIN].pop(f"{entry.entry_id}_device_info",        None)
-        hass.data[DOMAIN].pop(entry.entry_id,                         None)
+        hass.data[DOMAIN].pop(f"{entry.entry_id}_coordinator", None)
+        hass.data[DOMAIN].pop(f"{entry.entry_id}_sensor_handler", None)
+        hass.data[DOMAIN].pop(entry.entry_id, None)
+
     return unload_ok

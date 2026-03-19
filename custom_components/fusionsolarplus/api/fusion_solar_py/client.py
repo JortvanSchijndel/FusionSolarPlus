@@ -1071,20 +1071,20 @@ class FusionSolarClient:
             
     @logged_in
     def get_charger_config(self, device_dn: str) -> dict:
-        """Récupère les paramètres de configuration du wallbox parent ET du pile enfant.
+        """Retrieves configuration parameters for both the charger parent and its charging pile child.
 
-        Retourne un dict combiné avec les deux dnIds comme clés :
+        Returns a combined dict keyed by dnId:
             {
-                "150453477": [ ... signaux parent ... ],  # Max Charge Power (id=20001)
-                "150468159": [ ... signaux enfant ... ],  # Working Mode (id=20002)
+                "150453477": [ ... parent signals ... ],  # Max Charge Power (id=20001)
+                "150468159": [ ... child signals ...  ],  # Working Mode (id=20002)
             }
 
-        :param device_dn: DN de la wallbox, ex: "NE=237114670"
+        :param device_dn: Charger device DN, e.g. "NE=237114670"
         :type device_dn: str
-        :return: Signaux de config keyed par dnId
+        :return: Config signals keyed by dnId
         :rtype: dict
         """
-        # dnId parent
+        # Resolve parent dnId from device DN
         r = self._session.get(
             url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/mo-details",
             params=(("dn", device_dn), ("_", round(time.time() * 1000))),
@@ -1092,7 +1092,7 @@ class FusionSolarClient:
         r.raise_for_status()
         parent_dn_id = str(r.json().get("data", {}).get("mo", {}).get("dnId", ""))
 
-        # dnId enfant (charging pile) via l'arbre
+        # Resolve child dnId (charging pile, mocId=60081) via the device tree
         r = self._session.post(
             url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/dp/pvms/organization/v1/tree",
             json={
@@ -1107,7 +1107,7 @@ class FusionSolarClient:
         children = r.json().get("childList", [])
         child_dn_id = str(children[0]["elementId"]) if children else None
 
-        # get-config-info sur les deux dnIds
+        # Fetch config for both parent and child in a single request
         conditions = [{"dnId": parent_dn_id, "queryAll": True}]
         if child_dn_id:
             conditions.append({"dnId": child_dn_id, "queryAll": True})
@@ -1121,12 +1121,16 @@ class FusionSolarClient:
 
     @logged_in
     def set_charger_max_charge_power(self, device_dn: str, max_power_kw: float) -> dict:
-        """Modifie la limite supérieure de puissance de charge (signal id=20001).
+        """Sets the maximum charge power limit of the charger (signal id=20001).
 
-        Utilise le DN parent directement.
+        Uses the parent device DN directly.
 
-        :param device_dn: DN de la wallbox, ex: "NE=237114670"
-        :param max_power_kw: Puissance max en kW (ex: 11.0)
+        :param device_dn: Charger device DN, e.g. "NE=237114670"
+        :type device_dn: str
+        :param max_power_kw: Maximum charge power in kW, e.g. 11.0
+        :type max_power_kw: float
+        :return: API response
+        :rtype: dict
         """
         r = self._session.post(
             url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/config/device/v1/config/set-signal",
@@ -1142,21 +1146,25 @@ class FusionSolarClient:
 
     @logged_in
     def set_charger_working_mode(self, device_dn: str, mode: str) -> dict:
-        """Modifie le mode de fonctionnement de la wallbox (signal id=20002).
+        """Sets the working mode of the charger (signal id=20002).
 
-        Utilise le elementDn du charging pile enfant (ex: NE=237145438),
-        différent du device_dn parent (ex: NE=237114670).
+        Uses the elementDn of the charging pile child device (e.g. NE=237145438),
+        which is different from the parent device DN (e.g. NE=237114670).
 
-        :param device_dn: DN de la wallbox parent, ex: "NE=237114670"
+        :param device_dn: Parent charger device DN, e.g. "NE=237114670"
+        :type device_dn: str
         :param mode: "0" = Normal charge, "1" = PV Power Preferred
+        :type mode: str
+        :return: API response
+        :rtype: dict
         """
         mode = str(mode)
         if mode not in {"0", "1"}:
             raise ValueError(
-                f"Working mode invalide '{mode}'. Valeurs : 0=Normal charge, 1=PV Power Preferred"
+                f"Invalid working mode '{mode}'. Valid values: 0=Normal charge, 1=PV Power Preferred"
             )
 
-        # Résoudre le elementDn du pile enfant
+        # Resolve the elementDn of the charging pile child
         r = self._session.post(
             url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/dp/pvms/organization/v1/tree",
             json={
@@ -1171,9 +1179,9 @@ class FusionSolarClient:
         children = r.json().get("childList", [])
         if not children:
             raise FusionSolarException(
-                f"Aucun charging pile enfant trouvé pour {device_dn}"
+                f"No charging pile child found for {device_dn}"
             )
-        child_element_dn = children[0]["elementDn"]  # ex: "NE=237145438"
+        child_element_dn = children[0]["elementDn"]  # e.g. "NE=237145438"
 
         r = self._session.post(
             url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/config/device/v1/config/set-signal",
