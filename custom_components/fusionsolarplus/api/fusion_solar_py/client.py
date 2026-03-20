@@ -1194,6 +1194,61 @@ class FusionSolarClient:
         response = r.json()
         _LOGGER.debug("set_charger_working_mode response: %s", response)
         return response
+
+    @logged_in
+    def get_smart_assistant_config(self, device_dn: str) -> dict:
+        """Retrieves configuration parameters for the SmartAssistant device.
+
+        Returns a dict keyed by dnId containing config signals, including
+        PV Power Priority (signal id=230700180).
+
+        :param device_dn: SmartAssistant device DN, e.g. "NE=237114668"
+        :type device_dn: str
+        :return: Config signals keyed by dnId
+        :rtype: dict
+        """
+        r = self._session.get(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/mo-details",
+            params=(("dn", device_dn), ("_", round(time.time() * 1000))),
+        )
+        r.raise_for_status()
+        dn_id = str(r.json().get("data", {}).get("mo", {}).get("dnId", ""))
+
+        r = self._session.post(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/web/homemgr/v1/device/get-config-info",
+            json={"conditions": [{"dnId": dn_id, "queryAll": True}]},
+        )
+        r.raise_for_status()
+        return r.json()
+
+    @logged_in
+    def set_smart_assistant_pv_priority(self, device_dn: str, priority: str) -> dict:
+        """Sets the PV Power Priority of the SmartAssistant (signal id=230700180).
+
+        :param device_dn: SmartAssistant device DN, e.g. "NE=237114668"
+        :type device_dn: str
+        :param priority: "0" = Battery first, "1" = Appliances first
+        :type priority: str
+        :return: API response
+        :rtype: dict
+        """
+        priority = str(priority)
+        if priority not in {"0", "1"}:
+            raise ValueError(
+                f"Invalid PV priority '{priority}'. Valid values: 0=Battery first, 1=Appliances first"
+            )
+
+        r = self._session.post(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/config/device/v1/config/set-signal",
+            data={
+                "dn": device_dn,
+                "changeValues": f'[{{"id":"230700180","value":"{priority}"}}]',
+            },
+        )
+        r.raise_for_status()
+        response = r.json()
+        _LOGGER.debug("set_smart_assistant_pv_priority response: %s", response)
+        return response
         
     @logged_in
     def get_pv_info(
