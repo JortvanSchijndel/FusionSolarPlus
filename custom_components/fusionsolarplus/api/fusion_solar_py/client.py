@@ -1084,13 +1084,21 @@ class FusionSolarClient:
         :return: Config signals keyed by dnId
         :rtype: dict
         """
+        self.keep_alive()  # Keep session alive (same pattern as get_charger_data)
+
         # Resolve parent dnId from device DN
         r = self._session.get(
             url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/mo-details",
             params=(("dn", device_dn), ("_", round(time.time() * 1000))),
         )
         r.raise_for_status()
-        parent_dn_id = str(r.json().get("data", {}).get("mo", {}).get("dnId", ""))
+        try:
+            parent_dn_id = str(r.json().get("data", {}).get("mo", {}).get("dnId", ""))
+        except Exception:
+            raise FusionSolarException(
+                f"Failed to parse mo-details response for {device_dn}. "
+                "Session may have expired."
+            )
 
         # Resolve child dnId (charging pile, mocId=60081) via the device tree
         r = self._session.post(
@@ -1207,12 +1215,20 @@ class FusionSolarClient:
         :return: Config signals keyed by dnId
         :rtype: dict
         """
+        self.keep_alive()  # Keep session alive (same pattern as get_charger_data)
+
         r = self._session.get(
             url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/mo-details",
             params=(("dn", device_dn), ("_", round(time.time() * 1000))),
         )
         r.raise_for_status()
-        dn_id = str(r.json().get("data", {}).get("mo", {}).get("dnId", ""))
+        try:
+            dn_id = str(r.json().get("data", {}).get("mo", {}).get("dnId", ""))
+        except Exception:
+            raise FusionSolarException(
+                f"Failed to parse mo-details response for {device_dn}. "
+                "Session may have expired."
+            )
 
         r = self._session.post(
             url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/web/homemgr/v1/device/get-config-info",
