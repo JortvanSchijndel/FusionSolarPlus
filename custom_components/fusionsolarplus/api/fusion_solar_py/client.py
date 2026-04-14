@@ -1068,7 +1068,204 @@ class FusionSolarClient:
             r.raise_for_status()
 
             return r.json()
+            
+    @logged_in
+    def get_charger_config(self, device_dn: str) -> dict:
+        """Retrieves configuration parameters for both the charger parent and its charging pile child.
 
+        Returns a combined dict keyed by dnId:
+            {
+                "150453477": [ ... parent signals ... ],  # Max Charge Power (id=20001)
+                "150468159": [ ... child signals ...  ],  # Working Mode (id=20002)
+            }
+
+        :param device_dn: Charger device DN, e.g. "NE=237114670"
+        :type device_dn: str
+        :return: Config signals keyed by dnId
+        :rtype: dict
+        """
+        self.keep_alive()  # Keep session alive (same pattern as get_charger_data)
+
+        # Resolve parent dnId from device DN
+        r = self._session.get(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/mo-details",
+            params=(("dn", device_dn), ("_", round(time.time() * 1000))),
+        )
+        r.raise_for_status()
+        try:
+            parent_dn_id = str(r.json().get("data", {}).get("mo", {}).get("dnId", ""))
+        except Exception:
+            raise FusionSolarException(
+                f"Failed to parse mo-details response for {device_dn}. "
+                "Session may have expired."
+            )
+
+        # Resolve child dnId (charging pile, mocId=60081) via the device tree
+        r = self._session.post(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/dp/pvms/organization/v1/tree",
+            json={
+                "parentDn": device_dn,
+                "treeDepth": "device",
+                "pageParam": {"needPage": True},
+                "filterCond": {"nameType": "device", "mocIdInclude": [60081]},
+                "displayCond": {"self": False, "status": True},
+            },
+        )
+        r.raise_for_status()
+        children = r.json().get("childList", [])
+        child_dn_id = str(children[0]["elementId"]) if children else None
+
+        # Fetch config for both parent and child in a single request
+        conditions = [{"dnId": parent_dn_id, "queryAll": True}]
+        if child_dn_id:
+            conditions.append({"dnId": child_dn_id, "queryAll": True})
+
+        r = self._session.post(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/web/homemgr/v1/device/get-config-info",
+            json={"conditions": conditions},
+        )
+        r.raise_for_status()
+        return r.json()
+
+    @logged_in
+    def set_charger_max_charge_power(self, device_dn: str, max_power_kw: float) -> dict:
+        """Sets the maximum charge power limit of the charger (signal id=20001).
+
+        Uses the parent device DN directly.
+
+        :param device_dn: Charger device DN, e.g. "NE=237114670"
+        :type device_dn: str
+        :param max_power_kw: Maximum charge power in kW, e.g. 11.0
+        :type max_power_kw: float
+        :return: API response
+        :rtype: dict
+        """
+        r = self._session.post(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/config/device/v1/config/set-signal",
+            data={
+                "dn": device_dn,
+                "changeValues": f'[{{"id":"20001","value":"{max_power_kw}"}}]',
+            },
+        )
+        r.raise_for_status()
+        response = r.json()
+        _LOGGER.debug("set_charger_max_charge_power response: %s", response)
+        return response
+
+    @logged_in
+    def set_charger_working_mode(self, device_dn: str, mode: str) -> dict:
+        """Sets the working mode of the charger (signal id=20002).
+
+        Uses the elementDn of the charging pile child device (e.g. NE=237145438),
+        which is different from the parent device DN (e.g. NE=237114670).
+
+        :param device_dn: Parent charger device DN, e.g. "NE=237114670"
+        :type device_dn: str
+        :param mode: "0" = Normal charge, "1" = PV Power Preferred
+        :type mode: str
+        :return: API response
+        :rtype: dict
+        """
+        mode = str(mode)
+        if mode not in {"0", "1"}:
+            raise ValueError(
+                f"Invalid working mode '{mode}'. Valid values: 0=Normal charge, 1=PV Power Preferred"
+            )
+
+        # Resolve the elementDn of the charging pile child
+        r = self._session.post(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/dp/pvms/organization/v1/tree",
+            json={
+                "parentDn": device_dn,
+                "treeDepth": "device",
+                "pageParam": {"needPage": True},
+                "filterCond": {"nameType": "device", "mocIdInclude": [60081]},
+                "displayCond": {"self": False, "status": True},
+            },
+        )
+        r.raise_for_status()
+        children = r.json().get("childList", [])
+        if not children:
+            raise FusionSolarException(
+                f"No charging pile child found for {device_dn}"
+            )
+        child_element_dn = children[0]["elementDn"]  # e.g. "NE=237145438"
+
+        r = self._session.post(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/config/device/v1/config/set-signal",
+            data={
+                "dn": child_element_dn,
+                "changeValues": f'[{{"id":"20002","value":"{mode}"}}]',
+            },
+        )
+        r.raise_for_status()
+        response = r.json()
+        _LOGGER.debug("set_charger_working_mode response: %s", response)
+        return response
+
+    @logged_in
+    def get_smart_assistant_config(self, device_dn: str) -> dict:
+        """Retrieves configuration parameters for the SmartAssistant device.
+
+        Returns a dict keyed by dnId containing config signals, including
+        PV Power Priority (signal id=230700180).
+
+        :param device_dn: SmartAssistant device DN, e.g. "NE=237114668"
+        :type device_dn: str
+        :return: Config signals keyed by dnId
+        :rtype: dict
+        """
+        self.keep_alive()  # Keep session alive (same pattern as get_charger_data)
+
+        r = self._session.get(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/mo-details",
+            params=(("dn", device_dn), ("_", round(time.time() * 1000))),
+        )
+        r.raise_for_status()
+        try:
+            dn_id = str(r.json().get("data", {}).get("mo", {}).get("dnId", ""))
+        except Exception:
+            raise FusionSolarException(
+                f"Failed to parse mo-details response for {device_dn}. "
+                "Session may have expired."
+            )
+
+        r = self._session.post(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/web/homemgr/v1/device/get-config-info",
+            json={"conditions": [{"dnId": dn_id, "queryAll": True}]},
+        )
+        r.raise_for_status()
+        return r.json()
+
+    @logged_in
+    def set_smart_assistant_pv_priority(self, device_dn: str, priority: str) -> dict:
+        """Sets the PV Power Priority of the SmartAssistant (signal id=230700180).
+
+        :param device_dn: SmartAssistant device DN, e.g. "NE=237114668"
+        :type device_dn: str
+        :param priority: "0" = Battery first, "1" = Appliances first
+        :type priority: str
+        :return: API response
+        :rtype: dict
+        """
+        priority = str(priority)
+        if priority not in {"0", "1"}:
+            raise ValueError(
+                f"Invalid PV priority '{priority}'. Valid values: 0=Battery first, 1=Appliances first"
+            )
+
+        r = self._session.post(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/config/device/v1/config/set-signal",
+            data={
+                "dn": device_dn,
+                "changeValues": f'[{{"id":"230700180","value":"{priority}"}}]',
+            },
+        )
+        r.raise_for_status()
+        response = r.json()
+        _LOGGER.debug("set_smart_assistant_pv_priority response: %s", response)
+        return response
+        
     @logged_in
     def get_pv_info(
         self, device_dn: str = None
