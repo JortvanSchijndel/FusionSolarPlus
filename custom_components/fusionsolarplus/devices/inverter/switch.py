@@ -147,10 +147,10 @@ class InverterPowerSwitch(CoordinatorEntity, SwitchEntity):
             # Refresh data from the device to get the true state
             await self.coordinator.async_request_refresh()
 
-    async def async_turn_on(self, **kwargs):
+    async def async_turn_on(self):
         """Turn the inverter on."""
         await self._toggle_device(signal="21009", new_state=True)
 
-    async def async_turn_off(self, **kwargs):
+    async def async_turn_off(self):
         """Turn the inverter off."""
         await self._toggle_device(signal="21010", new_state=False)

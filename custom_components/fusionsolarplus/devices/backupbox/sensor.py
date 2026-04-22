@@ -19,7 +19,7 @@ class BackupBoxDeviceHandler(BaseDeviceHandler):
         async def fetch_backupbox_data(client):
             # Get real-time data
             return await self.hass.async_add_executor_job(
-                client.get_real_time_data, self.device_id
+                client.get_backupbox_data, self.device_id
             )
 
         return await self._get_client_and_retry(fetch_backupbox_data)
@@ -73,7 +73,6 @@ class FusionSolarBackupBoxSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = device_class
         self._attr_state_class = state_class
         self._is_pv_signal = is_pv_signal
-        self._last_value: Any = None
 
         device_id = list(device_info["identifiers"])[0][1]
         safe_name = name.lower().replace(" ", "_")
@@ -83,47 +82,16 @@ class FusionSolarBackupBoxSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self) -> Any:
-        """Return the sensor state."""
+        """Return normalized BackupBox value from API layer."""
         data = self.coordinator.data
         if not data:
-            return self._last_value
-
-        # Extract signal data from response
-        try:
-            signals = []
-            for item in data.get("data", []):
-                if isinstance(item, dict) and "signals" in item:
-                    signals.extend(item["signals"])
-
-            signal_data = next(
-                (s for s in signals if s.get("id") == self._signal_id), None
-            )
-            if not signal_data:
-                return self._last_value
-
-            value = signal_data.get("value")
-            if value is None:
-                return None
-
-            # Try converting numeric values to float
-            try:
-                numeric_value = float(value)
-                self._last_value = numeric_value
-                return numeric_value
-            except (ValueError, TypeError):
-                pass
-
-            # Handle enumerated values (status, etc.)
-            if self._attr_device_class == SensorDeviceClass.ENUM:
-                self._last_value = str(value)
-                return str(value)
-
-            self._last_value = value
-            return value
-
-        except Exception:
-            # Safe fallback on any parsing error
-            return self._last_value
+            return None
+        value = data.get("value_map", {}).get(int(self._signal_id))
+        if value is None:
+            return None
+        if self._attr_device_class == SensorDeviceClass.ENUM:
+            return str(value)
+        return value
 
     @property
     def available(self) -> bool:

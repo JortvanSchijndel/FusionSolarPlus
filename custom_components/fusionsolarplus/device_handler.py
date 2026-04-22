@@ -1,3 +1,13 @@
+"""Shared coordinator/retry orchestration for all FusionSolar device handlers.
+
+Design notes for contributors:
+- Each concrete device handler implements only `_async_get_data` and entity creation.
+- Session health and login recovery are centralized here, so device handlers can focus
+  on one responsibility: requesting device payloads.
+- Data parsing/normalization should happen in `custom_components/fusionsolarplus/api/*`.
+  Sensor entities are expected to consume normalized coordinator payloads.
+"""
+
 import asyncio
 import logging
 from datetime import timedelta
@@ -9,12 +19,14 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import DOMAIN
-from .api.fusion_solar_py.client import FusionSolarClient
+from .api.client import FusionSolarClient
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class BaseDeviceHandler:
+    """Base class that provides resilient API access for device handlers."""
+
     def __init__(
         self, hass: HomeAssistant, entry: ConfigEntry, device_info: Dict[str, Any]
     ):
@@ -38,6 +50,7 @@ class BaseDeviceHandler:
         return coordinator
 
     async def _get_client_and_retry(self, operation_func):
+        """Execute an API operation with session validation and bounded retries."""
         client = self.hass.data[DOMAIN][self.entry.entry_id]
 
         username = self.entry.options.get("username", self.entry.data["username"])

@@ -1,6 +1,6 @@
 import logging
 from homeassistant.helpers.device_registry import async_get as async_get_device_registry
-from .api.fusion_solar_py.client import FusionSolarClient
+from .api.client import FusionSolarClient
 from functools import partial
 
 from .const import DOMAIN

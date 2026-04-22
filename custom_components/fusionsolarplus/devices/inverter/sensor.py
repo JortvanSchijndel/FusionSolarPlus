@@ -1,6 +1,4 @@
 from typing import Dict, Any, List, Set
-from datetime import date
-
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
     CoordinatorEntity,
@@ -16,38 +14,15 @@ from .const import (
     OPTIMIZER_METRICS,
 )
 
-pv_inputs = {
-    "pv1": {"voltage": "11001", "current": "11002"},
-    "pv2": {"voltage": "11004", "current": "11005"},
-    "pv3": {"voltage": "11007", "current": "11008"},
-    "pv4": {"voltage": "11010", "current": "11011"},
-}
-
 
 class InverterDeviceHandler(BaseDeviceHandler):
     """Handler for Inverter devices"""
 
     async def _async_get_data(self) -> Dict[str, Any]:
         async def fetch_inverter_data(client):
-            # Get real-time data
-            response = await self.hass.async_add_executor_job(
-                client.get_real_time_data, self.device_id
+            return await self.hass.async_add_executor_job(
+                client.get_inverter_data, self.device_id
             )
-
-            # Get optimizer stats
-            optimizer_stats = await self.hass.async_add_executor_job(
-                client.get_optimizer_stats, self.device_id
-            )
-            response["optimizers"] = optimizer_stats
-
-            # Get PV info
-            pv_stats = await self.hass.async_add_executor_job(
-                client.get_pv_info, self.device_id
-            )
-
-            response["pv"] = pv_stats
-
-            return response
 
         return await self._get_client_and_retry(fetch_inverter_data)
 
@@ -83,13 +58,8 @@ class InverterDeviceHandler(BaseDeviceHandler):
         if not coordinator.data:
             return
 
-        pv_data = coordinator.data.get("pv", {})
-
-        signals = pv_data.get("signals", {})
-        pv_lookup = {
-            signal_id: signal_data.get("value")
-            for signal_id, signal_data in signals.items()
-        }
+        pv_data = coordinator.data.get("raw_pv_data", {})
+        pv_lookup = coordinator.data.get("pv_values", {})
         available_pvs = {pv.lower() for pv in pv_data.get("available_pvs", [])}
 
         signals_to_input = {
@@ -129,7 +99,8 @@ class InverterDeviceHandler(BaseDeviceHandler):
                 if not pv_signal:
                     continue
 
-                if sig_id not in pv_lookup or pv_lookup[sig_id] is None:
+                sig_id_int = int(sig_id)
+                if sig_id_int not in pv_lookup or pv_lookup[sig_id_int] is None:
                     continue
 
                 unique_id = f"{list(self.device_info['identifiers'])[0][1]}_pv_{sig_id}"
@@ -156,7 +127,7 @@ class InverterDeviceHandler(BaseDeviceHandler):
         if not coordinator.data:
             return
 
-        optimizers = coordinator.data.get("optimizers", [])
+        optimizers = coordinator.data.get("raw_optimizer_data", [])
         for optimizer in optimizers:
             optimizer_name = optimizer.get("optName", "Optimizer")
             for metric in OPTIMIZER_METRICS:
@@ -211,78 +182,21 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
             ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
         )
 
-        # Custom tracking for Daily Energy
-        self._last_value = None
-        self._daily_max = 0
-        self._last_update_day = date.today()
-        self._midnight_reset_done = False
-
     @property
     def native_value(self):
-        """Return sensor state with corrected daily energy reset handling."""
+        """Return normalized inverter or PV value from coordinator payload."""
         data = self.coordinator.data
         if not data:
-            return self._last_value
-
-        # ---- Extract value as before ----
-        value = None
-
-        # PV signals
+            return None
         if self._is_pv_signal:
-            pv_data = data.get("pv", {})
-
-            if isinstance(pv_data, dict):
-                signals = pv_data.get("signals", {})
-                signal_data = signals.get(str(self._signal_id))
-                if signal_data:
-                    raw_value = signal_data.get("value")
-                    value = 0 if raw_value == "-" else raw_value
-                else:
-                    # Handle case where pv_data exists but has no signal values
-                    if not signals and pv_data.get("available_pvs"):
-                        value = 0
-
-            else:
-                for item in pv_data:
-                    if str(item.get("id")) == str(self._signal_id):
-                        raw_value = item.get("value")
-                        value = 0 if raw_value == "-" else raw_value
-                        break
-
-        # Normal inverter signals
+            value = data.get("pv_values", {}).get(int(self._signal_id))
         else:
-            for group in data.get("data", []):
-                for signal in group.get("signals", []):
-                    if signal["id"] == self._signal_id:
-                        raw_value = signal.get("value")
-                        # Return "-" for enumerated sensors, 0 for numeric, "Inverter is shutdown" for status when "-"
-                        if raw_value == "-":
-                            if self._attr_name.lower().startswith("status"):
-                                value = "Inverter is Shutdown"
-                            else:
-                                value = (
-                                    "-"
-                                    if self._attr_device_class == SensorDeviceClass.ENUM
-                                    else 0
-                                )
-                        else:
-                            value = raw_value
-                        break
-
+            value = data.get("inverter_values", {}).get(int(self._signal_id))
         if value is None:
             return None
-
-        # Handle enumerated values
         if self._attr_device_class == SensorDeviceClass.ENUM:
             return str(value)
-
-        # Try numeric conversion
-        try:
-            numeric_value = float(value)
-        except (TypeError, ValueError):
-            return self._last_value
-
-        return numeric_value
+        return value
 
     @property
     def available(self):
@@ -325,28 +239,15 @@ class FusionSolarOptimizerSensor(CoordinatorEntity, SensorEntity):
     @property
     def native_value(self):
         """Return the state of the sensor."""
-        data = (
-            self.coordinator.data.get("optimizers", []) if self.coordinator.data else []
-        )
-        for opt in data:
-            if opt.get("optName") == self._optimizer_name:
-                raw_value = opt.get(self._metric_key)
-
-                if raw_value in ["N/A", "n/a"]:
-                    return None
-
-                value = 0 if raw_value == "-" else raw_value
-                if value is not None and isinstance(value, str):
-                    try:
-                        value = float(value)
-                    except ValueError:
-                        if (
-                            self.device_class
-                            and self.device_class != SensorDeviceClass.ENUM
-                        ):
-                            return None
-                return value
-        return None
+        if not self.coordinator.data:
+            return None
+        optimizer_values = self.coordinator.data.get("optimizer_values", {})
+        value = optimizer_values.get(self._optimizer_name, {}).get(self._metric_key)
+        if value is None:
+            return None
+        if self.device_class == SensorDeviceClass.ENUM:
+            return str(value)
+        return value
 
     @property
     def available(self):

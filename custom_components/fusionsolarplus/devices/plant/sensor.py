@@ -84,9 +84,6 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
             ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
         )
 
-        # cache for freeze logic
-        self._last_valid_value = None
-
     @property
     def native_unit_of_measurement(self):
         """Return the unit of measurement."""
@@ -100,23 +97,11 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
-        """Return the state of the sensor with freeze logic between 23:00–02:00."""
+        """Return normalized value produced by the plant API layer."""
         data = self.coordinator.data
         if not data:
-            return self._last_valid_value
-
-        raw_value = data.get(self._key)
-        if raw_value is None or raw_value == "-":
-            return self._last_valid_value
-
-        try:
-            value = float(raw_value) if self.native_unit_of_measurement else raw_value
-        except (TypeError, ValueError):
-            return self._last_valid_value
-
-        # cache valid values for later freeze
-        self._last_valid_value = value
-        return value
+            return None
+        return data.get(self._key)
 
     @property
     def available(self):

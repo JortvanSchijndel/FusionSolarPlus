@@ -13,8 +13,8 @@ from custom_components.fusionsolarplus.const import (
     CONF_DEVICE_ID,
     CONF_DEVICE_NAME,
 )
-from .api.fusion_solar_py.client import FusionSolarClient
-from .api.fusion_solar_py.exceptions import (
+from .api.client import FusionSolarClient
+from .api.exceptions import (
     AuthenticationException,
     FusionSolarRateLimit,
 )

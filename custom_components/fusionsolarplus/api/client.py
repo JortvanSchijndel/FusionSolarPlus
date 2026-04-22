@@ -1,13 +1,19 @@
-"""Client library to the fusion solar API"""
+"""Main FusionSolar client used by Home Assistant.
+
+Architecture overview for contributors:
+- This class owns authentication, session lifecycle and high-level API orchestration.
+- Device-specific request/normalization logic lives in sibling `*_api.py` modules.
+- Home Assistant sensors should consume normalized coordinator payloads and avoid
+  implementing payload parsing logic in entity classes.
+"""
 
 import logging
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
 from functools import wraps
 from urllib.parse import urlencode
 import json
-import os
 from typing import Any, Optional
 import re
 import requests
@@ -17,8 +23,16 @@ from .exceptions import (
     CaptchaRequiredException,
     FusionSolarException,
 )
-from .constants import MODULE_SIGNALS
 from .encryption import encrypt_password, get_secure_random
+from .devices import (
+    inverter_api,
+    battery_api,
+    backupbox_api,
+    powersensor_api,
+    charger_api,
+    plant_api,
+    emma_api,
+)
 
 ENABLE_FAKE_DATA = False  # True/False » Will give predefined API responses
 
@@ -222,6 +236,10 @@ def with_solver(func):
 
 class FusionSolarClient:
     """The main client to interact with the Fusion Solar API"""
+
+    ENABLE_FAKE_DATA = ENABLE_FAKE_DATA
+    _LOGGER = _LOGGER
+    _parse_float = staticmethod(_parse_float)
 
     def __init__(
         self,
@@ -480,7 +498,7 @@ class FusionSolarClient:
                 "/"
             ):
                 self.MultiRegionName = self._huawei_subdomain
-                # If subdomain end with eu5 eg. region01eu5 remove the eu5 part
+                # If subdomain end with eu5 e.g. region01eu5 remove the eu5 part
                 if self._huawei_subdomain.endswith("eu5"):
                     self.MultiRegionName = self._huawei_subdomain[:-3]
 
@@ -746,188 +764,15 @@ class FusionSolarClient:
 
     @logged_in
     def get_current_plant_data(self, plant_id: str) -> dict:
-        """Retrieve the current power status and energy balance for a specific plant.
-        :return: A dict object containing both datasets
-        """
-
-        ts = round(time.time() * 1000)
-
-        # --- First request: real-time KPI ---
-        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v1/overview/station-real-kpi"
-        params = {
-            "stationDn": plant_id,
-            "clientTime": ts,
-            "timeZone": 1,
-            "_": ts,
-        }
-
-        r = self._session.get(url=url, params=params)
-        r.raise_for_status()
-        power_obj = r.json()
-
-        if "data" not in power_obj:
-            raise FusionSolarException("Failed to retrieve plant KPI data.")
-
-        # --- Second request: energy balance ---
-        today = datetime.now(timezone.utc).astimezone()
-        query_time = int(
-            today.replace(hour=0, minute=0, second=0, microsecond=0).timestamp() * 1000
-        )
-        date_str = today.strftime("%Y-%m-%d 00:00:00")
-
-        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v3/overview/energy-balance"
-        params = {
-            "stationDn": plant_id,
-            "timeDim": 2,
-            "timeZone": 1.0,
-            "timeZoneStr": today.tzname(),
-            "queryTime": query_time,
-            "dateStr": date_str,
-            "_": ts,
-        }
-
-        r = self._session.get(url=url, params=params)
-        r.raise_for_status()
-        energy_obj = r.json()
-
-        if "data" not in energy_obj:
-            raise FusionSolarException("Failed to retrieve plant energy balance data.")
-
-        data = power_obj["data"]
-        energy = energy_obj["data"]
-
-        # --- Third request: energy flow ---
-        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v3/overview/energy-flow"
-        params = {
-            "stationDn": plant_id,
-            "featureId": "aifc",
-            "_": ts,
-        }
-
-        r = self._session.get(url=url, params=params)
-        r.raise_for_status()
-        flow_data = r.json()
-
-        if "data" in flow_data and "flow" in flow_data["data"]:
-            flow = flow_data["data"]["flow"]
-            nodes = flow.get("nodes", [])
-            links = flow.get("links", [])
-
-            # Helper to find node value by name
-            def get_node_value(name):
-                for node in nodes:
-                    if node.get("name") == name:
-                        return node.get("value")
-                return None
-
-            data["flow_solar_power"] = get_node_value(
-                "neteco.pvms.devTypeLangKey.string"
-            )
-            data["flow_battery_power"] = get_node_value(
-                "neteco.pvms.devTypeLangKey.energy_store"
-            )
-            data["flow_load_power"] = get_node_value(
-                "neteco.pvms.KPI.kpiView.electricalLoad"
-            )
-
-            # Grid: Grid -> Meter
-            grid_id = next(
-                (
-                    n["id"]
-                    for n in nodes
-                    if n.get("name")
-                    == "neteco.pvms.partials.main.dm.detailInfo.curInfo.grid"
-                ),
-                None,
-            )
-            meter_id = next(
-                (
-                    n["id"]
-                    for n in nodes
-                    if n.get("name") == "neteco.pvms.devTypeLangKey.meter"
-                ),
-                None,
-            )
-
-            if grid_id and meter_id:
-                for link in links:
-                    if (
-                        link.get("fromNode") == grid_id
-                        and link.get("toNode") == meter_id
-                    ):
-                        desc = link.get("description", {})
-                        val_str = desc.get("value")
-                        if val_str and " " in val_str:
-                            try:
-                                data["flow_grid_power"] = float(val_str.split(" ")[0])
-                            except ValueError:
-                                pass
-                        break
-
-        data.update(
-            {
-                "existMeter": energy.get("existMeter", False),
-                "existInverter": energy.get("existInverter", True),
-                "totalSelfUseEnergy": energy.get("totalSelfUsePower"),
-                "totalFeedInEnergy": energy.get("totalOnGridPower"),
-                "totalGridImportEnergy": energy.get("totalBuyPower"),
-                "totalConsumptionEnergy": energy.get("totalUsePower"),
-                "pvSelfConsumptionEnergy": energy.get("selfProvide"),
-                "gridImportRatio": energy.get("buyPowerRatio"),
-                "pvSelfConsumptionRatio": energy.get("selfUsePowerRatioByUse"),
-                "pvSelfConsumptionRatioByProduction": energy.get(
-                    "selfUsePowerRatioByProduct"
-                ),
-            }
-        )
-
-        return data
+        return plant_api.get_current_plant_data(self, plant_id)
 
     @logged_in
     def get_plant_ids(self) -> list:
-        """Get the ids of all available stations linked
-           to this account
-        :return: A list of plant ids (strings)
-        :rtype: list
-        """
-        # get the complete object tree
-        station_list = self.get_station_list()
-
-        # get the ids
-        plant_ids = [obj["dn"] for obj in station_list]
-
-        return plant_ids
+        return plant_api.get_plant_ids(self)
 
     @logged_in
     def get_station_list(self) -> list:
-        """Get the list of available PV stations.
-
-        :return: _description_
-        :rtype: list
-        """
-        # get the complete list
-        r = self._session.post(
-            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v1/station/station-list",
-            json={
-                "curPage": 1,
-                "pageSize": 10,
-                "gridConnectedTime": "",
-                "queryTime": self._get_day_start_sec(),
-                "timeZone": 2,
-                "sortId": "createTime",
-                "sortDir": "DESC",
-                "locale": "en_US",
-            },
-        )
-        r.raise_for_status()
-
-        obj_tree = r.json()
-
-        if not obj_tree["success"]:
-            raise FusionSolarException("Failed to retrieve station list")
-
-        # simply return the original object list
-        return obj_tree["data"]["list"]
+        return plant_api.get_station_list(self)
 
     @logged_in
     def get_device_ids(self) -> list:
@@ -959,252 +804,25 @@ class FusionSolarClient:
         device_dn: str = None,
         date: datetime = datetime.now(),
     ) -> dict:
-        """retrieves historical data for specified signals and device
-        possible signal_ids:
-        30017 : produced DC in kW
-        30016 : daily production in kWh
-        30014 : produced AC in kW
-
-        :return: historical data for requested signals and device
-        :rtype: dict
-        """
-
-        url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-history-data"
-        params = ()
-        for signal_id in signal_ids:
-            params += (("signalIds", signal_id),)
-
-        params += (
-            ("deviceDn", device_dn),  #
-            ("date", int(date.timestamp() * 1000)),
-            ("_", round(time.time() * 1000)),
-        )
-        r = self._session.get(url=url, params=params)
-        r.raise_for_status()
-
-        return r.json(parse_float=_parse_float)
+        return inverter_api.get_historical_data(self, signal_ids, device_dn, date)
 
     @logged_in
     def get_real_time_data(self, device_dn: str = None) -> dict:
-        """retrieves real time data for requested device
+        return inverter_api.get_real_time_data(self, device_dn)
 
-        :return: real time data for requested signals and device
-        :rtype: dict
-
-        """
-        if ENABLE_FAKE_DATA and device_dn == "NE=140517905":
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(
-                base_dir, "./fake_requests/standard_powersensor.json"
-            )
-            with open(json_path) as f:
-                data = json.load(f)
-            return data
-        else:
-            url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-realtime-data"
-            params = (
-                ("deviceDn", device_dn),  #
-                ("_", round(time.time() * 1000)),
-            )
-            r = self._session.get(url=url, params=params)
-            r.raise_for_status()
-
-            return r.json()
+    @logged_in
+    def get_inverter_data(self, device_dn: str) -> dict:
+        return inverter_api.get_inverter_data(self, device_dn)
 
     @logged_in
     def get_charger_data(self, device_dn: str = None) -> dict:
-        """retrieves real time data for requested device
-
-        :return: real time data for requested signals and device
-        :rtype: dict
-
-        """
-        if ENABLE_FAKE_DATA and device_dn == "NE=140517905":
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "DTSU666_power_sensor.json")
-            with open(json_path) as f:
-                power_sensor = json.load(f)
-            return power_sensor
-        else:
-            self.keep_alive()  # Keep Session alive (temporary hot fix)
-
-            # Get First DnID
-            url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/dp/pvms/organization/v1/tree"
-            payload = {
-                "parentDn": device_dn,
-                "treeDepth": "device",
-                "pageParam": {"needPage": True},
-                "filterCond": {"nameType": "device", "mocIdInclude": [60081]},
-                "displayCond": {"self": False, "status": True},
-            }
-            r = self._session.post(url=url, json=payload)
-            r.raise_for_status()
-
-            response = r.json()
-
-            dn_id_1 = response["childList"][0]["elementId"]
-
-            # Get Second DnID
-            url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/mo-details"
-            params = (
-                ("dn", device_dn),
-                ("_", round(time.time() * 1000)),
-            )
-            r = self._session.get(url=url, params=params)
-            r.raise_for_status()
-
-            response = r.json()
-            dn_id_2 = str(response.get("data", {}).get("mo", {}).get("dnId"))
-
-            # Get the actual device info
-            url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/neteco/web/homemgr/v1/device/get-realtime-info"
-            payload = {
-                "conditions": [
-                    {"dnId": dn_id_1, "queryAll": True},
-                    {"dnId": dn_id_2, "queryAll": True},
-                ]
-            }
-            r = self._session.post(url=url, json=payload)
-            r.raise_for_status()
-
-            return r.json()
+        return charger_api.get_charger_data(self, device_dn)
 
     @logged_in
     def get_pv_info(
         self, device_dn: str = None
     ) -> dict:  # Doesn't generate the Power Entities for PV only Current & Volt
-        if ENABLE_FAKE_DATA and device_dn == "NE=138957388":
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "./fake_requests/pv_info.json")
-            with open(json_path) as f:
-                data = json.load(f)
-            return data
-        else:
-            #
-            # Get Available PV's
-            #
-            avail_url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-statistics-signal"
-            avail_params = {
-                "deviceDn": device_dn,
-                "_": round(time.time() * 1000),
-            }
-            r_avail = self._session.get(url=avail_url, params=avail_params)
-            r_avail.raise_for_status()
-            avail_data = r_avail.json()
-
-            available_pvs = []
-            for signal in avail_data.get("data", {}).get("signalList", []):
-                name = signal.get("name", "")
-                match = re.search(r"\bPV\d+\b", name)
-                if match:
-                    pv_id = match.group(0)
-                    if pv_id not in available_pvs:
-                        available_pvs.append(pv_id)
-
-            #
-            # Fetch PV Data
-            #
-            pv_signal_map = {
-                "PV1": [("11001", "11002", "11003")],
-                "PV2": [("11004", "11005", "11006")],
-                "PV3": [("11007", "11008", "11009")],
-                "PV4": [("11010", "11011", "11012")],
-                "PV5": [("11013", "11014", "11015")],
-                "PV6": [("11016", "11017", "11018")],
-                "PV7": [("11019", "11020", "11021")],
-                "PV8": [("11022", "11023", "11024")],
-                "PV9": [("11025", "11026", "11027")],
-                "PV10": [("11028", "11029", "11030")],
-                "PV11": [("11031", "11032", "11033")],
-                "PV12": [("11034", "11035", "11036")],
-                "PV13": [("11037", "11038", "11039")],
-                "PV14": [("11040", "11041", "11042")],
-                "PV15": [("11043", "11044", "11045")],
-                "PV16": [("11046", "11047", "11048")],
-                "PV17": [("11049", "11050", "11051")],
-                "PV18": [("11052", "11053", "11054")],
-                "PV19": [("11055", "11056", "11057")],
-                "PV20": [("11058", "11059", "11060")],
-            }
-
-            signal_ids = []
-            for pv in available_pvs:
-                pairs = pv_signal_map.get(pv)
-                if pairs:
-                    for voltage_id, current_id, power_id in pairs:
-                        signal_ids.append(voltage_id)
-                        signal_ids.append(current_id)
-
-            params = [("signalIds", sid) for sid in signal_ids]
-            params.append(("deviceDn", device_dn))
-            params.append(("_", round(time.time() * 1000)))
-
-            url = f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-real-kpi"
-
-            r = self._session.get(url=url, params=params)
-            r.raise_for_status()
-            data = r.json()
-
-            signals = data.get("data", {}).get("signals", {})
-
-            #
-            # Calculate Power from volt & current
-            #
-            latest_time = int(time.time())
-            for pv in available_pvs:
-                pairs = pv_signal_map.get(pv)
-                if pairs:
-                    for voltage_id, current_id, power_id in pairs:
-                        val1 = signals.get(voltage_id, {}).get("realValue")
-                        val2 = signals.get(current_id, {}).get("realValue")
-                        try:
-                            product = float(val1) * float(val2)
-                            signals[power_id] = {
-                                "value": f"{product:.2f}",
-                                "realValue": f"{product:.2f}",
-                                "latestTime": latest_time,
-                            }
-                        except (TypeError, ValueError):
-                            continue
-
-            #
-            # Return available PVs & data of the PV's
-            #
-            filtered_signals = {}
-            for pv in available_pvs:
-                pairs = pv_signal_map.get(pv)
-                if pairs:
-                    for voltage_id, current_id, power_id in pairs:
-                        for sid in (voltage_id, current_id, power_id):
-                            if sid in signals:
-                                filtered_signals[sid] = signals[sid]
-
-            if not filtered_signals:
-                latest_time = int(time.time())
-                for pv in available_pvs:
-                    pairs = pv_signal_map.get(pv)
-                    if pairs:
-                        for voltage_id, current_id, power_id in pairs:
-                            filtered_signals[voltage_id] = {
-                                "value": "0.00",
-                                "realValue": "0.00",
-                                "latestTime": latest_time,
-                            }
-                            filtered_signals[current_id] = {
-                                "value": "0.00",
-                                "realValue": "0.00",
-                                "latestTime": latest_time,
-                            }
-                            filtered_signals[power_id] = {
-                                "value": "0.00",
-                                "realValue": "0.00",
-                                "latestTime": latest_time,
-                            }
-
-            return {
-                "signals": filtered_signals,
-                "available_pvs": available_pvs,
-            }
+        return inverter_api.get_pv_info(self, device_dn)
 
     @logged_in
     def get_alarm_data(self, device_dn: str = None) -> dict:
@@ -1229,30 +847,7 @@ class FusionSolarClient:
 
     @logged_in
     def get_battery_ids(self, plant_id) -> list:
-        """gets the battery ids associated to a given plant id
-        :return: A list of battery ids (strings)
-        :rtype: list
-        """
-        plant_flow = self.get_plant_flow(plant_id)
-        nodes = plant_flow["data"]["flow"]["nodes"]
-        battery_ids = []
-
-        for node in nodes:
-            name = node.get("name", "")
-            dev_ids = node.get("devIds")
-
-            logging.debug("Processing node: name=%r devIds=%r", name, dev_ids)
-
-            if "energy_store" in name:
-                if isinstance(dev_ids, list) and dev_ids:
-                    battery_ids.extend(dev_ids)
-                else:
-                    logging.warning(
-                        "Node with 'energy_store' in name but devIds is not a non-empty list: %r",
-                        node,
-                    )
-
-        return battery_ids
+        return battery_api.get_battery_ids(self, plant_id)
 
     @logged_in
     def get_battery_basic_stats(self, battery_id: str) -> BatteryStatus:
@@ -1283,148 +878,23 @@ class FusionSolarClient:
 
     @logged_in
     def get_battery_day_stats(self, battery_id: str, query_time: int = None) -> dict:
-        """Retrieves the SOC (state of charge) in % and charge/discharge power in kW of
-        the battery for the current day.
-        :param battery_id: The battery's id
-        :type battery_id: str
-        :param query_time: If set, must be set to 00:00:00 of the day the data should
-                           be fetched for. If not set, retrieves the data for the
-                           current day.
-        :type query_time: int
-        :return: The complete data structure as a dict
-        """
-        current_time = round(time.time() * 1000)
-        if query_time is not None:
-            current_time = query_time
-        r = self._session.get(
-            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-history-data",
-            params={
-                "signalIds": [
-                    "30005",
-                    "30007",
-                ],  # 30005 is Charge/Discharge power, 30007 is SOC, state of charge in %
-                "deviceDn": battery_id,
-                "date": current_time,
-                "_": current_time,
-            },
-        )
-        r.raise_for_status()
-        battery_data = r.json()
-
-        if not battery_data["success"] or "data" not in battery_data:
-            raise FusionSolarException(
-                f"Failed to retrieve battery day stats for {battery_id}"
-            )
-
-        battery_data["data"]["30005"]["name"] = "Charge/Discharge power"
-        battery_data["data"]["30007"]["name"] = "SOC"
-
-        return battery_data["data"]
+        return battery_api.get_battery_day_stats(self, battery_id, query_time)
 
     @logged_in
     def get_battery_module_stats(
         self, battery_id: str, module_id: str = "1", signal_ids: list = None
     ) -> dict:
-        """Retrieves the complete stats for the given battery module
-        of the latest recorded time. See signals.md for a list of signals.
-        :param battery_id: The battery's id
-        :type battery_id: str
-        :param module_id: The module's id
-        :type module_id: str
-        :param signal_ids: The signal ids to retrieve. If not set, all signals will be retrieved
-        :type signal_ids: list
-        :return: The complete data structure as a dict
-        """
-
-        if ENABLE_FAKE_DATA:
-            if module_id == "1":
-                base_dir = os.path.dirname(os.path.abspath(__file__))
-                json_path = os.path.join(
-                    base_dir, "./fake_requests/battery_module_1.json"
-                )
-                with open(json_path) as f:
-                    data = json.load(f)
-                return data["data"]
-            elif module_id == "2":
-                base_dir = os.path.dirname(os.path.abspath(__file__))
-                json_path = os.path.join(
-                    base_dir, "./fake_requests/battery_module_2.json"
-                )
-                with open(json_path) as f:
-                    data = json.load(f)
-                return data["data"]
-            else:
-                base_dir = os.path.dirname(os.path.abspath(__file__))
-                json_path = os.path.join(
-                    base_dir, "./fake_requests/battery_module_empty.json"
-                )
-                with open(json_path) as f:
-                    data = json.load(f)
-                return data["data"]
-        else:
-            if signal_ids is None:
-                signal_ids = MODULE_SIGNALS[module_id]
-            else:
-                if not all(
-                    signal_id in MODULE_SIGNALS[module_id] for signal_id in signal_ids
-                ):
-                    raise ValueError(
-                        f"One or more unknown signal ids for module {module_id}"
-                    )
-
-            signal_ids = ",".join(signal_ids)
-
-            r = self._session.get(
-                url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/query-battery-dc",
-                params={
-                    "sigids": signal_ids,
-                    "dn": battery_id,
-                    "moduleId": module_id,
-                    "_": round(time.time() * 1000),
-                },
-            )
-            r.raise_for_status()
-            battery_data = r.json()
-
-            if not battery_data["success"] or "data" not in battery_data:
-                raise FusionSolarException(
-                    f"Failed to retrieve battery status for {battery_id}"
-                )
-
-            return battery_data["data"]
+        return battery_api.get_battery_module_stats(
+            self, battery_id, module_id, signal_ids
+        )
 
     @logged_in
     def get_battery_status(self, battery_id: str) -> dict:
-        """Retrieve the current battery status. This is the complete
-           summary across all battery modules.
-        :param battery_id: The battery's id
-        :type battery_id: str
-        :return: The current status as a dict
-        """
-        if ENABLE_FAKE_DATA:
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "./fake_requests/battery_status.json")
-            with open(json_path) as f:
-                data = json.load(f)
-            return data["data"][1]["signals"]
-        else:
-            r = self._session.get(
-                url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/device-realtime-data",
-                params={
-                    "deviceDn": battery_id,
-                    "_": round(time.time() * 1000),
-                },
-            )
+        return battery_api.get_battery_status(self, battery_id)
 
-            r.raise_for_status()
-            battery_data = r.json()
-
-            if not battery_data["success"] or "data" not in battery_data:
-                raise FusionSolarException(
-                    f"Failed to retrieve battery status for {battery_id}"
-                )
-
-            return battery_data["data"][1]["signals"]
+    @logged_in
+    def get_battery_data(self, battery_id: str) -> dict:
+        return battery_api.get_battery_data(self, battery_id)
 
     @logged_in
     def active_power_control(self, power_setting) -> None:
@@ -1456,200 +926,33 @@ class FusionSolarClient:
 
     @logged_in
     def get_plant_flow(self, plant_id: str) -> dict:
-        """Retrieves the data for the energy flow
-        diagram displayed for each plant
-        :param plant_id: The plant's id
-        :type plant_id: str
-        :return: The complete data structure as a dict
-        """
-
-        if ENABLE_FAKE_DATA:
-            base_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(base_dir, "./fake_requests/flow.json")
-            with open(json_path) as f:
-                data = json.load(f)
-            return data
-        else:
-            # https://region01eu5.fusionsolar.huawei.com/rest/pvms/web/station/v1/overview/energy-flow?stationDn=NE%3D33594051&_=1652469979488
-            r = self._session.get(
-                url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v1/overview/energy-flow",
-                params={"stationDn": plant_id, "_": round(time.time() * 1000)},
-            )
-
-            r.raise_for_status()
-            flow_data = r.json()
-
-            if not flow_data["success"] or "data" not in flow_data:
-                raise FusionSolarException(
-                    f"Failed to retrieve plant flow for {plant_id}"
-                )
-
-            return flow_data
+        return plant_api.get_plant_flow(self, plant_id)
 
     @logged_in
     def get_plant_stats(self, plant_id: str, query_time: int = None) -> dict:
-        """Retrieves the complete plant usage statistics for the current day.
-        :param plant_id: The plant's id
-        :type plant_id: str
-        :param query_time: If set, must be set to 00:00:00 of the day the data should
-                           be fetched for. If not set, retrieves the data for the
-                           current day.
-        :type query_time: int
-        :return: _description_
-        """
-        # set the query time to today
-        if not query_time:
-            query_time = self._get_day_start_sec()
-
-        r = self._session.get(
-            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v1/overview/energy-balance",
-            params={
-                "stationDn": plant_id,
-                "timeDim": 2,
-                "queryTime": query_time,  # TODO: this may have changed to micro-seconds ie. timestamp * 1000
-                # dateTime=2024-03-07 00:00:00
-                "timeZone": 2,  # 1 in no daylight
-                "timeZoneStr": "Europe/Vienna",
-                "_": round(time.time() * 1000),
-            },
-        )
-        r.raise_for_status()
-        plant_data = r.json()
-
-        if not plant_data["success"] or "data" not in plant_data:
-            raise FusionSolarException(
-                f"Failed to retrieve plant status for {plant_id}"
-            )
-
-        # return the plant data
-        return plant_data["data"]
+        return plant_api.get_plant_stats(self, plant_id, query_time)
 
     def get_last_plant_data(self, plant_data: dict) -> dict:
-        """Extracts the last measurements from the plant data
-        The dict contains detailed information about the data of the plant.
-        If "existInverter" the "productPower" is reported.
-        :param plant_data: The plant's stats data returned by get_plant_stats
-        """
-        # make sure the object is valid
-        if "xAxis" not in plant_data:
-            raise FusionSolarException("Invalid plant_data object passed.")
-
-        measurement_times = plant_data["xAxis"]
-
-        # initialize the extracted data
-        extracted_data = {}
-
-        # process the complete data
-        for key_name in plant_data.keys():
-            key_value = plant_data[key_name]
-
-            try:
-                # fields to ignore
-                if key_name in (
-                    "xAxis",
-                    "stationTimezone",
-                    "clientTimezone",
-                    "stationDn",
-                ):
-                    continue
-
-                if type(key_value) is list:
-                    extracted_data[key_name] = self._get_last_value(
-                        key_value, measurement_times
-                    )
-
-                # Missing data
-                elif key_value == "--":
-                    extracted_data[key_name] = None
-
-                # Boolean
-                elif key_name.startswith("exist"):
-                    extracted_data[key_name] = bool(key_value)
-
-                # should be numeric
-                else:
-                    extracted_data[key_name] = float(key_value)
-            # if anything goes wrong, simply store "None" as value
-            except Exception:
-                _LOGGER.debug(f"Failed to parse {key_name} = {key_value}")
-                extracted_data[key_name] = None
-
-        return extracted_data
+        return plant_api.get_last_plant_data(self, plant_data)
 
     def _get_last_value(self, values: list, measurement_times: list):
-        """Get the last valid value from a values array where
-           missing values are stored as '--'
-        :param values: The list of values
-        :type values: list
-        :param measurement_times: The list of matching timepoints
-        :type values: list
-        :return: A dict with a "value" and "timepoint"
-        """
-        # add all found values in a list
-        found_values = list()
-
-        for index, value in enumerate(values):
-            if value != "--":
-                found_values.append(
-                    {"time": measurement_times[index], "value": float(values[index])}
-                )
-
-        # if it's the last value
-        if len(found_values) > 0:
-            return found_values[-1]
-        else:
-            # If nothing is found return "None" for the current time
-            return {"time": datetime.now().strftime("%Y-%m-%d %H:%M"), "value": None}
+        return plant_api.get_last_value(values, measurement_times)
 
     def _get_day_start_sec(self) -> int:
-        """Return the start of the current day in seconds since
-           epoche.
-
-        :return: The start of the day ("00:00:00") in seconds
-        :rtype: int
-        """
-        start_today = time.strftime("%Y-%m-%d 00:00:00", time.gmtime())
-        struct_time = time.strptime(start_today, "%Y-%m-%d %H:%M:%S")
-        seconds = round(time.mktime(struct_time) * 1000)
-
-        return seconds
+        return plant_api.get_day_start_sec()
 
     @logged_in
     def get_optimizer_stats(self, inverter_id: str):
-        """Retrieves the complete list of optimizers and returns real time stats.
+        return inverter_api.get_optimizer_stats(self, inverter_id)
 
-        :param inverter_id: The inverter ID
-        :return: _description_
-        """
+    @logged_in
+    def get_powersensor_data(self, device_dn: str = None) -> dict:
+        return powersensor_api.get_powersensor_data(self, device_dn)
 
-        if ENABLE_FAKE_DATA:
-            if inverter_id == "NE=138957388":
-                base_dir = os.path.dirname(os.path.abspath(__file__))
-                json_path = os.path.join(base_dir, "./fake_requests/optimizer.json")
-                with open(json_path) as f:
-                    data = json.load(f)
-                return data["data"]
-            else:
-                return []
-        else:
-            r = self._session.get(
-                url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/station/v1/layout/optimizer-info",
-                params={
-                    "inverterDn": inverter_id,
-                    "_": round(time.time() * 1000),
-                },
-            )
-            r.raise_for_status()
-            optimizer_data = r.json()
+    @logged_in
+    def get_emma_data(self, device_dn: str = None) -> dict:
+        return emma_api.get_emma_data(self, device_dn)
 
-            # check for an error - this seems to happen if no optimizer is present
-            if "exceptionType" in optimizer_data:
-                return []
-
-            if not optimizer_data["success"] or "data" not in optimizer_data:
-                raise FusionSolarException(
-                    f"Failed to retrieve plant status for {inverter_id}"
-                )
-
-            # return the plant data
-            return optimizer_data["data"]
+    @logged_in
+    def get_backupbox_data(self, device_dn: str = None) -> dict:
+        return backupbox_api.get_backupbox_data(self, device_dn)
