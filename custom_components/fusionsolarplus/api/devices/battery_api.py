@@ -110,23 +110,32 @@ def get_battery_data(client: Any, battery_id: str) -> dict:
     return {
         "battery": battery_signals,
         "modules": modules,
-        "battery_values": _signals_to_value_map(battery_signals),
-        "module_values": module_values,
+        "battery_values": _signals_to_value_map(battery_signals, "value"),
+        "module_values": {
+            module_id: _signals_to_value_map(modules[module_id], "realValue")
+            for module_id in modules
+        },
     }
 
 
-def _signals_to_value_map(signals: list[dict]) -> dict[int, Any]:
+def _signals_to_value_map(
+    signals: list[dict], value_key: str = "value"
+) -> dict[int, Any]:
     values: dict[int, Any] = {}
     for signal in signals:
         signal_id = signal.get("id")
         if signal_id is None:
             continue
-        raw_value = signal.get("value")
+
+        raw_value = signal.get(value_key)
+
         if raw_value in (None, "-", "N/A", "n/a"):
             values[int(signal_id)] = None
             continue
+
         try:
             values[int(signal_id)] = float(raw_value)
         except (TypeError, ValueError):
             values[int(signal_id)] = raw_value
+
     return values
