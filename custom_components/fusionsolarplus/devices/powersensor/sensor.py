@@ -83,6 +83,7 @@ class FusionSolarPowerSensor(CoordinatorEntity, SensorEntity):
         self.entity_id = generate_entity_id(
             ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
         )
+        self._last_value = None
 
     @property
     def native_value(self):
