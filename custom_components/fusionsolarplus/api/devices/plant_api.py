@@ -123,8 +123,7 @@ def get_current_plant_data(client: Any, plant_id: str) -> dict:
                 grid_val = grid_node.get("value")
                 if grid_val is not None:
                     is_export = any(
-                        lnk.get("toNode") == grid_id
-                        and lnk.get("flowing") == "FORWARD"
+                        lnk.get("toNode") == grid_id and lnk.get("flowing") == "FORWARD"
                         for lnk in links
                     )
                     is_import = any(

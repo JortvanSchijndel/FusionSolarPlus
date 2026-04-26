@@ -13,5 +13,5 @@
     "beautifulsoup4",
     "gradio_client"
   ],
-  "version": "2.2.17"
+  "version": "2.3.0"
 }

@@ -216,7 +216,9 @@ def _extract_optimizer_values(optimizer_data: list[dict]) -> dict[str, dict[str,
     return values
 
 
-def _normalize_signal_value(raw_value: Any, unit: Any, signal_name: str | None = None) -> Any:
+def _normalize_signal_value(
+    raw_value: Any, unit: Any, signal_name: str | None = None
+) -> Any:
     if raw_value in ("N/A", "n/a", None):
         return None
 
