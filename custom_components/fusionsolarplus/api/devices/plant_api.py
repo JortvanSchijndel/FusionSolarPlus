@@ -97,16 +97,45 @@ def get_current_plant_data(client: Any, plant_id: str) -> dict:
         )
 
         if grid_id and meter_id:
+            # Scene with meter (e.g. sceneType 2): power is on the meter↔grid link
             for link in links:
-                if link.get("fromNode") == grid_id and link.get("toNode") == meter_id:
+                from_node = link.get("fromNode")
+                to_node = link.get("toNode")
+                is_import = from_node == grid_id and to_node == meter_id
+                is_export = from_node == meter_id and to_node == grid_id
+                if is_import or is_export:
                     desc = link.get("description", {})
                     val_str = desc.get("value")
                     if val_str and " " in val_str:
                         try:
-                            data["flow_grid_power"] = float(val_str.split(" ")[0])
+                            val = float(val_str.split(" ")[0])
+                            # Positive = importing from grid, negative = exporting to grid
+                            data["flow_grid_power"] = val if is_import else -val
                         except ValueError:
                             pass
                     break
+        elif grid_id:
+            # Scene without meter (e.g. sceneType 4): power is on the grid node value itself.
+            # Determine sign from link direction: a FORWARD link whose destination is the
+            # grid node means energy is flowing TO the grid → export → negative.
+            grid_node = next((n for n in nodes if n.get("id") == grid_id), None)
+            if grid_node is not None:
+                grid_val = grid_node.get("value")
+                if grid_val is not None:
+                    is_export = any(
+                        lnk.get("toNode") == grid_id
+                        and lnk.get("flowing") == "FORWARD"
+                        for lnk in links
+                    )
+                    is_import = any(
+                        lnk.get("fromNode") == grid_id
+                        and lnk.get("flowing") == "FORWARD"
+                        for lnk in links
+                    )
+                    if is_export:
+                        data["flow_grid_power"] = -float(grid_val)
+                    elif is_import:
+                        data["flow_grid_power"] = float(grid_val)
 
     data.update(
         {
