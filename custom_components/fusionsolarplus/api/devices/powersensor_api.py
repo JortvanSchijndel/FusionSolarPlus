@@ -21,7 +21,7 @@ def get_powersensor_data(client: Any, device_dn: str | None = None) -> dict:
         except (TypeError, ValueError):
             continue
         all_signal_ids.add(signal_id)
-        raw_value = signal.get("realValue", signal.get("value"))
+        raw_value = signal.get("value")
         if raw_value in (None, "-", "N/A", "n/a"):
             value_map[signal_id] = None
             continue

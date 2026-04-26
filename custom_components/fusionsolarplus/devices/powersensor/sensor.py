@@ -93,13 +93,12 @@ class FusionSolarPowerSensor(CoordinatorEntity, SensorEntity):
 
         value = data.get("value_map", {}).get(self._signal_id)
 
-        # If Positive/Negative active energy are lower then before, return None
+        # If Positive/Negative active energy are lower than before, return None
         if self._signal_id in [10008, 10009]:
             if value is None:
                 return None
 
-            # If value drops to 0 (or lower than last), ignore it
-            if self._last_value is not None and value <= self._last_value:
+            if self._last_value is not None and value < self._last_value:
                 return None
 
             self._last_value = value
