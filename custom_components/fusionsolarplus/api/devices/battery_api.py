@@ -121,7 +121,7 @@ def _signals_to_value_map(signals: list[dict]) -> dict[int, Any]:
         signal_id = signal.get("id")
         if signal_id is None:
             continue
-        raw_value = signal.get("realValue", signal.get("value"))
+        raw_value = signal.get("value")
         if raw_value in (None, "-", "N/A", "n/a"):
             values[int(signal_id)] = None
             continue
