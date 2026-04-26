@@ -86,11 +86,24 @@ class FusionSolarPowerSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def native_value(self):
-        """Return normalized value from API layer."""
         data = self.coordinator.data
         if not data:
             return None
-        return data.get("value_map", {}).get(self._signal_id)
+
+        value = data.get("value_map", {}).get(self._signal_id)
+
+        # If Positive/Negative active energy are lower then before, return None
+        if self._signal_id in [10008, 10009]:
+            if value is None:
+                return None
+
+            # If value drops to 0 (or lower than last), ignore it
+            if self._last_value is not None and value <= self._last_value:
+                return None
+
+            self._last_value = value
+
+        return value
 
     @property
     def available(self):
