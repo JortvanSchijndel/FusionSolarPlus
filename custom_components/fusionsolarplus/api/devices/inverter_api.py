@@ -184,7 +184,7 @@ def _extract_inverter_values(realtime_data: dict) -> dict[int, Any]:
                 continue
             raw_value = signal.get("value")
             values[int(signal_id)] = _normalize_signal_value(
-                raw_value, signal.get("unit")
+                raw_value, signal.get("unit"), signal.get("name")
             )
     return values
 
@@ -216,12 +216,20 @@ def _extract_optimizer_values(optimizer_data: list[dict]) -> dict[str, dict[str,
     return values
 
 
-def _normalize_signal_value(raw_value: Any, unit: Any) -> Any:
-    if raw_value in (None, "-", "N/A", "n/a"):
+def _normalize_signal_value(raw_value: Any, unit: Any, signal_name: str | None = None) -> Any:
+    if raw_value in ("N/A", "n/a", None):
         return None
-    if unit:
+
+    if raw_value == "-":
+        # Special handling for status signals
+        if signal_name and signal_name.lower().startswith("status"):
+            return "Inverter is Shutdown"
+        return None
+
+    if unit not in (None, ""):
         try:
             return float(raw_value)
         except (TypeError, ValueError):
             return None
+
     return raw_value
