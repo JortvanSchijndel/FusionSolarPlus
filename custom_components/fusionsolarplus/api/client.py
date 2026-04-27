@@ -34,8 +34,6 @@ from .devices import (
     emma_api,
 )
 
-ENABLE_FAKE_DATA = False  # True/False » Will give predefined API responses
-
 # global logger object
 _LOGGER = logging.getLogger(__name__)
 
@@ -237,7 +235,6 @@ def with_solver(func):
 class FusionSolarClient:
     """The main client to interact with the Fusion Solar API"""
 
-    ENABLE_FAKE_DATA = ENABLE_FAKE_DATA
     _LOGGER = _LOGGER
     _parse_float = staticmethod(_parse_float)
 
@@ -777,9 +774,6 @@ class FusionSolarClient:
         devices = []
         for device in device_data["data"]:
             devices += [dict(type=device["mocTypeName"], deviceDn=device["dn"])]
-
-        if ENABLE_FAKE_DATA:
-            devices.append({"type": "Power Sensor", "deviceDn": "NE=140517905"})
 
         return devices
 
