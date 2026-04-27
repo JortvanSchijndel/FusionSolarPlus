@@ -1068,7 +1068,7 @@ class FusionSolarClient:
             r.raise_for_status()
 
             return r.json()
-            
+
     @logged_in
     def get_charger_config(self, device_dn: str) -> dict:
         """Retrieves configuration parameters for both the charger parent and its charging pile child.
@@ -1265,6 +1265,47 @@ class FusionSolarClient:
         response = r.json()
         _LOGGER.debug("set_smart_assistant_pv_priority response: %s", response)
         return response
+
+    @logged_in
+    def charge_control(self, device_dn: str, action: str) -> dict:
+        """Start or stop EV charging
+
+        Endpoint: POST /rest/neteco/web/homemgr/v1/charger/charge/{start-charge|stop-charge}
+
+        :param device_dn: Charger device DN, e.g. "NE=237114670"
+        :type device_dn: str
+        :param action: "start" or "stop"
+        :type action: str
+        :return: API response, or {"success": True} when body is empty (start-charge)
+        :rtype: dict
+        """
+        action = action.lower()
+        if action not in {"start", "stop"}:
+            raise ValueError(f"Invalid action '{action}'. Valid: 'start' or 'stop'")
+
+        self.keep_alive()
+
+        r = self._session.get(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com/rest/pvms/web/device/v1/mo-details",
+            params=(("dn", device_dn), ("_", round(time.time() * 1000))),
+        )
+        r.raise_for_status()
+        dn_id = int(r.json().get("data", {}).get("mo", {}).get("dnId", 0))
+
+        endpoint = "start-charge" if action == "start" else "stop-charge"
+        r = self._session.post(
+            url=f"https://{self._huawei_subdomain}.fusionsolar.huawei.com"
+                f"/rest/neteco/web/homemgr/v1/charger/charge/{endpoint}",
+            json={
+                "dnId": dn_id,
+                "gunNumber": 1,
+                "orderNumber": None,
+                "serialNumber": None,
+            },
+        )
+        r.raise_for_status()
+        _LOGGER.debug("charge_control %s response: %s", action, r.text[:200])
+        return r.json() if r.text.strip() else {"success": True}
         
     @logged_in
     def get_pv_info(
