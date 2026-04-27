@@ -21,21 +21,9 @@ class BatteryDeviceHandler(BaseDeviceHandler):
 
     async def _async_get_data(self) -> Dict[str, Any]:
         async def fetch_battery_data(client):
-            # Get battery data
-            response = await self.hass.async_add_executor_job(
-                client.get_battery_status, self.device_id
+            return await self.hass.async_add_executor_job(
+                client.get_battery_data, self.device_id
             )
-
-            # Get module data
-            module_data = {}
-            for module_id in ["1", "2", "3", "4"]:
-                stats = await self.hass.async_add_executor_job(
-                    client.get_battery_module_stats, self.device_id, module_id
-                )
-                if stats:
-                    module_data[module_id] = stats
-
-            return {"battery": response, "modules": module_data}
 
         return await self._get_client_and_retry(fetch_battery_data)
 
@@ -144,22 +132,7 @@ class FusionSolarBatterySensor(CoordinatorEntity, SensorEntity):
         if not data:
             return None
 
-        signals = data.get("battery", [])
-        if not signals:
-            return None
-
-        for signal in signals:
-            value = 0 if signal.get("value") == "-" else signal.get("value")
-
-            if signal["id"] == self._signal_id:
-                if signal.get("unit"):
-                    try:
-                        return float(value)
-                    except (TypeError, ValueError):
-                        return None
-                else:
-                    return value
-        return None
+        return data.get("battery_values", {}).get(int(self._signal_id))
 
     @property
     def available(self):
@@ -209,16 +182,11 @@ class FusionSolarBatteryModuleSensor(CoordinatorEntity, SensorEntity):
         if not data or "modules" not in data:
             return None
 
-        module_signals = data["modules"].get(self._module_id, [])
-        for signal in module_signals:
-            if signal["id"] == self._signal_id:
-                raw_value = signal.get("realValue")
-                value = 0 if raw_value == "-" else raw_value
-                try:
-                    return float(value)
-                except (TypeError, ValueError):
-                    return value
-        return None
+        return (
+            data.get("module_values", {})
+            .get(self._module_id, {})
+            .get(int(self._signal_id))
+        )
 
     @property
     def available(self):
