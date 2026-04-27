@@ -31,13 +31,34 @@ class Solver(object):
             tmp_path = tmp.name
 
         try:
-            client = Client("Nischay103/captcha_recognition")
-            result = client.predict(
-                input=handle_file(tmp_path),
-                api_name="/predict",
-            )
-            _LOGGER.debug("Captcha solved: %s", result)
-            return str(result).strip().upper()
+            try:
+                client = Client("eoeooe/starrednt4")
+                result = client.predict(
+                    input=handle_file(tmp_path),
+                    api_name="/recognize_captcha",
+                )
+                _LOGGER.debug("Captcha solved: %s", result)
+                return str(result).strip().upper()
+            except Exception as e:
+                _LOGGER.debug("First captcha client failed, trying second: %s", e)
+                try:
+                    client = Client("Nischay103/captcha_recognition")
+                    result = client.predict(
+                        img=handle_file(tmp_path),
+                        api_name="/predict",
+                    )
+                    _LOGGER.debug("Captcha solved: %s", result)
+                    return str(result).strip().upper()
+                except Exception as e2:
+                    _LOGGER.debug("Second captcha client failed, trying third: %s", e2)
+                    client = Client("NeerajCodz/image-captcha-solver")
+                    result = client.predict(
+                        input=handle_file(tmp_path),
+                        mdl="anuashok/ocr-captcha-v3",
+                        api_name="/predict",
+                    )
+                    _LOGGER.debug("Captcha solved: %s", result)
+                    return str(result).strip().upper()
         finally:
             os.remove(tmp_path)
 
