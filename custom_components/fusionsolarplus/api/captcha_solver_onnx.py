@@ -11,7 +11,7 @@ class Solver(object):
         self.hass = hass
         self.last_rate_limit = 0
 
-    RATE_LIMIT_COOLDOWN = 6 * 60 * 60  # 6-hour cooldown
+    RATE_LIMIT_COOLDOWN = 2 * 60 * 60  # 2-hour cooldown
 
     def solve_captcha_rest(self, img_bytes: bytes) -> str:
         """Send captcha image bytes to Nischay103/captcha_recognition via gradio_client."""
@@ -55,5 +55,5 @@ class Solver(object):
             _LOGGER.error("Captcha solving failed: %s", e)
             self.last_rate_limit = time.time()
             raise FusionSolarRateLimit(
-                f"Captcha API failed, please try again in 6 hours: {e}"
+                f"Captcha API failed, please try again in 2 hours: {e}"
             )
