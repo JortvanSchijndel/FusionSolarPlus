@@ -78,7 +78,11 @@ class FusionSolarChargerControlSwitch(CoordinatorEntity, SwitchEntity):
 
     @property
     def is_on(self) -> bool | None:
-        """Return True when charging is active."""
+        """Return True when charging is active.
+
+        Reads from the normalized value_map returned by the new charger_api.
+        Working Status signal id=10004: active states are 3, 8, 10, 11.
+        """
         if self._optimistic_state is not None:
             return self._optimistic_state
 
@@ -86,17 +90,19 @@ class FusionSolarChargerControlSwitch(CoordinatorEntity, SwitchEntity):
         if not data:
             return None
 
-        for signals in data.values():
-            if not isinstance(signals, list):
-                continue
-            sig = next((s for s in signals if s.get("id") == SIGNAL_ID_WORKING_STATUS), None)
-            if sig:
-                api_value = str(sig.get("value", ""))
+        # New coordinator format: {"raw_data": {...}, "value_map": {(type_id, signal_id): value}}
+        value_map = data.get("value_map", {})
+        for key, val in value_map.items():
+            if isinstance(key, tuple) and key[1] == SIGNAL_ID_WORKING_STATUS:
+                try:
+                    api_value = str(int(float(val)))
+                except (TypeError, ValueError):
+                    api_value = str(val)
                 is_charging = api_value in CHARGING_ACTIVE_STATES
-                # Clear optimistic state once API confirms
                 if self._optimistic_state is not None and is_charging == self._optimistic_state:
                     self._optimistic_state = None
                 return is_charging
+
         return None
 
     async def async_turn_on(self, **kwargs) -> None:

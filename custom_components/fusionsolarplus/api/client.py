@@ -806,6 +806,113 @@ class FusionSolarClient:
 
     @logged_in
     def get_charger_config(self, device_dn: str) -> dict:
+        """Retrieves configuration parameters for both the charger parent
+        and its charging pile child via get-config-info.
+
+        Returns a combined dict keyed by dnId:
+            {
+                "150453477": [ ... parent signals ... ],  # Max Charge Power (id=20001)
+                "150468159": [ ... child signals ...  ],  # Working Mode (id=20002)
+            }
+
+        :param device_dn: Charger device DN, e.g. "NE=237114670"
+        :type device_dn: str
+        :return: Config signals keyed by dnId
+        :rtype: dict
+        """
+        return charger_api.get_charger_config(self, device_dn)
+
+    @logged_in
+    def set_charger_max_charge_power(self, device_dn: str, max_power_kw: float) -> dict:
+        """Sets the maximum charge power limit of the charger (signal id=20001).
+
+        :param device_dn: Charger device DN, e.g. "NE=237114670"
+        :type device_dn: str
+        :param max_power_kw: Maximum charge power in kW, e.g. 11.0
+        :type max_power_kw: float
+        :return: API response
+        :rtype: dict
+        """
+        return charger_api.set_charger_max_charge_power(self, device_dn, max_power_kw)
+
+    @logged_in
+    def set_charger_working_mode(self, device_dn: str, mode: str) -> dict:
+        """Sets the working mode of the charger (signal id=20002).
+
+        Uses the elementDn of the charging pile child device (e.g. NE=237145438),
+        resolved dynamically via the device tree.
+
+        :param device_dn: Parent charger device DN, e.g. "NE=237114670"
+        :type device_dn: str
+        :param mode: "0" = Normal charge, "1" = PV Power Preferred
+        :type mode: str
+        :return: API response
+        :rtype: dict
+        """
+        return charger_api.set_charger_working_mode(self, device_dn, mode)
+
+    @logged_in
+    def charge_control(self, device_dn: str, action: str) -> dict:
+        """Start or stop EV charging via the standard web API (port 443).
+
+        Endpoint: POST /rest/neteco/web/homemgr/v1/charger/charge/{start-charge|stop-charge}
+        start-charge returns an empty body on success; stop-charge returns {"serialNumber": ""}.
+
+        :param device_dn: Charger device DN, e.g. "NE=237114670"
+        :type device_dn: str
+        :param action: "start" or "stop"
+        :type action: str
+        :return: API response
+        :rtype: dict
+        """
+        return charger_api.charge_control(self, device_dn, action)
+
+    # ── SmartAssistant / EMMA ──────────────────────────────────────────────────
+
+    @logged_in
+    def get_smart_assistant_config(self, device_dn: str) -> dict:
+        """Retrieves configuration parameters for the SmartAssistant device.
+
+        Includes PV Power Priority (signal id=230700180).
+
+        :param device_dn: SmartAssistant device DN, e.g. "NE=237114668"
+        :type device_dn: str
+        :return: Config signals keyed by dnId
+        :rtype: dict
+        """
+        return emma_api.get_smart_assistant_config(self, device_dn)
+
+    @logged_in
+    def set_smart_assistant_pv_priority(self, device_dn: str, priority: str) -> dict:
+        """Sets the PV Power Priority of the SmartAssistant (signal id=230700180).
+
+        :param device_dn: SmartAssistant device DN, e.g. "NE=237114668"
+        :type device_dn: str
+        :param priority: "0" = Battery first, "1" = Appliances first
+        :type priority: str
+        :return: API response
+        :rtype: dict
+        """
+        return emma_api.set_smart_assistant_pv_priority(self, device_dn, priority)
+
+    # ── Plant ──────────────────────────────────────────────────────────────────
+
+    @logged_in
+    def refresh_livedata(self, plant_dn: str) -> dict:
+        """Triggers a livedata refresh for the plant.
+
+        Forces all devices to report fresh data immediately.
+        Response: {"success": true, "subscribeInfo": {"refreshPeriod": 2, "remainTime": 60}}
+
+        :param plant_dn: Plant device DN, e.g. "NE=237114626"
+        :type plant_dn: str
+        :return: API response
+        :rtype: dict
+        """
+        return plant_api.refresh_livedata(self, plant_dn)
+
+    @logged_in
+    def get_charger_config(self, device_dn: str) -> dict:
         """Retrieves configuration parameters for both the charger parent and its charging pile child.
 
         Returns a combined dict keyed by dnId:
