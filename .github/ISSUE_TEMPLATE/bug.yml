@@ -1,23 +1,15 @@
 ---
 name: "Bug report"
-description: "Report a bug with the integration"
+description: "Report a bug with FusionSolarPlus."
 labels: ["bug"]
 body:
 - type: markdown
   attributes:
-    value: Before you open a new issue, search through the existing issues to see if others have had the same problem.
-- type: textarea
-  attributes:
-    label: "System Health details"
-    description: "Paste the data from the System Health card in Home Assistant (https://www.home-assistant.io/more-info/system-health#github-issues)"
-  validations:
-    required: true
+    value: Before you open a new issue, search through the existing issues to see if others have had the same problem. [Click here to search.](https://github.com/JortvanSchijndel/FusionSolarPlus/issues?q=is%3Aissue%20label%3Abug)
 - type: checkboxes
   attributes:
     label: Checklist
     options:
-      - label: I have enabled debug logging for my installation.
-        required: true
       - label: I have filled out the issue template to the best of my ability.
         required: true
       - label: This issue only contains 1 issue (if you have multiple issues, open one issue for each issue).
@@ -27,7 +19,7 @@ body:
 - type: input
   attributes:
     label: "Version"
-    description: "Which version of the plugin are you using"
+    description: "Which version of FusionSolarPlus are you using"
   validations:
     required: true
 - type: textarea
@@ -45,7 +37,7 @@ body:
 - type: textarea
   attributes:
     label: Reproduction steps
-    description: "Without steps to reproduce, it will be hard to fix. It is very important that you fill out this part. Issues without it will be closed."
+    description: "Without steps to reproduce, it will be hard to fix. It is very important that you fill out this part."
     value: |
       1.
       2.
@@ -58,10 +50,9 @@ body:
     label: "Debug logs"
     description: "To enable debug logs check this https://www.home-assistant.io/integrations/logger/."
     render: text
+    value: |
+      ```
+      Paste logs here
+      ```
   validations:
     required: true
-
-- type: textarea
-  attributes:
-    label: "Diagnostics dump"
-    description: "Drag the diagnostics dump file here. (see https://www.home-assistant.io/integrations/diagnostics/ for info)"

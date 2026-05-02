@@ -1,0 +1,28 @@
+---
+name: "Question"
+description: "Ask a question about FusionSolarPlus."
+labels: ["question"]
+body:
+- type: markdown
+  attributes:
+    value: Before you ask a question, search through the existing questions to see if others have had the same question. [Click here to search.](https://github.com/JortvanSchijndel/FusionSolarPlus/issues?q=is%3Aissue%20label%3Aquestion)
+- type: checkboxes
+  attributes:
+    label: Checklist
+    options:
+      - label: I have filled out the template to the best of my ability.
+        required: true
+      - label: This issue is not a duplicate of an earlier asked question.
+        required: true
+- type: textarea
+  attributes:
+    label: "Your question"
+    description: "A clear and concise description of what your question is."
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: "Additional context"
+    description: "Screenshots, devices, etc."
+  validations:
+    required: true

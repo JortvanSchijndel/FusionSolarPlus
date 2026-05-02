@@ -1,6 +1,5 @@
 <!--
-Checklist
-[] Disabled Fake battery
+Checklist:
 [] Checked using python -m ruff check
 [] Formatted using python -m ruff format
 [] Changed version number
