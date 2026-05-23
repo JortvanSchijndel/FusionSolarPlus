@@ -82,6 +82,7 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         self._SIGNIFICANT_DROP_FRACTION = 0.25
         self._RESET_NEAR_ZERO_THRESHOLD = 1
         self._SPIKE_THRESHOLD_FRACTION = 0.25
+        self._SPIKE_MIN_ABSOLUTE = 5.0  # Never flag a spike smaller than this
         self._last_valid_value = None
         self._last_reset_time = None
         self.RESET_COOLDOWN = timedelta(hours=6)
@@ -112,14 +113,20 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         if value is None:
             return None
 
-        # Suppress spikes: ignore values that jump more than 50% above the last known value
+        # --- Spike suppression ---
         if (
             self._last_valid_value is not None
             and self._last_valid_value > 0
-            and value > self._last_valid_value * (1 + self._SPIKE_THRESHOLD_FRACTION)
         ):
-            return None
+            absolute_jump = value - self._last_valid_value
+            relative_jump = absolute_jump / self._last_valid_value
+            if (
+                relative_jump > self._SPIKE_THRESHOLD_FRACTION
+                and absolute_jump > self._SPIKE_MIN_ABSOLUTE
+            ):
+                return None
 
+        # --- TOTAL_INCREASING drop / reset handling ---
         if (
             self._attr_state_class == SensorStateClass.TOTAL_INCREASING
             and self._last_valid_value is not None
