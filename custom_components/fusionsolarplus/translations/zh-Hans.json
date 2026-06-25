@@ -1,0 +1,52 @@
+{
+  "title": "FusionSolarPlus",
+  "config": {
+    "step": {
+      "user": {
+        "title": "登录 FusionSolar",
+        "description": "# FusionSolarPlus\n\n请输入您的 FusionSolar 账号信息。\n\n如需控制设备，请启用安装商权限。若仅需读取设备数据，则无需启用。\n\n ## 免责声明 \n\n 如需启用安装商权限，请先阅读[此处]({disclaimer_url})的免责声明。",
+        "data": {
+          "username": "用户名",
+          "password": "密码",
+          "subdomain": "子域名",
+          "installer": "启用安装商权限。勾选此选项即表示我已阅读安装商免责声明。"
+        }
+      },
+      "choose_type": {
+        "title": "设备类型",
+        "data": {
+          "device_type": "您要配置哪种设备？"
+        }
+      },
+      "select_device": {
+        "title": "选择设备",
+        "data": {
+          "device_name": "请从您的账号中选择一个设备"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "用户名或密码无效。",
+      "fetch_error": "获取设备列表失败。",
+      "rate_limit": "验证码 API 已达到速率限制，请 24 小时后再试。",
+      "unknown": "发生未知错误。"
+    },
+    "abort": {
+      "fetch_error": "无法从 FusionSolar 获取设备列表。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "重新配置设备",
+        "description": "如需控制设备，请启用安装商权限。若仅需读取设备数据，则无需启用。\n\n ## 免责声明 \n\n 如需启用安装商权限，请先阅读[此处]({disclaimer_url})的免责声明。",
+        "data": {
+          "username": "用户名",
+          "password": "密码",
+          "subdomain": "子域名",
+          "installer": "启用安装商权限。勾选此选项即表示我已阅读安装商免责声明。"
+        }
+      }
+    }
+  }
+}
