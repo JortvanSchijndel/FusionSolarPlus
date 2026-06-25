@@ -12,6 +12,7 @@ import time
 from typing import Any
 
 from custom_components.fusionsolarplus.api.exceptions import FusionSolarException
+from custom_components.fusionsolarplus.entity_naming import extract_signal_names
 
 
 def get_historical_data(
@@ -58,6 +59,7 @@ def get_inverter_data(client: Any, device_dn: str) -> dict:
         "raw_pv_data": pv_data,
         "raw_optimizer_data": optimizer_data,
         "inverter_values": _extract_inverter_values(realtime_data),
+        "inverter_signal_names": extract_signal_names(realtime_data),
         "pv_values": _extract_pv_values(pv_data),
         "optimizer_values": _extract_optimizer_values(optimizer_data),
     }

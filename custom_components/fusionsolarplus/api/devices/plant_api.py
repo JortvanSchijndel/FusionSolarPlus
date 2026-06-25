@@ -180,12 +180,32 @@ def get_current_plant_data(client: Any, plant_id: str) -> dict:
         except (TypeError, ValueError):
             data[key] = value
 
+    station = get_station_by_dn(client, plant_id)
+    if station:
+        data["station_name"] = station_display_name(station)
+
     return data
+
+
+def station_display_name(station: dict) -> str:
+    """Return a human-readable plant name from a station-list entry."""
+    for field in ("name", "stationName", "plantName", "station_name"):
+        value = station.get(field)
+        if value:
+            return str(value).strip()
+    return f"Plant (ID: {station.get('dn', 'unknown')})"
 
 
 def get_plant_ids(client: Any) -> list:
     station_list = get_station_list(client)
     return [obj["dn"] for obj in station_list]
+
+
+def get_station_by_dn(client: Any, plant_id: str) -> dict | None:
+    for station in get_station_list(client):
+        if station.get("dn") == plant_id:
+            return station
+    return None
 
 
 def get_station_list(client: Any) -> list:

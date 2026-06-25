@@ -9,6 +9,11 @@ from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
 
 from ...device_handler import BaseDeviceHandler
+from ...entity_naming import (
+    configure_sensor_names,
+    entity_id_slug,
+    signal_entity_id_name,
+)
 from .const import (
     CHARGING_PILE_SIGNALS,
     CHARGER_DEVICE_SIGNALS,
@@ -56,12 +61,14 @@ class ChargerDeviceHandler(BaseDeviceHandler):
                         entity = FusionSolarChargerSensor(
                             coordinator,
                             signal_config["id"],
-                            signal_config.get("custom_name", signal_config["name"]),
+                            signal_config["translation_key"],
                             signal_config.get("unit", None),
                             self.device_info,
                             signal_config.get("device_class"),
                             signal_config.get("state_class"),
                             signal_type_id,
+                            api_name=matching_signal.get("name"),
+                            entity_id_name=signal_entity_id_name(signal_config),
                         )
                         entities.append(entity)
                         unique_ids.add(unique_id)
@@ -96,17 +103,19 @@ class FusionSolarChargerSensor(CoordinatorEntity, SensorEntity):
         self,
         coordinator,
         signal_id,
-        name,
+        translation_key,
         unit,
         device_info,
         device_class=None,
         state_class=None,
         signal_type_id=None,
+        api_name=None,
+        entity_id_name=None,
     ):
         super().__init__(coordinator)
         self._signal_id = signal_id
         self._signal_type_id = signal_type_id
-        self._attr_name = name
+        configure_sensor_names(self, translation_key=translation_key, api_name=api_name)
         self._base_unit = unit
         self._attr_device_info = device_info
         self._attr_unique_id = (
@@ -115,9 +124,10 @@ class FusionSolarChargerSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = device_class
         self._attr_state_class = state_class
         device_id = list(device_info["identifiers"])[0][1]
-        safe_name = name.lower().replace(" ", "_")
         self.entity_id = generate_entity_id(
-            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+            ENTITY_ID_FORMAT,
+            f"fsp_{device_id}_{entity_id_slug(entity_id_name)}",
+            hass=coordinator.hass,
         )
 
     @property

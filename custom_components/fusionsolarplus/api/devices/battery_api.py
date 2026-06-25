@@ -8,6 +8,9 @@ from typing import Any
 
 from custom_components.fusionsolarplus.api.constants import MODULE_SIGNALS
 from custom_components.fusionsolarplus.api.exceptions import FusionSolarException
+from custom_components.fusionsolarplus.entity_naming import (
+    extract_signal_names_from_list,
+)
 
 
 def get_battery_ids(client: Any, plant_id) -> list:
@@ -111,6 +114,7 @@ def get_battery_data(client: Any, battery_id: str) -> dict:
         "battery": battery_signals,
         "modules": modules,
         "battery_values": _signals_to_value_map(battery_signals, "value"),
+        "battery_signal_names": extract_signal_names_from_list(battery_signals),
         "module_values": {
             module_id: _signals_to_value_map(modules[module_id], "realValue")
             for module_id in modules

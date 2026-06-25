@@ -12,6 +12,12 @@ from homeassistant.helpers.entity import generate_entity_id, EntityCategory
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
 
 from ...device_handler import BaseDeviceHandler
+from ...entity_naming import (
+    configure_sensor_names,
+    entity_id_slug,
+    pv_api_name,
+    signal_entity_id_name,
+)
 from .const import (
     INVERTER_SIGNALS,
     PV_SIGNALS,
@@ -56,14 +62,21 @@ class InverterDeviceHandler(BaseDeviceHandler):
 
             unique_id = f"{list(self.device_info['identifiers'])[0][1]}_{signal['id']}"
             if unique_id not in unique_ids:
+                api_name = (
+                    (coordinator.data or {})
+                    .get("inverter_signal_names", {})
+                    .get(int(signal["id"]))
+                )
                 entity = FusionSolarInverterSensor(
                     coordinator,
                     signal["id"],
-                    signal.get("custom_name", signal["name"]),
+                    signal["translation_key"],
                     signal.get("unit", None),
                     self.device_info,
                     signal.get("device_class"),
                     signal.get("state_class"),
+                    api_name=api_name,
+                    entity_id_name=signal_entity_id_name(signal),
                 )
                 entities.append(entity)
                 unique_ids.add(unique_id)
@@ -131,12 +144,14 @@ class InverterDeviceHandler(BaseDeviceHandler):
                 entity = FusionSolarInverterSensor(
                     coordinator,
                     int(sig_id),
-                    pv_signal["custom_name"],
+                    pv_signal["translation_key"],
                     pv_signal["unit"],
                     self.device_info,
                     pv_signal.get("device_class"),
                     pv_signal.get("state_class"),
                     is_pv_signal=True,
+                    api_name=pv_api_name(pv_key, pv_signal["translation_key"]),
+                    entity_id_name=signal_entity_id_name(pv_signal),
                 )
                 entities.append(entity)
                 unique_ids.add(unique_id)
@@ -161,13 +176,14 @@ class InverterDeviceHandler(BaseDeviceHandler):
                             coordinator,
                             optimizer_name,
                             metric["name"],
-                            metric.get("custom_name", metric["name"]),
+                            metric["translation_key"],
                             metric.get("unit"),
                             self.device_info,
                             unique_id,
                             device_class=metric.get("device_class"),
                             state_class=metric.get("state_class"),
                             entity_category=EntityCategory.DIAGNOSTIC,
+                            entity_id_name=signal_entity_id_name(metric),
                         )
                         entities.append(entity)
                         unique_ids.add(unique_id)
@@ -180,16 +196,18 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         self,
         coordinator,
         signal_id,
-        name,
+        translation_key,
         unit,
         device_info,
         device_class=None,
         state_class=None,
         is_pv_signal=False,
+        api_name=None,
+        entity_id_name=None,
     ):
         super().__init__(coordinator)
         self._signal_id = signal_id
-        self._attr_name = name
+        configure_sensor_names(self, translation_key=translation_key, api_name=api_name)
         self._attr_native_unit_of_measurement = unit
         self._attr_device_info = device_info
         self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal_id}"
@@ -202,9 +220,13 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         self._last_valid_value = None
 
         device_id = list(device_info["identifiers"])[0][1]
-        safe_name = name.lower().replace(" ", "_")
+        slug = entity_id_slug(
+            entity_id_name or signal_entity_id_name(api_name=api_name)
+        )
         self.entity_id = generate_entity_id(
-            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+            ENTITY_ID_FORMAT,
+            f"fsp_{device_id}_{slug}",
+            hass=coordinator.hass,
         )
 
     @property
@@ -249,16 +271,21 @@ class FusionSolarOptimizerSensor(CoordinatorEntity, SensorEntity):
         coordinator,
         optimizer_name,
         metric_key,
-        custom_name,
+        translation_key,
         unit,
         device_info,
         unique_id,
         device_class=None,
         state_class=None,
         entity_category=EntityCategory.DIAGNOSTIC,
+        entity_id_name=None,
     ):
         super().__init__(coordinator)
-        self._attr_name = f"[{optimizer_name}] {custom_name}"
+        configure_sensor_names(
+            self,
+            translation_key=translation_key,
+            translation_placeholders={"optimizer": optimizer_name},
+        )
         self._attr_native_unit_of_measurement = unit
         self._attr_device_info = device_info
         self._attr_unique_id = unique_id
@@ -269,9 +296,11 @@ class FusionSolarOptimizerSensor(CoordinatorEntity, SensorEntity):
         self._optimizer_name = optimizer_name
 
         device_id = list(device_info["identifiers"])[0][1]
-        safe_name = optimizer_name.lower().replace(" ", "_")
+        optimizer_slug = optimizer_name.lower().replace(" ", "_")
         self.entity_id = generate_entity_id(
-            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+            ENTITY_ID_FORMAT,
+            f"fsp_{device_id}_{optimizer_slug}",
+            hass=coordinator.hass,
         )
 
     @property

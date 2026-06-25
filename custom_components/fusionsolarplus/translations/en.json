@@ -48,5 +48,429 @@
         }
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Status"
+      },
+      "grid_a_phase_voltage": {
+        "name": "Grid A Phase Voltage"
+      },
+      "grid_b_phase_voltage": {
+        "name": "Grid B Phase Voltage"
+      },
+      "grid_c_phase_voltage": {
+        "name": "Grid C Phase Voltage"
+      },
+      "phase_a_voltage_of_backup_load": {
+        "name": "Phase A Voltage of Backup Load"
+      },
+      "phase_b_voltage_of_backup_load": {
+        "name": "Phase B Voltage of Backup Load"
+      },
+      "phase_c_voltage_of_backup_load": {
+        "name": "Phase C Voltage of Backup Load"
+      },
+      "internal_ambient_temperature": {
+        "name": "Internal Ambient Temperature"
+      },
+      "module_no": {
+        "name": "No."
+      },
+      "module_working_status": {
+        "name": "Working Status"
+      },
+      "module_sn": {
+        "name": "SN"
+      },
+      "module_software_version": {
+        "name": "Software Version"
+      },
+      "module_soc": {
+        "name": "SOC"
+      },
+      "module_charge_and_discharge_power": {
+        "name": "Charge and Discharge Power"
+      },
+      "module_internal_temperature": {
+        "name": "Internal Temperature"
+      },
+      "module_daily_charge_energy": {
+        "name": "Daily Charge Energy"
+      },
+      "module_daily_discharge_energy": {
+        "name": "Daily Discharge Energy"
+      },
+      "module_total_discharge_energy": {
+        "name": "Total Discharge Energy"
+      },
+      "module_bus_voltage": {
+        "name": "Bus Voltage"
+      },
+      "module_bus_current": {
+        "name": "Bus Current"
+      },
+      "module_fe_connection": {
+        "name": "FE Connection"
+      },
+      "module_total_charge_energy": {
+        "name": "Total Charge Energy"
+      },
+      "module_battery_pack_no": {
+        "name": "Battery Pack 3 No."
+      },
+      "module_battery_pack_firmware_version": {
+        "name": "Battery Pack 3 Firmware Version"
+      },
+      "module_battery_pack_sn": {
+        "name": "Battery Pack 3 SN"
+      },
+      "module_battery_pack_operating_status": {
+        "name": "Battery Pack 3 Operating Status"
+      },
+      "module_battery_pack_voltage": {
+        "name": "Battery Pack 3 Voltage"
+      },
+      "module_battery_pack_charge/_discharge_power": {
+        "name": "Battery Pack 3 Charge/Discharge Power"
+      },
+      "module_battery_pack_maximum_temperature": {
+        "name": "Battery Pack 3 Maximum Temperature"
+      },
+      "module_battery_pack_minimum_temperature": {
+        "name": "Battery Pack 3 Minimum Temperature"
+      },
+      "module_battery_pack_soc": {
+        "name": "Battery Pack 3 SOC"
+      },
+      "module_battery_pack_total_discharge_energy": {
+        "name": "Battery Pack 3 Total Discharge Energy"
+      },
+      "module_battery_pack_battery_health_check": {
+        "name": "Battery Pack 3 Battery Health Check"
+      },
+      "module_battery_pack_heating_status": {
+        "name": "Battery Pack 3 Heating Status"
+      },
+      "module_battery_pack_capacity": {
+        "name": "Battery Pack 3 Capacity"
+      },
+      "module_battery_pack_current": {
+        "name": "Battery Pack 3 Current"
+      },
+      "module_battery_pack_high_voltage_fuse_status": {
+        "name": "Battery Pack 3 High Voltage Fuse Status"
+      },
+      "operating_status": {
+        "name": "Operating Status"
+      },
+      "charge/_discharge_mode": {
+        "name": "Charge/Discharge Mode"
+      },
+      "rated_capacity": {
+        "name": "Rated Capacity"
+      },
+      "backup_time": {
+        "name": "Backup Time"
+      },
+      "energy_charged_today": {
+        "name": "Energy Charged Today"
+      },
+      "energy_discharged_today": {
+        "name": "Energy Discharged Today"
+      },
+      "charge/_discharge_power": {
+        "name": "Charge/Discharge Power"
+      },
+      "bus_voltage": {
+        "name": "Bus Voltage"
+      },
+      "state_of_charge": {
+        "name": "State of Charge"
+      },
+      "connector_number": {
+        "name": "Connector Number"
+      },
+      "connector_type": {
+        "name": "Connector Type"
+      },
+      "rated_output_power": {
+        "name": "Rated Output Power"
+      },
+      "relay_status": {
+        "name": "Relay Status"
+      },
+      "connector_temp": {
+        "name": "Connector Temp"
+      },
+      "phase_a_current": {
+        "name": "Phase A Current"
+      },
+      "phase_c_current": {
+        "name": "Phase C Current"
+      },
+      "phase_b_current": {
+        "name": "Phase B Current"
+      },
+      "output_power": {
+        "name": "Output Power"
+      },
+      "pwm_duty": {
+        "name": "PWM Duty"
+      },
+      "connector_lock": {
+        "name": "Connector Lock"
+      },
+      "working_mode": {
+        "name": "Working Mode"
+      },
+      "departure_time": {
+        "name": "Departure Time"
+      },
+      "planned_charge_energy": {
+        "name": "Planned Charge Energy"
+      },
+      "connection_status": {
+        "name": "Connection Status"
+      },
+      "charging_duration_(s)": {
+        "name": "Charging Duration (s)"
+      },
+      "energy_charged": {
+        "name": "Energy Charged"
+      },
+      "fw_version": {
+        "name": "FW Version"
+      },
+      "hw_version": {
+        "name": "HW Version"
+      },
+      "serial_number": {
+        "name": "Serial Number"
+      },
+      "rated_power": {
+        "name": "Rated Power"
+      },
+      "phase_a_voltage": {
+        "name": "Phase A Voltage"
+      },
+      "phase_b_voltage": {
+        "name": "Phase B Voltage"
+      },
+      "phase_c_voltage": {
+        "name": "Phase C Voltage"
+      },
+      "model": {
+        "name": "Model"
+      },
+      "total_energy": {
+        "name": "Total Energy"
+      },
+      "charger_temp": {
+        "name": "Charger Temp"
+      },
+      "port_count": {
+        "name": "Port Count"
+      },
+      "bluetooth_name": {
+        "name": "Bluetooth Name"
+      },
+      "device_status": {
+        "name": "Device Status"
+      },
+      "forward_active_energy": {
+        "name": "Forward Active Energy"
+      },
+      "reverse_active_energy": {
+        "name": "Reverse Active Energy"
+      },
+      "reactive_power": {
+        "name": "Reactive Power"
+      },
+      "active_power": {
+        "name": "Active Power"
+      },
+      "power_factor": {
+        "name": "Power Factor"
+      },
+      "active_power_pa": {
+        "name": "Active Power Pa"
+      },
+      "active_power_pb": {
+        "name": "Active Power Pb"
+      },
+      "active_power_pc": {
+        "name": "Active Power Pc"
+      },
+      "output_mode": {
+        "name": "Output Mode"
+      },
+      "last_startup_time": {
+        "name": "Last Startup Time"
+      },
+      "last_shutdown_time": {
+        "name": "Last Shutdown Time"
+      },
+      "daily_energy": {
+        "name": "Today Energy"
+      },
+      "total_energy_produced": {
+        "name": "Total Energy Produced"
+      },
+      "current_active_power": {
+        "name": "Current Active Power"
+      },
+      "grid_frequency": {
+        "name": "Grid Frequency"
+      },
+      "temperature": {
+        "name": "Temperature"
+      },
+      "insulation_resistance": {
+        "name": "Insulation Resistance"
+      },
+      "pv_input_voltage": {
+        "name": "Input Voltage"
+      },
+      "pv_input_current": {
+        "name": "Input Current"
+      },
+      "pv_input_power": {
+        "name": "Input Power"
+      },
+      "opt_output_power": {
+        "name": "outputPower"
+      },
+      "opt_total_energy": {
+        "name": "totalEnergy"
+      },
+      "opt_input_voltage": {
+        "name": "inputVoltage"
+      },
+      "opt_running_status": {
+        "name": "runningStatus"
+      },
+      "opt_temperature": {
+        "name": "temperature"
+      },
+      "opt_sn": {
+        "name": "sn"
+      },
+      "opt_opt_number": {
+        "name": "optNumber"
+      },
+      "opt_output_voltage": {
+        "name": "outputVoltage"
+      },
+      "opt_input_current": {
+        "name": "inputCurrent"
+      },
+      "month_energy": {
+        "name": "Monthly Energy"
+      },
+      "cumulative_energy": {
+        "name": "Total Energy"
+      },
+      "daily_income": {
+        "name": "Today Income"
+      },
+      "year_energy": {
+        "name": "Yearly Energy"
+      },
+      "total_self_use_energy": {
+        "name": "Self Used Energy Today"
+      },
+      "daily_use_energy": {
+        "name": "Consumption Today"
+      },
+      "pv_self_consumption_energy": {
+        "name": "PV Self Consumption"
+      },
+      "total_feed_in_energy": {
+        "name": "PV Feed-In Energy"
+      },
+      "total_grid_import_energy": {
+        "name": "Imported Grid Energy"
+      },
+      "total_consumption_energy": {
+        "name": "Total Consumption"
+      },
+      "grid_import_ratio": {
+        "name": "Grid Import Ratio"
+      },
+      "pv_self_consumption_ratio": {
+        "name": "Self Consumption Ratio"
+      },
+      "pv_self_consumption_ratio_by_production": {
+        "name": "Self Consumption Ratio (by PV production)"
+      },
+      "flow_solar_power": {
+        "name": "Flow Solar Power"
+      },
+      "flow_battery_power": {
+        "name": "Flow Battery Power"
+      },
+      "flow_load_power": {
+        "name": "Flow Load Power"
+      },
+      "flow_grid_power": {
+        "name": "Flow Grid Power"
+      },
+      "meter_status": {
+        "name": "Meter Status"
+      },
+      "positive_active_energy": {
+        "name": "Positive Active Energy"
+      },
+      "negative_active_energy": {
+        "name": "Negative Active Energy"
+      },
+      "phase_a_active_power": {
+        "name": "Phase A Active Power"
+      },
+      "phase_b_active_power": {
+        "name": "Phase B Active Power"
+      },
+      "phase_c_active_power": {
+        "name": "Phase C Active Power"
+      },
+      "r_s485_2_port_mode": {
+        "name": "RS485-2 Port Mode"
+      },
+      "wi_fi_signal_strength": {
+        "name": "WiFi Signal Strength"
+      },
+      "signal_strength": {
+        "name": "Signal Strength"
+      },
+      "communication_status": {
+        "name": "Communication Status"
+      },
+      "ab_line_voltage": {
+        "name": "AB Line Voltage"
+      },
+      "bc_line_voltage": {
+        "name": "BC Line Voltage"
+      },
+      "ca_line_voltage": {
+        "name": "CA Line Voltage"
+      },
+      "i_ac_meter": {
+        "name": "iAcMeter"
+      },
+      "i_ac_meter_ip": {
+        "name": "iAcMeter IP"
+      },
+      "comm_status": {
+        "name": "Comm Status"
+      },
+      "i_ac_meter_mode": {
+        "name": "iAcMeter Mode"
+      },
+      "meter_data_source": {
+        "name": "Meter Data Source"
+      }
+    }
   }
 }

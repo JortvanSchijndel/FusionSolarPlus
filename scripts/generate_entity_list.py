@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import importlib.util
@@ -56,7 +57,29 @@ def load_module_from_path(path, name):
         return None
 
 
-def generate_table(title, signals, override_count=None, note=None):
+def load_sensor_translations(base_path):
+    translations_path = os.path.join(
+        base_path,
+        "custom_components/fusionsolarplus/translations/en.json",
+    )
+    if not os.path.exists(translations_path):
+        return {}
+    with open(translations_path, encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get("entity", {}).get("sensor", {})
+
+
+def signal_display_name(signal, translations):
+    if signal.get("display_name"):
+        return signal["display_name"]
+    if "translation_key" in signal:
+        return translations.get(signal["translation_key"], {}).get(
+            "name", signal["translation_key"]
+        )
+    return signal.get("custom_name", signal.get("name", "Unknown"))
+
+
+def generate_table(title, signals, translations, override_count=None, note=None):
     if not signals:
         return ""
 
@@ -69,7 +92,7 @@ def generate_table(title, signals, override_count=None, note=None):
         if override_count and count >= override_count:
             break
 
-        name = signal.get("custom_name", signal.get("name", "Unknown"))
+        name = signal_display_name(signal, translations)
         unit = signal.get("unit", "")
         if unit is None:
             unit = ""
@@ -151,6 +174,7 @@ def generate_entity_list():
         },
     ]
 
+    translations = load_sensor_translations(base_path)
     output = "# Entities\n\n\n<details>\n<summary>Click here to see the list of entities </summary>\n\n"
 
     for device in devices:
@@ -184,7 +208,11 @@ def generate_entity_list():
                     override_count = array_info.get("override_count")
                     note = array_info.get("note")
                     output += generate_table(
-                        array_info["name"], signals, override_count, note
+                        array_info["name"],
+                        signals,
+                        translations,
+                        override_count,
+                        note,
                     )
 
             output += "</details>\n\n"

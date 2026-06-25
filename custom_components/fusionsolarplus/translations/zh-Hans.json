@@ -48,5 +48,429 @@
         }
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "状态"
+      },
+      "grid_a_phase_voltage": {
+        "name": "电网 A 相电压"
+      },
+      "grid_b_phase_voltage": {
+        "name": "电网 B 相电压"
+      },
+      "grid_c_phase_voltage": {
+        "name": "电网 C 相电压"
+      },
+      "phase_a_voltage_of_backup_load": {
+        "name": "备用负载 A 相电压"
+      },
+      "phase_b_voltage_of_backup_load": {
+        "name": "备用负载 B 相电压"
+      },
+      "phase_c_voltage_of_backup_load": {
+        "name": "备用负载 C 相电压"
+      },
+      "internal_ambient_temperature": {
+        "name": "内部环境温度"
+      },
+      "module_no": {
+        "name": "编号"
+      },
+      "module_working_status": {
+        "name": "工作状态"
+      },
+      "module_sn": {
+        "name": "SN"
+      },
+      "module_software_version": {
+        "name": "软件版本"
+      },
+      "module_soc": {
+        "name": "SOC"
+      },
+      "module_charge_and_discharge_power": {
+        "name": "充放电功率"
+      },
+      "module_internal_temperature": {
+        "name": "Internal 温度"
+      },
+      "module_daily_charge_energy": {
+        "name": "日充电量"
+      },
+      "module_daily_discharge_energy": {
+        "name": "日放电量"
+      },
+      "module_total_discharge_energy": {
+        "name": "累计放电量"
+      },
+      "module_bus_voltage": {
+        "name": "母线电压"
+      },
+      "module_bus_current": {
+        "name": "母线电流"
+      },
+      "module_fe_connection": {
+        "name": "FE 连接"
+      },
+      "module_total_charge_energy": {
+        "name": "累计充电量"
+      },
+      "module_battery_pack_no": {
+        "name": "Battery Pack 3 编号"
+      },
+      "module_battery_pack_firmware_version": {
+        "name": "Battery Pack 3 固件版本"
+      },
+      "module_battery_pack_sn": {
+        "name": "Battery Pack 3 SN"
+      },
+      "module_battery_pack_operating_status": {
+        "name": "Battery Pack 3 Operating 状态"
+      },
+      "module_battery_pack_voltage": {
+        "name": "Battery Pack 3 Voltage"
+      },
+      "module_battery_pack_charge/_discharge_power": {
+        "name": "Battery Pack 3 充放电功率"
+      },
+      "module_battery_pack_maximum_temperature": {
+        "name": "Battery Pack 3 Maximum 温度"
+      },
+      "module_battery_pack_minimum_temperature": {
+        "name": "Battery Pack 3 Minimum 温度"
+      },
+      "module_battery_pack_soc": {
+        "name": "Battery Pack 3 SOC"
+      },
+      "module_battery_pack_total_discharge_energy": {
+        "name": "Battery Pack 3 累计放电量"
+      },
+      "module_battery_pack_battery_health_check": {
+        "name": "Battery Pack 3 电池健康检测"
+      },
+      "module_battery_pack_heating_status": {
+        "name": "Battery Pack 3 Heating 状态"
+      },
+      "module_battery_pack_capacity": {
+        "name": "Battery Pack 3 Capacity"
+      },
+      "module_battery_pack_current": {
+        "name": "Battery Pack 3 Current"
+      },
+      "module_battery_pack_high_voltage_fuse_status": {
+        "name": "Battery Pack 3 High Voltage Fuse 状态"
+      },
+      "operating_status": {
+        "name": "Operating 状态"
+      },
+      "charge/_discharge_mode": {
+        "name": "Charge/Discharge Mode"
+      },
+      "rated_capacity": {
+        "name": "Rated Capacity"
+      },
+      "backup_time": {
+        "name": "Backup Time"
+      },
+      "energy_charged_today": {
+        "name": "已充电量 Today"
+      },
+      "energy_discharged_today": {
+        "name": "Energy Discharged Today"
+      },
+      "charge/_discharge_power": {
+        "name": "充放电功率"
+      },
+      "bus_voltage": {
+        "name": "母线电压"
+      },
+      "state_of_charge": {
+        "name": "State of Charge"
+      },
+      "connector_number": {
+        "name": "连接器编号"
+      },
+      "connector_type": {
+        "name": "连接器类型"
+      },
+      "rated_output_power": {
+        "name": "额定输出功率"
+      },
+      "relay_status": {
+        "name": "继电器状态"
+      },
+      "connector_temp": {
+        "name": "连接器温度"
+      },
+      "phase_a_current": {
+        "name": "A相电流"
+      },
+      "phase_c_current": {
+        "name": "C相电流"
+      },
+      "phase_b_current": {
+        "name": "B相电流"
+      },
+      "output_power": {
+        "name": "输出功率"
+      },
+      "pwm_duty": {
+        "name": "PWM 占空比"
+      },
+      "connector_lock": {
+        "name": "连接器锁止"
+      },
+      "working_mode": {
+        "name": "工作模式"
+      },
+      "departure_time": {
+        "name": "计划出发时间"
+      },
+      "planned_charge_energy": {
+        "name": "计划充电量"
+      },
+      "connection_status": {
+        "name": "连接状态"
+      },
+      "charging_duration_(s)": {
+        "name": "充电时长（秒）"
+      },
+      "energy_charged": {
+        "name": "已充电量"
+      },
+      "fw_version": {
+        "name": "固件版本"
+      },
+      "hw_version": {
+        "name": "硬件版本"
+      },
+      "serial_number": {
+        "name": "序列号"
+      },
+      "rated_power": {
+        "name": "额定功率"
+      },
+      "phase_a_voltage": {
+        "name": "A相电压"
+      },
+      "phase_b_voltage": {
+        "name": "B相电压"
+      },
+      "phase_c_voltage": {
+        "name": "C相电压"
+      },
+      "model": {
+        "name": "型号"
+      },
+      "total_energy": {
+        "name": "总发电量"
+      },
+      "charger_temp": {
+        "name": "充电桩温度"
+      },
+      "port_count": {
+        "name": "充电口数量"
+      },
+      "bluetooth_name": {
+        "name": "蓝牙名称"
+      },
+      "device_status": {
+        "name": "设备状态"
+      },
+      "forward_active_energy": {
+        "name": "正向有功电量"
+      },
+      "reverse_active_energy": {
+        "name": "反向有功电量"
+      },
+      "reactive_power": {
+        "name": "无功功率"
+      },
+      "active_power": {
+        "name": "有功功率"
+      },
+      "power_factor": {
+        "name": "功率因数"
+      },
+      "active_power_pa": {
+        "name": "有功功率 Pa"
+      },
+      "active_power_pb": {
+        "name": "有功功率 Pb"
+      },
+      "active_power_pc": {
+        "name": "有功功率 Pc"
+      },
+      "output_mode": {
+        "name": "输出模式"
+      },
+      "last_startup_time": {
+        "name": "最近启动时间"
+      },
+      "last_shutdown_time": {
+        "name": "最近关机时间"
+      },
+      "daily_energy": {
+        "name": "今日发电量"
+      },
+      "total_energy_produced": {
+        "name": "累计发电量"
+      },
+      "current_active_power": {
+        "name": "当前有功功率"
+      },
+      "grid_frequency": {
+        "name": "电网频率"
+      },
+      "temperature": {
+        "name": "温度"
+      },
+      "insulation_resistance": {
+        "name": "绝缘电阻"
+      },
+      "pv_input_voltage": {
+        "name": "输入电压"
+      },
+      "pv_input_current": {
+        "name": "输入电流"
+      },
+      "pv_input_power": {
+        "name": "Input Power"
+      },
+      "opt_output_power": {
+        "name": "outputPower"
+      },
+      "opt_total_energy": {
+        "name": "totalEnergy"
+      },
+      "opt_input_voltage": {
+        "name": "inputVoltage"
+      },
+      "opt_running_status": {
+        "name": "running状态"
+      },
+      "opt_temperature": {
+        "name": "temperature"
+      },
+      "opt_sn": {
+        "name": "sn"
+      },
+      "opt_opt_number": {
+        "name": "optNumber"
+      },
+      "opt_output_voltage": {
+        "name": "outputVoltage"
+      },
+      "opt_input_current": {
+        "name": "inputCurrent"
+      },
+      "month_energy": {
+        "name": "月发电量"
+      },
+      "cumulative_energy": {
+        "name": "总发电量"
+      },
+      "daily_income": {
+        "name": "今日收益"
+      },
+      "year_energy": {
+        "name": "年发电量"
+      },
+      "total_self_use_energy": {
+        "name": "今日自用电量"
+      },
+      "daily_use_energy": {
+        "name": "今日用电量"
+      },
+      "pv_self_consumption_energy": {
+        "name": "光伏自用电量"
+      },
+      "total_feed_in_energy": {
+        "name": "光伏上网电量"
+      },
+      "total_grid_import_energy": {
+        "name": "电网购电量"
+      },
+      "total_consumption_energy": {
+        "name": "总用电量"
+      },
+      "grid_import_ratio": {
+        "name": "电网购电占比"
+      },
+      "pv_self_consumption_ratio": {
+        "name": "自发自用占比"
+      },
+      "pv_self_consumption_ratio_by_production": {
+        "name": "自发自用占比（按光伏发电）"
+      },
+      "flow_solar_power": {
+        "name": "光伏功率流向"
+      },
+      "flow_battery_power": {
+        "name": "电池功率流向"
+      },
+      "flow_load_power": {
+        "name": "负载功率流向"
+      },
+      "flow_grid_power": {
+        "name": "电网功率流向"
+      },
+      "meter_status": {
+        "name": "电表状态"
+      },
+      "positive_active_energy": {
+        "name": "正向有功电量"
+      },
+      "negative_active_energy": {
+        "name": "反向有功电量"
+      },
+      "phase_a_active_power": {
+        "name": "Phase A 有功功率"
+      },
+      "phase_b_active_power": {
+        "name": "Phase B 有功功率"
+      },
+      "phase_c_active_power": {
+        "name": "Phase C 有功功率"
+      },
+      "r_s485_2_port_mode": {
+        "name": "RS485-2 端口模式"
+      },
+      "wi_fi_signal_strength": {
+        "name": "WiFi 信号强度"
+      },
+      "signal_strength": {
+        "name": "信号强度"
+      },
+      "communication_status": {
+        "name": "通信状态"
+      },
+      "ab_line_voltage": {
+        "name": "AB 线电压"
+      },
+      "bc_line_voltage": {
+        "name": "BC 线电压"
+      },
+      "ca_line_voltage": {
+        "name": "CA 线电压"
+      },
+      "i_ac_meter": {
+        "name": "iAcMeter"
+      },
+      "i_ac_meter_ip": {
+        "name": "iAcMeter IP"
+      },
+      "comm_status": {
+        "name": "通信状态"
+      },
+      "i_ac_meter_mode": {
+        "name": "iAcMeter Mode"
+      },
+      "meter_data_source": {
+        "name": "电表数据源"
+      }
+    }
   }
 }
