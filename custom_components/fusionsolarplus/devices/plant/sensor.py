@@ -113,6 +113,14 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         if value is None:
             return None
 
+        # The scraped portal can still yield non-numeric values.
+        # Coerce here so a stray string can never reach the numeric
+        # comparisons below nor be stored in _last_valid_value.
+        try:
+            value = float(value)
+        except (TypeError, ValueError):
+            return None
+
         # --- Spike suppression ---
         if self._last_valid_value is not None and self._last_valid_value > 0:
             absolute_jump = value - self._last_valid_value

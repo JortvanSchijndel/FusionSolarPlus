@@ -172,7 +172,7 @@ def get_current_plant_data(client: Any, plant_id: str) -> dict:
         if key.startswith("exist"):
             data[key] = bool(value)
             continue
-        if value in (None, "-", "N/A", "n/a"):
+        if value in (None, "-", "--", "N/A", "n/a"):
             data[key] = None
             continue
         try:
