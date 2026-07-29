@@ -10,6 +10,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.helpers.entity import generate_entity_id, EntityCategory
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from ...device_handler import BaseDeviceHandler
 from .const import (
@@ -17,6 +18,8 @@ from .const import (
     PV_SIGNALS,
     OPTIMIZER_METRICS,
 )
+
+_RESETTABLE_SIGNAL_IDS = frozenset({10032})  # Daily energy — resets to 0 at midnight
 
 
 class InverterDeviceHandler(BaseDeviceHandler):
@@ -173,7 +176,7 @@ class InverterDeviceHandler(BaseDeviceHandler):
                         unique_ids.add(unique_id)
 
 
-class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
+class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity, RestoreEntity):
     """Sensor for Inverter devices with daily energy reset handling."""
 
     def __init__(
@@ -200,12 +203,26 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
         self._SIGNIFICANT_DROP_FRACTION = 0.25
         self._RESET_NEAR_ZERO_THRESHOLD = 1
         self._last_valid_value = None
+        self._can_reset = int(signal_id) in _RESETTABLE_SIGNAL_IDS
 
         device_id = list(device_info["identifiers"])[0][1]
         safe_name = name.lower().replace(" ", "_")
         self.entity_id = generate_entity_id(
             ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
         )
+
+    async def async_added_to_hass(self) -> None:
+        """Restore last valid value on startup for total-increasing sensors."""
+        await super().async_added_to_hass()
+        if self._attr_state_class != SensorStateClass.TOTAL_INCREASING:
+            return
+        last_state = await self.async_get_last_state()
+        if not last_state or last_state.state in (None, "unknown", "unavailable"):
+            return
+        try:
+            self._last_valid_value = float(last_state.state)
+        except (TypeError, ValueError):
+            pass
 
     @property
     def native_value(self):
@@ -228,11 +245,9 @@ class FusionSolarInverterSensor(CoordinatorEntity, SensorEntity):
             and value < self._last_valid_value
         ):
             drop_fraction = (self._last_valid_value - value) / self._last_valid_value
-            if (
-                drop_fraction > self._SIGNIFICANT_DROP_FRACTION
-                and value > self._RESET_NEAR_ZERO_THRESHOLD
-            ):
-                return None
+            if drop_fraction > self._SIGNIFICANT_DROP_FRACTION:
+                if not self._can_reset or value > self._RESET_NEAR_ZERO_THRESHOLD:
+                    return None
         self._last_valid_value = value
         return value
 
