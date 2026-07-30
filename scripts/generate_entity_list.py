@@ -147,7 +147,10 @@ def generate_entity_list():
         {
             "name": "EMMA",
             "const_path": "custom_components/fusionsolarplus/devices/emma/const.py",
-            "arrays": [{"name": "EMMA Signals", "var": "EMMA_SIGNALS"}],
+            "arrays": [
+                {"name": "EMMA Signals", "var": "EMMA_SIGNALS"},
+                {"name": "EMMA Config Signals", "var": "EMMA_CONFIG_SIGNALS"},
+            ],
         },
     ]
 
