@@ -301,8 +301,10 @@ def _decode_peak_power_json(text: str) -> list[dict[str, Any]]:
             continue
         start = item.get("startTime") or item.get("start") or "00:00"
         end = item.get("endTime") or item.get("end") or "23:59"
-        power_raw = item.get("maxPeakPower") or item.get("peak_power_kw") or item.get(
-            "peakPower"
+        power_raw = (
+            item.get("maxPeakPower")
+            or item.get("peak_power_kw")
+            or item.get("peakPower")
         )
         try:
             peak_power_kw = float(power_raw)
