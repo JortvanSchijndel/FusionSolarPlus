@@ -934,5 +934,9 @@ class FusionSolarClient:
         return emma_api.get_emma_data(self, device_dn)
 
     @logged_in
+    def get_emma_config_signals(self, device_dn: str = None) -> dict:
+        return emma_api.get_config_signals(self, device_dn)
+
+    @logged_in
     def get_backupbox_data(self, device_dn: str = None) -> dict:
         return backupbox_api.get_backupbox_data(self, device_dn)
