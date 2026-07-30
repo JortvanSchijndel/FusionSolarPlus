@@ -88,12 +88,6 @@ CHARGING_PILE_SIGNALS = [
         "device_class": SensorDeviceClass.ENUM,
     },
     {
-        "id": 455780020,
-        "name": "Reported Working Mode",
-        "custom_name": "Working Mode",
-        "device_class": SensorDeviceClass.ENUM,
-    },
-    {
         "id": 10029,
         "name": "Planned Departure Time",
         "custom_name": "Departure Time",

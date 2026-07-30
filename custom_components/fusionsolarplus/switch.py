@@ -9,6 +9,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
 from .devices.inverter.switch import InverterSwitchHandler
+from .devices.charger.switch import ChargerSwitchHandler
 from .device_handler import BaseDeviceHandler
 
 _LOGGER = logging.getLogger(__name__)
@@ -26,8 +27,9 @@ class SwitchHandlerFactory:
 
         if device_type == "Inverter" and installer:
             return InverterSwitchHandler(hass, entry, device_info)
-        else:
-            return None
+        if device_type == "Charger":
+            return ChargerSwitchHandler(hass, entry, device_info)
+        return None
 
 
 async def async_setup_entry(
