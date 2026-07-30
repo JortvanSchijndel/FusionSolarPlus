@@ -10,6 +10,11 @@ from homeassistant.helpers.entity import generate_entity_id, EntityCategory
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
 
 from ...device_handler import BaseDeviceHandler
+from ...entity_naming import (
+    configure_sensor_names,
+    entity_id_slug,
+    signal_entity_id_name,
+)
 from .const import (
     BATTERY_STATUS_SIGNALS,
     MODULE_SIGNAL_MAP,
@@ -35,14 +40,21 @@ class BatteryDeviceHandler(BaseDeviceHandler):
         for signal in BATTERY_STATUS_SIGNALS:
             unique_id = f"{list(self.device_info['identifiers'])[0][1]}_{signal['id']}"
             if unique_id not in unique_ids:
+                api_name = (
+                    (coordinator.data or {})
+                    .get("battery_signal_names", {})
+                    .get(int(signal["id"]))
+                )
                 entity = FusionSolarBatterySensor(
                     coordinator,
                     signal["id"],
-                    signal.get("custom_name", signal["name"]),
+                    signal["translation_key"],
                     signal.get("unit", None),
                     self.device_info,
                     signal.get("device_class"),
                     signal.get("state_class"),
+                    api_name=api_name,
+                    entity_id_name=signal_entity_id_name(signal),
                 )
                 entities.append(entity)
                 unique_ids.add(unique_id)
@@ -83,15 +95,22 @@ class BatteryDeviceHandler(BaseDeviceHandler):
 
                 unique_id = f"{list(self.device_info['identifiers'])[0][1]}_module{module_id}_{signal['id']}"
                 if unique_id not in unique_ids:
+                    api_signal = next(
+                        (s for s in module_signals_data if s.get("id") == signal["id"]),
+                        None,
+                    )
+                    api_name = api_signal.get("name") if api_signal else None
                     entity = FusionSolarBatteryModuleSensor(
                         coordinator,
                         signal["id"],
-                        signal.get("custom_name", signal["name"]),
+                        signal["translation_key"],
                         signal.get("unit", None),
                         self.device_info,
                         module_id,
                         signal.get("device_class"),
                         signal.get("state_class"),
+                        api_name=api_name,
+                        entity_id_name=signal_entity_id_name(signal),
                     )
                     entities.append(entity)
                     unique_ids.add(unique_id)
@@ -104,15 +123,17 @@ class FusionSolarBatterySensor(CoordinatorEntity, SensorEntity):
         self,
         coordinator,
         signal_id,
-        name,
+        translation_key,
         unit,
         device_info,
         device_class=None,
         state_class=None,
+        api_name=None,
+        entity_id_name=None,
     ):
         super().__init__(coordinator)
         self._signal_id = signal_id
-        self._attr_name = name
+        configure_sensor_names(self, translation_key=translation_key, api_name=api_name)
         self._attr_native_unit_of_measurement = unit
         self._attr_device_info = device_info
         self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal_id}"
@@ -120,9 +141,10 @@ class FusionSolarBatterySensor(CoordinatorEntity, SensorEntity):
         self._attr_state_class = state_class
 
         device_id = list(device_info["identifiers"])[0][1]
-        safe_name = name.lower().replace(" ", "_")
         self.entity_id = generate_entity_id(
-            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+            ENTITY_ID_FORMAT,
+            f"fsp_{device_id}_{entity_id_slug(entity_id_name)}",
+            hass=coordinator.hass,
         )
 
     @property
@@ -148,17 +170,19 @@ class FusionSolarBatteryModuleSensor(CoordinatorEntity, SensorEntity):
         self,
         coordinator,
         signal_id,
-        name,
+        translation_key,
         unit,
         device_info,
         module_id,
         device_class=None,
         state_class=None,
         entity_category=EntityCategory.DIAGNOSTIC,
+        api_name=None,
+        entity_id_name=None,
     ):
         super().__init__(coordinator)
         self._signal_id = signal_id
-        self._attr_name = name
+        configure_sensor_names(self, translation_key=translation_key, api_name=api_name)
         self._attr_native_unit_of_measurement = unit
         self._attr_device_info = device_info
         self._attr_unique_id = (
@@ -170,9 +194,10 @@ class FusionSolarBatteryModuleSensor(CoordinatorEntity, SensorEntity):
         self._module_id = module_id
 
         device_id = list(device_info["identifiers"])[0][1]
-        safe_name = name.lower().replace(" ", "_")
         self.entity_id = generate_entity_id(
-            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+            ENTITY_ID_FORMAT,
+            f"fsp_{device_id}_{entity_id_slug(entity_id_name)}",
+            hass=coordinator.hass,
         )
 
     @property

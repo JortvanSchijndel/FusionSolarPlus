@@ -285,8 +285,14 @@ class FusionSolarClient:
 
         if self._huawei_subdomain.startswith("region"):
             self._login_subdomain = self._huawei_subdomain[8:]
-        elif self._huawei_subdomain.startswith("uni"):
+        elif self._huawei_subdomain.startswith(
+            "uni"
+        ) and self._huawei_subdomain.endswith("eu5"):
             self._login_subdomain = self._huawei_subdomain[6:]
+        elif self._huawei_subdomain.startswith(
+            "uni"
+        ) and self._huawei_subdomain.endswith("cn"):
+            self._login_subdomain = self._huawei_subdomain[5:]
         else:
             self._login_subdomain = self._huawei_subdomain
 

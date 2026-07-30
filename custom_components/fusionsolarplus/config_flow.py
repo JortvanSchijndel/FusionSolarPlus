@@ -14,6 +14,7 @@ from custom_components.fusionsolarplus.const import (
     CONF_DEVICE_NAME,
 )
 from .api.client import FusionSolarClient
+from .api.devices.plant_api import station_display_name
 from .api.exceptions import (
     AuthenticationException,
     FusionSolarRateLimit,
@@ -117,6 +118,8 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             "uni003eu5",
                             "uni004eu5",
                             "uni005eu5",
+                            "uni01cn",
+                            "uni02cn",
                             "eu5",
                             "intl",
                             "intlobt",
@@ -159,11 +162,19 @@ class FusionSolarPlusConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 # Handle plants ids
                 if self.device_type == DEVICE_TYPE_PLANT:
-                    response = await self.hass.async_add_executor_job(
-                        self.client.get_plant_ids
+                    stations = await self.hass.async_add_executor_job(
+                        self.client.get_station_list
                     )
-                    for plant_id in response:
-                        device_options[f"Plant (ID: {plant_id})"] = plant_id
+                    seen_names: set[str] = set()
+                    for station in stations:
+                        plant_id = station.get("dn")
+                        if not plant_id:
+                            continue
+                        label = station_display_name(station)
+                        if label in seen_names:
+                            label = f"{label} (ID: {plant_id})"
+                        seen_names.add(label)
+                        device_options[label] = plant_id
 
                 # Handle inverter ids
                 elif self.device_type == DEVICE_TYPE_INVERTER:
@@ -315,6 +326,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
                             "uni003eu5",
                             "uni004eu5",
                             "uni005eu5",
+                            "uni01cn",
+                            "uni02cn",
                             "eu5",
                             "intl",
                             "intlobt",

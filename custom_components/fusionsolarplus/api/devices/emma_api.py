@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from custom_components.fusionsolarplus.api.devices import inverter_api
+from custom_components.fusionsolarplus.entity_naming import extract_signal_names
 
 
 def get_emma_data(client: Any, device_dn: str | None = None) -> dict:
@@ -23,4 +24,8 @@ def get_emma_data(client: Any, device_dn: str | None = None) -> dict:
                 value_map[int(signal_id)] = float(raw_value)
             except (TypeError, ValueError):
                 value_map[int(signal_id)] = str(raw_value)
-    return {"raw_data": raw_data, "value_map": value_map}
+    return {
+        "raw_data": raw_data,
+        "value_map": value_map,
+        "signal_names": extract_signal_names(raw_data),
+    }

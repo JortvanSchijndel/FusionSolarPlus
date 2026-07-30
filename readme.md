@@ -105,7 +105,7 @@ When configuring the energy dashboard you need to provide the following settings
    </tr>
    <tr>
       <td align="center">6</td>
-      <td>Daily Energy</td>
+      <td>Today Energy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
@@ -155,21 +155,26 @@ When configuring the energy dashboard you need to provide the following settings
    </tr>
    <tr>
       <td align="center">16</td>
-      <td>Phase B Voltage</td>
+      <td>Phase A Voltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">17</td>
-      <td>Phase C Voltage</td>
+      <td>Phase B Voltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">18</td>
+      <td>Phase C Voltage</td>
+      <td align="center">V</td>
+   </tr>
+   <tr>
+      <td align="center">19</td>
       <td>Temperature</td>
       <td align="center">°C</td>
    </tr>
    <tr>
-      <td align="center">19</td>
+      <td align="center">20</td>
       <td>Insulation Resistance</td>
       <td align="center">MΩ</td>
    </tr>
@@ -184,17 +189,17 @@ When configuring the energy dashboard you need to provide the following settings
    </tr>
    <tr>
       <td align="center">1</td>
-      <td>[PV 1] Input Voltage</td>
+      <td>Input Voltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">2</td>
-      <td>[PV 1] Input Current</td>
+      <td>Input Current</td>
       <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">3</td>
-      <td>[PV 1] Input Power</td>
+      <td>Input Power</td>
       <td align="center">W</td>
    </tr>
 </table>
@@ -209,47 +214,47 @@ When configuring the energy dashboard you need to provide the following settings
    </tr>
    <tr>
       <td align="center">1</td>
-      <td>Output Power</td>
+      <td>outputPower</td>
       <td align="center">W</td>
    </tr>
    <tr>
       <td align="center">2</td>
-      <td>Total Energy</td>
+      <td>totalEnergy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">3</td>
-      <td>Input Voltage</td>
+      <td>inputVoltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">4</td>
-      <td>Running Status</td>
+      <td>runningStatus</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">5</td>
-      <td>Temperature</td>
+      <td>temperature</td>
       <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">6</td>
-      <td>SN</td>
+      <td>sn</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">7</td>
-      <td>Optimizer Number</td>
+      <td>optNumber</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">8</td>
-      <td>Output Voltage</td>
+      <td>outputVoltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">9</td>
-      <td>Input Current</td>
+      <td>inputCurrent</td>
       <td align="center">A</td>
    </tr>
 </table>
@@ -321,252 +326,252 @@ When configuring the energy dashboard you need to provide the following settings
    </tr>
    <tr>
       <td align="center">1</td>
-      <td>[Module 1] No.</td>
+      <td>No.</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">2</td>
-      <td>[Module 1] Working Status</td>
+      <td>Working Status</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">3</td>
-      <td>[Module 1] SN</td>
+      <td>SN</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">4</td>
-      <td>[Module 1] Software Version</td>
+      <td>Software Version</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">5</td>
-      <td>[Module 1] SOC</td>
+      <td>SOC</td>
       <td align="center">%</td>
    </tr>
    <tr>
       <td align="center">6</td>
-      <td>[Module 1] Charge and Discharge Power</td>
+      <td>Charge and Discharge Power</td>
       <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">7</td>
-      <td>[Module 1] Internal Temperature</td>
+      <td>Internal Temperature</td>
       <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">8</td>
-      <td>[Module 1] Daily Charge Energy</td>
+      <td>Daily Charge Energy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">9</td>
-      <td>[Module 1] Daily Discharge Energy</td>
+      <td>Daily Discharge Energy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">10</td>
-      <td>[Module 1] Total Discharge Energy</td>
+      <td>Total Discharge Energy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">11</td>
-      <td>[Module 1] Bus Voltage</td>
+      <td>Bus Voltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">12</td>
-      <td>[Module 1] Bus Current</td>
+      <td>Bus Current</td>
       <td align="center">A</td>
    </tr>
    <tr>
       <td align="center">13</td>
-      <td>[Module 1] FE Connection</td>
+      <td>FE Connection</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">14</td>
-      <td>[Module 1] Total Charge Energy</td>
+      <td>Total Charge Energy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">15</td>
-      <td>[Module 1] Battery Pack 1 No.</td>
+      <td>Battery Pack 3 No.</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">16</td>
-      <td>[Module 1] Battery Pack 2 No.</td>
+      <td>Battery Pack 3 No.</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">17</td>
-      <td>[Module 1] Battery Pack 3 No.</td>
+      <td>Battery Pack 3 No.</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">18</td>
-      <td>[Module 1] Battery Pack 1 Firmware Version</td>
+      <td>Battery Pack 3 Firmware Version</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">19</td>
-      <td>[Module 1] Battery Pack 2 Firmware Version</td>
+      <td>Battery Pack 3 Firmware Version</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">20</td>
-      <td>[Module 1] Battery Pack 3 Firmware Version</td>
+      <td>Battery Pack 3 Firmware Version</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">21</td>
-      <td>[Module 1] Battery Pack 1 SN</td>
+      <td>Battery Pack 3 SN</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">22</td>
-      <td>[Module 1] Battery Pack 2 SN</td>
+      <td>Battery Pack 3 SN</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">23</td>
-      <td>[Module 1] Battery Pack 3 SN</td>
+      <td>Battery Pack 3 SN</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">24</td>
-      <td>[Module 1] Battery Pack 1 Operating Status</td>
+      <td>Battery Pack 3 Operating Status</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">25</td>
-      <td>[Module 1] Battery Pack 2 Operating Status</td>
+      <td>Battery Pack 3 Operating Status</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">26</td>
-      <td>[Module 1] Battery Pack 3 Operating Status</td>
+      <td>Battery Pack 3 Operating Status</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">27</td>
-      <td>[Module 1] Battery Pack 1 Voltage</td>
+      <td>Battery Pack 3 Voltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">28</td>
-      <td>[Module 1] Battery Pack 2 Voltage</td>
+      <td>Battery Pack 3 Voltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">29</td>
-      <td>[Module 1] Battery Pack 3 Voltage</td>
+      <td>Battery Pack 3 Voltage</td>
       <td align="center">V</td>
    </tr>
    <tr>
       <td align="center">30</td>
-      <td>[Module 1] Battery Pack 1 Charge/Discharge Power</td>
+      <td>Battery Pack 3 Charge/Discharge Power</td>
       <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">31</td>
-      <td>[Module 1] Battery Pack 2 Charge/Discharge Power</td>
+      <td>Battery Pack 3 Charge/Discharge Power</td>
       <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">32</td>
-      <td>[Module 1] Battery Pack 3 Charge/Discharge Power</td>
+      <td>Battery Pack 3 Charge/Discharge Power</td>
       <td align="center">kW</td>
    </tr>
    <tr>
       <td align="center">33</td>
-      <td>[Module 1] Battery Pack 1 Maximum Temperature</td>
+      <td>Battery Pack 3 Maximum Temperature</td>
       <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">34</td>
-      <td>[Module 1] Battery Pack 2 Maximum Temperature</td>
+      <td>Battery Pack 3 Maximum Temperature</td>
       <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">35</td>
-      <td>[Module 1] Battery Pack 3 Maximum Temperature</td>
+      <td>Battery Pack 3 Maximum Temperature</td>
       <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">36</td>
-      <td>[Module 1] Battery Pack 1 Minimum Temperature</td>
+      <td>Battery Pack 3 Minimum Temperature</td>
       <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">37</td>
-      <td>[Module 1] Battery Pack 2 Minimum Temperature</td>
+      <td>Battery Pack 3 Minimum Temperature</td>
       <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">38</td>
-      <td>[Module 1] Battery Pack 3 Minimum Temperature</td>
+      <td>Battery Pack 3 Minimum Temperature</td>
       <td align="center">°C</td>
    </tr>
    <tr>
       <td align="center">39</td>
-      <td>[Module 1] Battery Pack 1 SOC</td>
+      <td>Battery Pack 3 SOC</td>
       <td align="center">%</td>
    </tr>
    <tr>
       <td align="center">40</td>
-      <td>[Module 1] Battery Pack 2 SOC</td>
+      <td>Battery Pack 3 SOC</td>
       <td align="center">%</td>
    </tr>
    <tr>
       <td align="center">41</td>
-      <td>[Module 1] Battery Pack 3 SOC</td>
+      <td>Battery Pack 3 SOC</td>
       <td align="center">%</td>
    </tr>
    <tr>
       <td align="center">42</td>
-      <td>[Module 1] Battery Pack 1 Total Discharge Energy</td>
+      <td>Battery Pack 3 Total Discharge Energy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">43</td>
-      <td>[Module 1] Battery Pack 2 Total Discharge Energy</td>
+      <td>Battery Pack 3 Total Discharge Energy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">44</td>
-      <td>[Module 1] Battery Pack 3 Total Discharge Energy</td>
+      <td>Battery Pack 3 Total Discharge Energy</td>
       <td align="center">kWh</td>
    </tr>
    <tr>
       <td align="center">45</td>
-      <td>[Module 1] Battery Pack 1 Battery Health Check</td>
+      <td>Battery Pack 3 Battery Health Check</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">46</td>
-      <td>[Module 1] Battery Pack 2 Battery Health Check</td>
+      <td>Battery Pack 3 Battery Health Check</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">47</td>
-      <td>[Module 1] Battery Pack 3 Battery Health Check</td>
+      <td>Battery Pack 3 Battery Health Check</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">48</td>
-      <td>[Module 1] Battery Pack 1 Heating Status</td>
+      <td>Battery Pack 3 Heating Status</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">49</td>
-      <td>[Module 1] Battery Pack 2 Heating Status</td>
+      <td>Battery Pack 3 Heating Status</td>
       <td align="center"></td>
    </tr>
    <tr>
       <td align="center">50</td>
-      <td>[Module 1] Battery Pack 3 Heating Status</td>
+      <td>Battery Pack 3 Heating Status</td>
       <td align="center"></td>
    </tr>
 </table>
@@ -896,7 +901,7 @@ When configuring the energy dashboard you need to provide the following settings
    </tr>
    <tr>
       <td align="center">3</td>
-      <td>Rated Power</td>
+      <td>Rated Output Power</td>
       <td align="center">kW</td>
    </tr>
    <tr>
@@ -966,8 +971,13 @@ When configuring the energy dashboard you need to provide the following settings
    </tr>
    <tr>
       <td align="center">17</td>
-      <td>Charging Duration</td>
+      <td>Charging Duration (s)</td>
       <td align="center">s</td>
+   </tr>
+   <tr>
+      <td align="center">18</td>
+      <td>Energy Charged</td>
+      <td align="center">kWh</td>
    </tr>
 </table>
 
@@ -1143,7 +1153,7 @@ When configuring the energy dashboard you need to provide the following settings
    </tr>
    <tr>
       <td align="center">18</td>
-      <td>Flow Buy Power</td>
+      <td>Flow Grid Power</td>
       <td align="center">kW</td>
    </tr>
 </table>

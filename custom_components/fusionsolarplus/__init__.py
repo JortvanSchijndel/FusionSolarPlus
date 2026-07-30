@@ -37,6 +37,18 @@ async def async_setup_entry(hass, entry):
     device_name = entry.data.get("device_name")
     device_type = entry.data.get("device_type")
 
+    if device_type == "Plant":
+        try:
+            from .api.devices.plant_api import get_station_by_dn, station_display_name
+
+            station = await hass.async_add_executor_job(
+                get_station_by_dn, client, device_id
+            )
+            if station:
+                device_name = station_display_name(station)
+        except Exception as err:
+            _LOGGER.debug("Could not resolve plant station name: %s", err)
+
     device_info = {
         "identifiers": {(DOMAIN, str(device_id))},
         "name": device_name,
@@ -61,7 +73,7 @@ async def async_setup_entry(hass, entry):
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, str(entry.data["device_id"]))},
         manufacturer="FusionSolar",
-        name=entry.data["device_name"],
+        name=device_name,
         model=entry.data["device_type"],
     )
 

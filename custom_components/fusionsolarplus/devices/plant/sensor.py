@@ -10,6 +10,7 @@ from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
 
 from ...device_handler import BaseDeviceHandler
+from ...entity_naming import configure_sensor_names, entity_id_slug
 from .const import PLANT_SIGNALS
 from ...const import CURRENCY_MAP
 
@@ -46,9 +47,10 @@ class PlantDeviceHandler(BaseDeviceHandler):
                 FusionSolarPlantSensor(
                     coordinator=coordinator,
                     key=signal["key"],
-                    name=signal["name"],
+                    translation_key=signal["translation_key"],
                     unit=signal.get("unit"),
                     device_info=self.device_info,
+                    fallback_name=signal.get("name"),
                     device_class=signal.get("device_class"),
                     state_class=signal.get("state_class"),
                 )
@@ -64,15 +66,16 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         self,
         coordinator,
         key,
-        name,
+        translation_key,
         unit,
         device_info,
+        fallback_name=None,
         device_class=None,
         state_class=None,
     ):
         super().__init__(coordinator)
         self._key = key
-        self._attr_name = name
+        configure_sensor_names(self, translation_key=translation_key)
         self._base_unit = unit
         self._attr_device_info = device_info
         self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{key}"
@@ -88,9 +91,11 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         self.RESET_COOLDOWN = timedelta(hours=6)
 
         device_id = list(device_info["identifiers"])[0][1]
-        safe_name = name.lower().replace(" ", "_")
+        slug_name = fallback_name or key
         self.entity_id = generate_entity_id(
-            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+            ENTITY_ID_FORMAT,
+            f"fsp_{device_id}_{entity_id_slug(slug_name)}",
+            hass=coordinator.hass,
         )
 
     @property

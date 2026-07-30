@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from custom_components.fusionsolarplus.api.devices import inverter_api
+from custom_components.fusionsolarplus.entity_naming import extract_signal_names
 
 
 def get_powersensor_data(client: Any, device_dn: str | None = None) -> dict:
@@ -41,7 +42,12 @@ def get_powersensor_data(client: Any, device_dn: str | None = None) -> dict:
     elif 2101249 in all_signal_ids:
         model = "DTSU666-FE"
 
-    return {"raw_data": raw_data, "value_map": value_map, "model": model}
+    return {
+        "raw_data": raw_data,
+        "value_map": value_map,
+        "model": model,
+        "signal_names": extract_signal_names(raw_data),
+    }
 
 
 def _iter_signals(data: dict):

@@ -9,6 +9,11 @@ from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.components.sensor import ENTITY_ID_FORMAT
 
 from ...device_handler import BaseDeviceHandler
+from ...entity_naming import (
+    configure_sensor_names,
+    entity_id_slug,
+    signal_entity_id_name,
+)
 from .const import BACKUPBOX_SIGNALS
 
 
@@ -34,14 +39,19 @@ class BackupBoxDeviceHandler(BaseDeviceHandler):
             if unique_id in unique_ids:
                 continue
 
+            api_name = (
+                (coordinator.data or {}).get("signal_names", {}).get(int(signal["id"]))
+            )
             entity = FusionSolarBackupBoxSensor(
                 coordinator=coordinator,
                 signal_id=signal["id"],
-                name=signal.get("custom_name", signal["name"]),
+                translation_key=signal["translation_key"],
                 unit=signal.get("unit"),
                 device_info=self.device_info,
                 device_class=signal.get("device_class"),
                 state_class=signal.get("state_class"),
+                api_name=api_name,
+                entity_id_name=signal_entity_id_name(signal),
             )
             entities.append(entity)
             unique_ids.add(unique_id)
@@ -56,17 +66,19 @@ class FusionSolarBackupBoxSensor(CoordinatorEntity, SensorEntity):
         self,
         coordinator,
         signal_id,
-        name,
+        translation_key,
         unit,
         device_info,
         device_class=None,
         state_class=None,
         is_pv_signal=False,
+        api_name=None,
+        entity_id_name=None,
     ):
         """Initialize the sensor entity."""
         super().__init__(coordinator)
         self._signal_id = signal_id
-        self._attr_name = name
+        configure_sensor_names(self, translation_key=translation_key, api_name=api_name)
         self._attr_native_unit_of_measurement = unit
         self._attr_device_info = device_info
         self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{signal_id}"
@@ -75,9 +87,10 @@ class FusionSolarBackupBoxSensor(CoordinatorEntity, SensorEntity):
         self._is_pv_signal = is_pv_signal
 
         device_id = list(device_info["identifiers"])[0][1]
-        safe_name = name.lower().replace(" ", "_")
         self.entity_id = generate_entity_id(
-            ENTITY_ID_FORMAT, f"fsp_{device_id}_{safe_name}", hass=coordinator.hass
+            ENTITY_ID_FORMAT,
+            f"fsp_{device_id}_{entity_id_slug(entity_id_name)}",
+            hass=coordinator.hass,
         )
 
     @property
