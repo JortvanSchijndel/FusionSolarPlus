@@ -9,7 +9,6 @@
   "issue_tracker": "https://github.com/JortvanSchijndel/FusionSolarPlus/issues",
   "requirements": [
     "fusion-solar-py",
-    "Pillow",
     "beautifulsoup4",
     "gradio_client"
   ],
