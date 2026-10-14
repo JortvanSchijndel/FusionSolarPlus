@@ -42,7 +42,6 @@ async def async_setup_entry(hass, entry):
         "name": device_name,
         "manufacturer": "FusionSolar",
         "model": device_type or "Unknown",
-        "via_device": None,
     }
     hass.data[DOMAIN][f"{entry.entry_id}_device_info"] = device_info
 
