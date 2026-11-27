@@ -1146,6 +1146,26 @@ When configuring the energy dashboard you need to provide the following settings
       <td>Flow Buy Power</td>
       <td align="center">kW</td>
    </tr>
+   <tr>
+      <td align="center">19</td>
+      <td>Daily Total Consumption</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">20</td>
+      <td>Daily Imported Grid Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">21</td>
+      <td>Daily PV Feed-In Energy</td>
+      <td align="center">kWh</td>
+   </tr>
+   <tr>
+      <td align="center">22</td>
+      <td>Daily Self Used Energy</td>
+      <td align="center">kWh</td>
+   </tr>
 </table>
 </details>
 
