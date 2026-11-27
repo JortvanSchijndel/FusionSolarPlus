@@ -145,4 +145,45 @@ PLANT_SIGNALS = [
         "device_class": SensorDeviceClass.POWER,
         "state_class": SensorStateClass.MEASUREMENT,
     },
+    # The keys above read today's energy-balance values while their names (and the
+    # historical state_class) suggest a lifetime counter. These twins carry the same
+    # numbers under a name that cannot be misread; the legacy keys stay untouched so
+    # existing installations, entity IDs and statistics keep working, and they are
+    # disabled by default so only users who want the explicit semantics enable them.
+    {
+        "key": "totalConsumptionEnergyToday",
+        "name": "Daily Total Consumption",
+        "unit": "kWh",
+        "meter_required": True,
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL,
+        "enabled_by_default": False,
+    },
+    {
+        "key": "totalGridImportEnergyToday",
+        "name": "Daily Imported Grid Energy",
+        "unit": "kWh",
+        "meter_required": True,
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL,
+        "enabled_by_default": False,
+    },
+    {
+        "key": "totalFeedInEnergyToday",
+        "name": "Daily PV Feed-In Energy",
+        "unit": "kWh",
+        "meter_required": True,
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL,
+        "enabled_by_default": False,
+    },
+    {
+        "key": "totalSelfUseEnergyToday",
+        "name": "Daily Self Used Energy",
+        "unit": "kWh",
+        "meter_required": True,
+        "device_class": SensorDeviceClass.ENERGY,
+        "state_class": SensorStateClass.TOTAL,
+        "enabled_by_default": False,
+    },
 ]

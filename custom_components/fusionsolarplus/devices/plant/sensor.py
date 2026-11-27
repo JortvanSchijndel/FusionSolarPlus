@@ -51,6 +51,7 @@ class PlantDeviceHandler(BaseDeviceHandler):
                     device_info=self.device_info,
                     device_class=signal.get("device_class"),
                     state_class=signal.get("state_class"),
+                    enabled_by_default=signal.get("enabled_by_default", True),
                 )
             )
 
@@ -69,6 +70,7 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         device_info,
         device_class=None,
         state_class=None,
+        enabled_by_default=True,
     ):
         super().__init__(coordinator)
         self._key = key
@@ -78,6 +80,7 @@ class FusionSolarPlantSensor(CoordinatorEntity, SensorEntity):
         self._attr_unique_id = f"{list(device_info['identifiers'])[0][1]}_{key}"
         self._attr_device_class = device_class
         self._attr_state_class = state_class
+        self._attr_entity_registry_enabled_default = enabled_by_default
 
         self._SIGNIFICANT_DROP_FRACTION = 0.25
         self._RESET_NEAR_ZERO_THRESHOLD = 1

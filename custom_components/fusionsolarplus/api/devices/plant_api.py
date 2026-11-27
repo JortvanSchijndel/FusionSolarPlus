@@ -9,6 +9,17 @@ from typing import Any
 from custom_components.fusionsolarplus.api.exceptions import FusionSolarException
 
 
+# The energy-balance endpoint is queried for *today* (timeDim 2), so every field it
+# returns is a daily value. These aliases expose the same numbers under the names the
+# hub sensors use for "today"; the legacy keys stay for compatibility.
+ENERGY_FIELD_ALIASES = {
+    "totalConsumptionEnergyToday": "totalUsePower",
+    "totalGridImportEnergyToday": "totalBuyPower",
+    "totalFeedInEnergyToday": "totalOnGridPower",
+    "totalSelfUseEnergyToday": "totalSelfUsePower",
+}
+
+
 def get_current_plant_data(client: Any, plant_id: str) -> dict:
     """Retrieve current plant KPI and energy flow data."""
     ts = round(time.time() * 1000)
@@ -167,6 +178,7 @@ def get_current_plant_data(client: Any, plant_id: str) -> dict:
             ),
         }
     )
+    data.update({key: energy.get(field) for key, field in ENERGY_FIELD_ALIASES.items()})
 
     for key, value in list(data.items()):
         if key.startswith("exist"):
